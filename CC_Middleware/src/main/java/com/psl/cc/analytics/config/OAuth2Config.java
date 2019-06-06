@@ -25,23 +25,23 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 	private String clientId = "ashish";
 	private String clientSecret = "secret";
 	private String privateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n"
-			+ "MIICXQIBAAKBgQDS58oly4FDJdBbh07MAobG0PLBgTTc/kyTuXV7bHvYwoNwma8w\r\n"
-			+ "HkGxeq95rVVkdVVfvNuAOLJjCTAEAupeR/5hwvgoTvH5wpXzE0Gc22IJiVVZmduw\r\n"
-			+ "KYSLxjoYUXiXQwV3ZWjYUQecdaq/x40NAEhWW4vA0RW18zi07T4ye37ziQIDAQAB\r\n"
-			+ "AoGAAadzvGwmLWKkibM7+PmkGPcWkFH1Gi6cZyQzOa6WIhMUeNObviLenQe7TJcB\r\n"
-			+ "bnJFIyUWC6FmNMSjrcRgFjE2W4ZF+km/FMMCMytO1cgG0WUK1ODcy+TGEdm+44iV\r\n"
-			+ "n2IQRZVQAoQw5yeeRCT032mySAXbowjPlHP/6fhmdhHvgQECQQD7XKdKEh9t7AzK\r\n"
-			+ "P4MbK0cGVvecJPwQmk19aYnKtQ1/kgfDYTiIyZ7ClQTj3IYt6LZwQonD1NJctoUy\r\n"
-			+ "abJPkEsxAkEA1swIoJTkP0Q1ORF+7L2F0ZLXry7bKN75pRWlswNOJzvUcmtR/FQ7\r\n"
-			+ "MuAO8x7pJzHxh9g11SpYV5IjnrlfGjbn2QJBAO5ytJfFnV8PYAq0OVEauuO+uGG9\r\n"
-			+ "jAjL99qStY5ANq/f/dFQdur8KMj5yIvH9Nm0Ou0/kaTeTTh6RNzP+8ESZuECQFk/\r\n"
-			+ "2AnZM+mxzqeSxHlb2mGVMTdiMcAOvg5BK2NxaSTWMFUGkL9WxG5EORH98wTNNL2s\r\n"
-			+ "MdoLyT9Bwrkt7v02eSkCQQCantSoncciBbbJ3xj3etsCV4oExXmH3a053eAyawbr\r\n"
-			+ "/axsJzEyMTlMbAf4Maeh50MqpqOjtpuuYFRgPz4qbdhM\r\n" + "-----END RSA PRIVATE KEY-----";
+			+ "MIICXAIBAAKBgQCUd/FoXBwVF7C0XSsSryHFiKc6YDx1wTdUfIh4o8TUwozszNX/\r\n"
+			+ "mD5xE7IgZ3ULIIMLLBoz6V4dn0lx4nDwXwle75CYYTNmxhqE4RyZ5h/U9iBS7O1L\r\n"
+			+ "U1cnzfXoppDGmoI+1HNK+L4fzfcT+97RUCZiRtLLSUbV+Z8OskG/jDJzDwIDAQAB\r\n"
+			+ "AoGAFTMjR3GPmPtvAfIjymEzg09GAbHoMDBMxEWb/w3zdyXolY+SJxMIJ4FWeAYN\r\n"
+			+ "0m7sB1Zez3bNN5GdHSPmWIxZe/stByiZGqCb0YwjhKSxti224GJPS9I9xg1nCj2c\r\n"
+			+ "VuOVJv76SPiEv8/tuRNoK/QiyxkXRLOdja8fXuy3foi0AHECQQDHDNi7ZEJ0YMgR\r\n"
+			+ "oOIWXvucMyInThexrlno53HQrg+UPSZReJjHgYRV9AnT6gYFLW94gvyVbntlPdOi\r\n"
+			+ "G+tYudEFAkEAvvJQQ1/EsIe522+o7IW8UIq0isKK2x5fneZ6pccER95+cAOBlepd\r\n"
+			+ "hAGy99Rr+aYweFkrQIENQJYG62yXvQEAAwJBAKV5RouyM5SwCGKvToSufZlC4Pev\r\n"
+			+ "8f6iJNh736BNs2HW3A4KpWflgfA6qhjjihGvzeVvby+C404s8czoTOQ7xUkCQBO1\r\n"
+			+ "1Z0uzJHgYMoK+6f2ohq6RqqwLD80InCdMvnb0lBM4kZTxlOgTqjqt/unHMI3andx\r\n"
+			+ "1OoiqCiLlAlHO16SNNsCQFTMTf6IQlTL6pP7pnQZRppvtA2xJ2Cu8on0Lp6MN/11\r\n"
+			+ "37HMItzYB8XPVSsIv8FhujAq/S74EMIgbIYXzaS1PCI=\r\n" + "-----END RSA PRIVATE KEY-----\r\n" + "";
 	private String publicKey = "-----BEGIN PUBLIC KEY-----\r\n"
-			+ "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDS58oly4FDJdBbh07MAobG0PLB\r\n"
-			+ "gTTc/kyTuXV7bHvYwoNwma8wHkGxeq95rVVkdVVfvNuAOLJjCTAEAupeR/5hwvgo\r\n"
-			+ "TvH5wpXzE0Gc22IJiVVZmduwKYSLxjoYUXiXQwV3ZWjYUQecdaq/x40NAEhWW4vA\r\n" + "0RW18zi07T4ye37ziQIDAQAB\r\n"
+			+ "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCUd/FoXBwVF7C0XSsSryHFiKc6\r\n"
+			+ "YDx1wTdUfIh4o8TUwozszNX/mD5xE7IgZ3ULIIMLLBoz6V4dn0lx4nDwXwle75CY\r\n"
+			+ "YTNmxhqE4RyZ5h/U9iBS7O1LU1cnzfXoppDGmoI+1HNK+L4fzfcT+97RUCZiRtLL\r\n" + "SUbV+Z8OskG/jDJzDwIDAQAB\r\n"
 			+ "-----END PUBLIC KEY-----";
 
 	@Autowired
