@@ -1,6 +1,7 @@
 package com.psl.cc.analytics.controller;
 
 import org.springframework.http.MediaType;
+import org.springframework.security.core.Authentication;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -16,7 +17,9 @@ import io.swagger.annotations.ApiOperation;
 public class TestController {
 	@ApiOperation(value = "List of customers", response = String.class)
 	@RequestMapping(value = "/customers", method = RequestMethod.GET)
-	public String getCustomersByPage() {
-		return "Hello";
+//	public String getCustomersByPage(Principal principal) {
+	public String getCustomersByPage(Authentication authentication) {
+//		return "Hello " + principal.getName();
+		return "Hello " + authentication.getName();
 	}
 }
