@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.IndexDirection;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -14,6 +16,8 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 public class CC_User extends Audit {
 	@Id
 	private String id;
+	private String name;
+	@Indexed(unique = true, direction = IndexDirection.DESCENDING, dropDups = true)
 	private String username;
 	private String password;
 	private List<Role> roles;
@@ -29,6 +33,14 @@ public class CC_User extends Audit {
 
 	public String getUsername() {
 		return username;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	public void setUsername(String username) {

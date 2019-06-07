@@ -1,5 +1,8 @@
 package com.psl.cc.analytics.service.impl;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,21 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public CC_User save(CC_User user) {
 		return repository.save(user);
+	}
+
+	@Override
+	public void delete(CC_User user) {
+		repository.delete(user);
+	}
+
+	@Override
+	public Optional<CC_User> findOneById(String id) {
+		return repository.findOneById(id);
+	}
+
+	@Override
+	public List<CC_User> findAll() {
+		return repository.findAll();
 	}
 
 }
