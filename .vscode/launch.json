@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-CcMiddlewareApplication<CC_Middleware>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "mainClass": "com.psl.cc.analytics.CcMiddlewareApplication",
+            "projectName": "CC_Middleware",
+            "args": ""
+        }
+    ]
+}
