@@ -56,10 +56,10 @@ public class CcMiddlewareApplication {
 			CC_User user = userService.findOneByUsername("cc_sysadmin");
 			if (user == null) {
 				user = new CC_User();
-
 				user.setUsername("cc_sysadmin");
+				user.setName("Root User");
 				user.setPassword(passwordEncoder.encode("password"));
-				user.setLastUpdatedOn(new Date());
+				user.setCreatedOn(new Date());
 				user.setLastUpdatedOn(new Date());
 				user.setActive(true);
 				List<Role> roles = new ArrayList<>();
