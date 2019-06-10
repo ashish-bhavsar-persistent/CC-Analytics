@@ -19,6 +19,15 @@ public class Configuration extends Audit {
 	private List<String> deviceStates;
 	private boolean usePassword;
 	private boolean useAPIKey;
+	private String apiKey;
+
+	public String getApiKey() {
+		return apiKey;
+	}
+
+	public void setApiKey(String apiKey) {
+		this.apiKey = apiKey;
+	}
 
 	public String getId() {
 		return id;

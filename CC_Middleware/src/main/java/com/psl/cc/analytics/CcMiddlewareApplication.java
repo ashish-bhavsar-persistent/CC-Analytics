@@ -16,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import com.psl.cc.analytics.model.CC_User;
 import com.psl.cc.analytics.model.Role;
 import com.psl.cc.analytics.repository.RoleRepository;
+import com.psl.cc.analytics.scheduler.GetAllAccounts;
 import com.psl.cc.analytics.service.UserService;
 
 @SpringBootApplication
@@ -28,6 +29,9 @@ public class CcMiddlewareApplication {
 	@Autowired
 	@Qualifier("passwordEncoder")
 	private PasswordEncoder passwordEncoder;
+
+	@Autowired
+	private GetAllAccounts getAccounts;
 
 	@Bean
 	CommandLineRunner init(RoleRepository roleRepository, UserService userService) {
@@ -67,6 +71,8 @@ public class CcMiddlewareApplication {
 				user.setRoles(roles);
 				userService.save(user);
 			}
+
+			getAccounts.initializeFirstTime();
 		};
 	}
 

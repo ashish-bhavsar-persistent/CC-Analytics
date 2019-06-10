@@ -13,8 +13,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,6 +36,7 @@ import com.psl.cc.analytics.response.User;
 import com.psl.cc.analytics.service.UserService;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping(value = "/api/v1", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -55,7 +56,9 @@ public class UserController {
 	@Qualifier("passwordEncoder")
 	private PasswordEncoder passwordEncoder;
 
+	@PreAuthorize("#oauth2.hasScope('read') and hasRole('ROLE_SYSADMIN')")
 	@GetMapping("/users")
+	@ApiOperation(value = "List of users", response = List.class)
 	public List<User> getAllUsers() {
 		List<CC_User> cc_Users = userService.findAll();
 		List<User> users = new ArrayList<User>();
@@ -69,6 +72,8 @@ public class UserController {
 	}
 
 	@GetMapping("/users/{id}")
+	@PreAuthorize("#oauth2.hasScope('read') and hasRole('ROLE_SYSADMIN')")
+	@ApiOperation(value = "Search user by Id", response = User.class)
 	public User getUserById(@PathVariable String id) {
 		Optional<CC_User> cc_User = userService.findOneById(id);
 		User tempUser = null;
@@ -82,7 +87,9 @@ public class UserController {
 	}
 
 	@PostMapping("/users")
-	public ResponseEntity<?> createUser(@RequestBody User user) {
+	@ApiOperation(value = "Add a user")
+	@PreAuthorize("#oauth2.hasScope('write') and hasRole('ROLE_SYSADMIN')")
+	public ResponseEntity<?> createUser(@RequestBody @Valid User user) {
 		CC_User cc_User = new CC_User();
 		List<Role> roles = new ArrayList<>();
 		for (String role : user.getRoles()) {
@@ -111,6 +118,7 @@ public class UserController {
 		configuration.setUseAPIKey(user.isUseAPIKey());
 		configuration.setUsePassword(user.isUsePassword());
 		configuration.setUser(cc_User);
+		configuration.setApiKey(user.getApiKey());
 		configRepository.save(configuration);
 
 		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(cc_User.getId())
@@ -119,6 +127,8 @@ public class UserController {
 	}
 
 	@DeleteMapping("/users/{id}")
+	@ApiOperation(value = "Delete a user by Id")
+	@PreAuthorize("#oauth2.hasScope('write') and hasRole('ROLE_SYSADMIN')")
 	public ResponseEntity<Void> deleteUserById(@PathVariable String id) {
 		Optional<CC_User> cc_User = userService.findOneById(id);
 		if (cc_User.isPresent()) {
@@ -132,10 +142,12 @@ public class UserController {
 	}
 
 	@PutMapping("/users/{id}")
+	@ApiOperation(value = "Update a user by Id")
+	@PreAuthorize("#oauth2.hasScope('write') and hasRole('ROLE_SYSADMIN')")
 	public ResponseEntity<?> updateUser(@PathVariable String id, @Valid @RequestBody User user) {
 		if (user.isUseAPIKey() && user.isUsePassword()) {
 			throw new InAppropriateDataException("Both useAPIKey and usePassword can not be true");
-		}else if(!user.isUseAPIKey() && !user.isUsePassword()) {
+		} else if (!user.isUseAPIKey() && !user.isUsePassword()) {
 			throw new InAppropriateDataException("Both useAPIKey and usePassword can not be false");
 		}
 		Optional<CC_User> cc_UserOptional = userService.findOneById(id);
@@ -155,6 +167,7 @@ public class UserController {
 			cc_User.setActive(true);
 			cc_User.setLastUpdatedOn(new Date());
 			cc_User.setRoles(roles);
+			
 			userService.save(cc_User);
 
 			Configuration configuration = configRepository.findOneByCC_UserId(cc_User.getId());
@@ -167,6 +180,7 @@ public class UserController {
 			configuration.setUseAPIKey(user.isUseAPIKey());
 			configuration.setUsePassword(user.isUsePassword());
 			configuration.setUser(cc_User);
+			configuration.setApiKey(user.getApiKey());
 			configRepository.save(configuration);
 
 			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")

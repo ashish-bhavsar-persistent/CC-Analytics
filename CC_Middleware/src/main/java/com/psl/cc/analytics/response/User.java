@@ -21,10 +21,14 @@ public class User implements Serializable {
 	private static final long serialVersionUID = 1996838027864776402L;
 
 	private String id;
-	
+
 	@NotNull(message = "Please provide Name")
 	@NotEmpty(message = "Please provide Name")
 	private String name;
+
+	@NotNull(message = "Please provide apiKey")
+	@NotEmpty(message = "Please provide apiKey")
+	private String apiKey;
 
 	@NotNull(message = "Please provide Name")
 	@NotEmpty(message = "Please provide Name")
@@ -75,6 +79,14 @@ public class User implements Serializable {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getApiKey() {
+		return apiKey;
+	}
+
+	public void setApiKey(String apiKey) {
+		this.apiKey = apiKey;
 	}
 
 	public void setName(String name) {
@@ -158,6 +170,7 @@ public class User implements Serializable {
 			deviceStates = new ArrayList<String>(config.getDeviceStates());
 			usePassword = config.isUsePassword();
 			useAPIKey = config.isUseAPIKey();
+			apiKey = config.getApiKey();
 		}
 	}
 
