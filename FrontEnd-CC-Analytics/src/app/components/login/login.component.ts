@@ -1,8 +1,9 @@
 import { Component, OnInit } from "@angular/core";
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { FormBuilder, FormGroup, Validators, FormControl } from "@angular/forms";
+// import { Router } from "@angular/router";
 import { ApiService } from "src/app/services/api.service";
 import { HttpParams } from "@angular/common/http";
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: "login-component",
@@ -10,43 +11,46 @@ import { HttpParams } from "@angular/common/http";
   styleUrls: ["./login.component.scss"]
 })
 export class LoginComponent implements OnInit {
+
   loginForm: FormGroup;
   invalidLogin: boolean = false;
+  loginUserData = {
+    username:'',
+    password:'',
+    grant_type:''
+  };
+
+  private token : string = '';
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router,
-    private apiService: ApiService
+    // private router: Router,
+    private apiService: ApiService,
+    private authService: AuthService
   ) {}
 
-  onSubmit() {
-    if (this.loginForm.invalid) {
-      return;
-    }
-    const body = new HttpParams()
-      .set("username", this.loginForm.controls.username.value)
-      .set("password", this.loginForm.controls.password.value)
-      .set("grant_type", "password");
+  email = new FormControl('', [
+    Validators.required,
+    Validators.email,
+  ]);
 
-    console.log(body.toString());
+  password = new FormControl('', [
+    Validators.required
+  ]);
 
-    this.apiService.login(body.toString()).subscribe(
-      data => {
-        window.sessionStorage.setItem("token", JSON.stringify(data));
-        console.log(window.sessionStorage.getItem("token"));
-        this.router.navigate(["/dashboard"]);
-      },
-      error => {
-        alert(error.error.error_description);
-      }
-    );
+  loginUser(){
+    // this.loginUserData.username = this.email.value;
+    // this.loginUserData.password = this.password.value;
+    // this.loginUserData.grant_type = "password";
+    this.authService.getToken(this.email.value, this.password.value)
+    .subscribe(res => {
+      let temp = res;
+      console.log(temp);
+    })
+    
   }
 
   ngOnInit() {
-    window.sessionStorage.removeItem("token");
-    this.loginForm = this.formBuilder.group({
-      username: ["", Validators.compose([Validators.required])],
-      password: ["", Validators.required]
-    });
+    
   }
 }
