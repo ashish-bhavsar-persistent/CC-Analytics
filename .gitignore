@@ -1,5 +1,6 @@
 HELP.md
-/target/
+.classpath
+target/
 !.mvn/wrapper/maven-wrapper.jar
 
 ### STS ###
@@ -23,7 +24,6 @@ HELP.md
 /nbdist/
 /.nb-gradle/
 /build/
-/CC_Middleware/target/
 
 ### VS Code ###
 .vscode/
