@@ -78,8 +78,9 @@ public class CC_User extends Audit {
 	public List<GrantedAuthority> getUserAuthority() {
 		List<GrantedAuthority> grantedAuthorities = new ArrayList<>();
 		roles.forEach((role) -> {
-			grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole()));
+			grantedAuthorities.add(new SimpleGrantedAuthority("ROLE_" + role.getRole()));
 		});
+		System.out.print(grantedAuthorities);
 		return grantedAuthorities;
 	}
 

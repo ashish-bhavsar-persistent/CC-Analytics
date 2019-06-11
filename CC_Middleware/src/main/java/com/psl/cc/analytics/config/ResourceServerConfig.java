@@ -8,18 +8,17 @@ import org.springframework.security.oauth2.provider.error.OAuth2AccessDeniedHand
 
 @Configuration
 @EnableResourceServer
-public class ResourceServer extends ResourceServerConfigurerAdapter {
+public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
 	@Override
-    public void configure(HttpSecurity http) throws Exception {
-		
-		  http.anonymous().disable()
-		  .requestMatchers().antMatchers("/api/v1/users/**").and().authorizeRequests()
-		  .antMatchers("/api/v1/users/**").hasAuthority("SYSADMIN")
-		  .and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
-		 
-		/*
-		 * http.antMatcher("/api/**").authorizeRequests().anyRequest().authenticated();
-		 */
-    }
+	public void configure(HttpSecurity http) throws Exception {
+		//-- define URL patterns to enable OAuth2 security
+		http.
+		anonymous().disable()
+		.requestMatchers().antMatchers("/api/**")
+		.and().authorizeRequests()
+		.antMatchers("/api/**").access("hasRole('ADMIN') or hasRole('USER') or hasRole('SYSADMIN')")
+		.and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
+	}
+	
 }

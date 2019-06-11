@@ -14,6 +14,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,7 +59,7 @@ public class UserController {
 	@Qualifier("passwordEncoder")
 	private PasswordEncoder passwordEncoder;
 
-	@PreAuthorize("#oauth2.hasScope('read') and hasRole('ROLE_SYSADMIN')")
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
 	@GetMapping("/users")
 	@ApiOperation(value = "List of users", response = List.class)
 	public List<User> getAllUsers() {
@@ -72,7 +75,7 @@ public class UserController {
 	}
 
 	@GetMapping("/users/{id}")
-	@PreAuthorize("#oauth2.hasScope('read') and hasRole('ROLE_SYSADMIN')")
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
 	@ApiOperation(value = "Search user by Id", response = User.class)
 	public User getUserById(@PathVariable String id) {
 		Optional<CC_User> cc_User = userService.findOneById(id);
@@ -88,7 +91,7 @@ public class UserController {
 
 	@PostMapping("/users")
 	@ApiOperation(value = "Add a user")
-	@PreAuthorize("#oauth2.hasScope('write') and hasRole('ROLE_SYSADMIN')")
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
 	public ResponseEntity<?> createUser(@RequestBody @Valid User user) {
 		CC_User cc_User = new CC_User();
 		List<Role> roles = new ArrayList<>();
@@ -128,7 +131,7 @@ public class UserController {
 
 	@DeleteMapping("/users/{id}")
 	@ApiOperation(value = "Delete a user by Id")
-	@PreAuthorize("#oauth2.hasScope('write') and hasRole('ROLE_SYSADMIN')")
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
 	public ResponseEntity<Void> deleteUserById(@PathVariable String id) {
 		Optional<CC_User> cc_User = userService.findOneById(id);
 		if (cc_User.isPresent()) {
@@ -143,7 +146,7 @@ public class UserController {
 
 	@PutMapping("/users/{id}")
 	@ApiOperation(value = "Update a user by Id")
-	@PreAuthorize("#oauth2.hasScope('write') and hasRole('ROLE_SYSADMIN')")
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
 	public ResponseEntity<?> updateUser(@PathVariable String id, @Valid @RequestBody User user) {
 		if (user.isUseAPIKey() && user.isUsePassword()) {
 			throw new InAppropriateDataException("Both useAPIKey and usePassword can not be true");
@@ -167,7 +170,7 @@ public class UserController {
 			cc_User.setActive(true);
 			cc_User.setLastUpdatedOn(new Date());
 			cc_User.setRoles(roles);
-			
+
 			userService.save(cc_User);
 
 			Configuration configuration = configRepository.findOneByCC_UserId(cc_User.getId());
@@ -189,5 +192,23 @@ public class UserController {
 		} else {
 			return new ResponseEntity<>(id + " Not Found", HttpStatus.NOT_FOUND);
 		}
+	}
+
+	@GetMapping("/users/me")
+	@ApiOperation(value = "Get current user details")
+	public User getCurrentUser() {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = (String) authentication.getPrincipal();
+		System.out.println("logged in user name:: " + authentication.getPrincipal());
+
+		CC_User cc_User = userService.findOneByUsername(username);
+		User tempUser = null;
+		if (cc_User != null) {
+			Configuration configuration = configRepository.findOneByCC_UserId(cc_User.getId());
+			tempUser = new User(cc_User, configuration);
+		} else {
+			throw new CC_Exception(" Not Found");
+		}
+		return tempUser;
 	}
 }

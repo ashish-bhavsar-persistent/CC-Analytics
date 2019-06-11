@@ -4,16 +4,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configuration.AuthorizationServerConfigurerAdapter;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
-import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenEnhancer;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.approval.ApprovalStore;
+import org.springframework.security.oauth2.provider.approval.TokenApprovalStore;
+import org.springframework.security.oauth2.provider.approval.TokenStoreUserApprovalHandler;
+import org.springframework.security.oauth2.provider.approval.UserApprovalHandler;
+import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
@@ -21,9 +24,10 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 @Configuration
 @EnableAuthorizationServer
 public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
-
-	private String clientId = "ashish";
-	private String clientSecret = "secret";
+	private static String REALM = "CRM_REALM";
+	private static final int TEN_DAYS = 60 * 60 * 24 * 10;
+	private static final int ONE_DAY = 60 * 60 * 24;
+	private static final int THIRTY_DAYS = 60 * 60 * 24 * 30;
 	private String privateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n"
 			+ "MIICXAIBAAKBgQCUd/FoXBwVF7C0XSsSryHFiKc6YDx1wTdUfIh4o8TUwozszNX/\r\n"
 			+ "mD5xE7IgZ3ULIIMLLBoz6V4dn0lx4nDwXwle75CYYTNmxhqE4RyZ5h/U9iBS7O1L\r\n"
@@ -45,54 +49,39 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 			+ "-----END PUBLIC KEY-----";
 
 	@Autowired
+	private PasswordEncoder encoder;
+
+	@Autowired
+	private TokenStore tokenStore;
+
+	@Autowired
+	private ClientDetailsService clientDetailsService;
+
+	@Autowired
+	private UserApprovalHandler userApprovalHandler;
+
+	@Autowired
 	@Qualifier("authenticationManagerBean")
 	private AuthenticationManager authenticationManager;
 
 	@Autowired
-	@Qualifier("passwordEncoder")
-	private PasswordEncoder passwordEncoder;
+	private UserDetailsService crmUserDetailsService;
 
 	@Override
-	public void configure(final AuthorizationServerSecurityConfigurer oauthServer) throws Exception {
-		oauthServer.tokenKeyAccess("permitAll()").checkTokenAccess("isAuthenticated()");
-	}
+	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
-	@Bean
-	@Primary
-	public DefaultTokenServices tokenServices() {
-		final DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
-		defaultTokenServices.setTokenStore(tokenStore());
-		defaultTokenServices.setSupportRefreshToken(true);
-		return defaultTokenServices;
+		clients.inMemory().withClient("ashish").secret(encoder.encode("secret"))
+				.authorizedGrantTypes("password", "refresh_token").authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
+				.scopes("read", "write", "trust").accessTokenValiditySeconds(ONE_DAY)
+				.refreshTokenValiditySeconds(THIRTY_DAYS);
+
 	}
 
 	@Override
-	public void configure(final AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
-//		final TokenEnhancerChain tokenEnhancerChain = new TokenEnhancerChain();
-//		tokenEnhancerChain.setTokenEnhancers(Arrays.asList(tokenEnhancer(), accessTokenConverter()));
-//		endpoints.tokenStore(tokenStore()).tokenEnhancer(tokenEnhancerChain)
-//				.authenticationManager(authenticationManager);
-		endpoints.authenticationManager(authenticationManager).tokenStore(tokenStore())
+	public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
+		endpoints.tokenStore(tokenStore).userApprovalHandler(userApprovalHandler)
+				.authenticationManager(authenticationManager).userDetailsService(crmUserDetailsService)
 				.accessTokenConverter(accessTokenConverter());
-	}
-
-	@Override
-	public void configure(final ClientDetailsServiceConfigurer clients) throws Exception { // @formatter:off
-//		clients.inMemory().withClient("barClientIdPassword").secret(passwordEncoder.encode("secret"))
-//				.authorizedGrantTypes("password", "authorization_code", "refresh_token").scopes("bar", "read", "write")
-//				.accessTokenValiditySeconds(3600) // 1 hour
-//				.refreshTokenValiditySeconds(2592000) // 30 days
-//				.and().withClient("testImplicitClientId").authorizedGrantTypes("implicit")
-//				.scopes("read", "write", "foo", "bar").autoApprove(true).redirectUris("http://www.example.com");
-		clients.inMemory().withClient(clientId).secret(passwordEncoder.encode(clientSecret))
-				.scopes("read", "write", "ashish")
-				.authorizedGrantTypes("password", "authorization_code", "refresh_token")
-				.accessTokenValiditySeconds(20000).autoApprove(true).refreshTokenValiditySeconds(2592000);
-	}
-
-	@Bean
-	public TokenStore tokenStore() {
-		return new JwtTokenStore(accessTokenConverter());
 	}
 
 	@Bean
@@ -100,15 +89,31 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 		final JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
 		converter.setSigningKey(privateKey);
 		converter.setVerifierKey(publicKey);
-		// final KeyStoreKeyFactory keyStoreKeyFactory = new KeyStoreKeyFactory(new
-		// ClassPathResource("mytest.jks"), "mypass".toCharArray());
-		// converter.setKeyPair(keyStoreKeyFactory.getKeyPair("mytest"));
 		return converter;
 	}
 
 	@Bean
-	public TokenEnhancer tokenEnhancer() {
-		return new CustomTokenEnhancer();
+	public TokenStore tokenStore() {
+//		return new InMemoryTokenStore();
+		return new JwtTokenStore(accessTokenConverter());
+	}
+
+	@Bean
+	@Autowired
+	public TokenStoreUserApprovalHandler userApprovalHandler(TokenStore tokenStore) {
+		TokenStoreUserApprovalHandler handler = new TokenStoreUserApprovalHandler();
+		handler.setTokenStore(tokenStore);
+		handler.setRequestFactory(new DefaultOAuth2RequestFactory(clientDetailsService));
+		handler.setClientDetailsService(clientDetailsService);
+		return handler;
+	}
+
+	@Bean
+	@Autowired
+	public ApprovalStore approvalStore(TokenStore tokenStore) throws Exception {
+		TokenApprovalStore store = new TokenApprovalStore();
+		store.setTokenStore(tokenStore);
+		return store;
 	}
 
 }
