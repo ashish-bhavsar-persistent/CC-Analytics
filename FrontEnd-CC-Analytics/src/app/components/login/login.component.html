@@ -1,9 +1,13 @@
+<div class="wrapper">
 <form class="form-container">
-  <mat-form-field class="full-width">
-    <input matInput placeholder="Email" [formControl]="email">
+  <mat-form-field class="full-width" appearance="outline">
+      <mat-label>email</mat-label>
+    <input matInput placeholder="johndoe@gmail.com" [formControl]="email">
   </mat-form-field>
-  <mat-form-field class="full-width">
-    <input matInput placeholder="Password" [formControl]="password" type="password">
+  <mat-form-field class="full-width" appearance="outline">
+      <mat-label>password</mat-label>
+    <input matInput placeholder="**********" [formControl]="password" type="password">
   </mat-form-field>
-  <button mat-button (click)="loginUser()">Click me!</button>
+  <button mat-button (click)="loginUser()">login</button>
 </form>
+</div>

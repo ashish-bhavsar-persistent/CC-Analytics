@@ -1,9 +1,17 @@
 .form-container {
     min-width: 150px;
     max-width: 500px;
-    width: 100%;
+    //width: 100%;
+    position: fixed;
+    left: 40%;
+    top: 40%;
+    translate: (-50%,-50%);
   }
   
   .full-width {
     width: 100%;
+  }
+
+  .wrapper{
+    text-align: center;
   }
