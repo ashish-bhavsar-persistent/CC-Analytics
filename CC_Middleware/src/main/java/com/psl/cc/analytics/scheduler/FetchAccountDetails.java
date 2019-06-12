@@ -63,13 +63,13 @@ class FetchAccountDetails implements Callable<JSONObject> {
 					ObjectMapper mapper = new ObjectMapper();
 					JSONArray accountsArray = accountsObject.getJSONArray("accounts");
 					List<Future> futureList = new ArrayList<Future>();
-					ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(ControlCentreConstants.numberOfThreadsForDevices);
-					for(int i = 0 ; i<accountsArray.length(); i++) {
-						AccountDTO account = mapper.readValue(accountsObject.getJSONArray("accounts").getJSONObject(i).toString(), AccountDTO.class);
-						account.setUser(cc_user);
-						Future<JSONObject> futureObj = executor.submit(new FetchDeviceDetails(cc_user, configuration, requestService, accountsRepository));
-						futureList.add(futureObj);						
-					}
+//				ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(ControlCentreConstants.numberOfThreadsForDevices);
+//					for(int i = 0 ; i<accountsArray.length(); i++) {
+//						AccountDTO account = mapper.readValue(accountsObject.getJSONArray("accounts").getJSONObject(i).toString(), AccountDTO.class);
+//						account.setUser(cc_user);
+//						Future<JSONObject> futureObj = executor.submit(new FetchDeviceDetails(cc_user, configuration, requestService, accountsRepository));
+//						futureList.add(futureObj);						
+//					}
 				}
 				
 				return accountsObject;
