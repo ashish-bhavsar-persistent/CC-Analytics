@@ -22,10 +22,7 @@ import java.util.List;
 
 import static org.hibernate.validator.internal.util.CollectionHelper.newArrayList;
 
-/**
- * TODO Swagger UI to be completed, as of now there are some issues in authentication.
- * @author Rohit.Kumar
- */
+
 @Configuration
 @EnableSwagger2
 @ComponentScan(basePackages = "com.psl.cc.analytics")
@@ -60,15 +57,15 @@ public class SwaggerConfig {
 
     }
 
-//    @Bean
-//     public SecurityScheme apiKey() {
-//        return new ApiKey(HttpHeaders.AUTHORIZATION, "apiKey", "header");
-//    }
+    @Bean
+     public SecurityScheme apiKey() {
+        return new ApiKey(HttpHeaders.AUTHORIZATION, "authorization", "header");
+    }
 
-//    @Bean
-//    public SecurityScheme apiCookieKey() {
-//        return new ApiKey(HttpHeaders.COOKIE, "apiKey", "cookie");
-//    }
+    @Bean
+    public SecurityScheme apiCookieKey() {
+        return new ApiKey(HttpHeaders.COOKIE, "apiKey", "cookie");
+    }
 
     private OAuth securitySchema() {
 

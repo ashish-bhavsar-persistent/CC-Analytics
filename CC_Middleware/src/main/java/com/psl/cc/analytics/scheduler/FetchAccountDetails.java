@@ -3,8 +3,12 @@ package com.psl.cc.analytics.scheduler;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -27,57 +31,92 @@ import com.psl.cc.analytics.model.RequestsAudit;
 import com.psl.cc.analytics.repository.AccountsRepository;
 import com.psl.cc.analytics.service.RequestsAuditService;
 
+import org.springframework.web.util.UriComponentsBuilder;
+
 class FetchAccountDetails implements Callable<JSONObject> {
 
-	private CC_User cc_user;
-	private Configuration configuration;
-	private RequestsAuditService requestService;
-	private AccountsRepository accountsRepository;
-	
-	public FetchAccountDetails(CC_User cc_user, Configuration configuration, RequestsAuditService requestService, AccountsRepository accountsRepository) {
-		this.cc_user = cc_user;
+	private final CC_User ccUser;
+	private final Configuration configuration;
+	private final RequestsAuditService requestService;
+	private final AccountsRepository accountsRepository;
+	private final ThreadPoolExecutor executor;
+
+	public FetchAccountDetails(CC_User ccUser, Configuration configuration, RequestsAuditService requestService,
+			AccountsRepository accountsRepository, ThreadPoolExecutor executor) {
+		this.ccUser = ccUser;
 		this.configuration = configuration;
 		this.requestService = requestService;
 		this.accountsRepository = accountsRepository;
+		this.executor = executor;
 	}
 
 	@Override
 	public JSONObject call() throws Exception {
-		String username = cc_user.getUsername();
-		String password = cc_user.getPassword();
+		String username = ccUser.getUsername();
+		String password = ccUser.getPassword();
 		if (configuration.isUseAPIKey()) {
 			password = configuration.getApiKey();
 		}
-		HttpHeaders headers = new HttpHeaders();
+		final HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(username, password);
-		HttpEntity<String> request = new HttpEntity<String>(headers);
-
-		try {
-			RestTemplate restTemplate = new RestTemplate();
-			URI url = new URI(configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL);
-			ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
+		final HttpEntity<String> request = new HttpEntity<String>(headers);
+		final Map<String, AccountDTO> accountsMap = new HashMap<>();
+		boolean lastPage = false;
+		int pageNumber = 1;
+		RestTemplate restTemplate = new RestTemplate();
+		final String url = configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL;
+		URI uri = null;
+		ResponseEntity<String> response =null;
+		ObjectMapper mapper = new ObjectMapper();
+		do {
+			uri = UriComponentsBuilder.fromUriString(url).queryParam("pageNumber", String.valueOf(pageNumber))
+					.build().toUri();
+			response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
 			if (response.getStatusCode() == HttpStatus.OK) {
 				doAudit("getAllAccounts", configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL, null, ControlCentreConstants.STATUS_SUCCESS);
 				JSONObject accountsObject = new JSONObject(response.getBody().toString());
-				while(!accountsObject.getBoolean("lastPage")){
-					ObjectMapper mapper = new ObjectMapper();
-					JSONArray accountsArray = accountsObject.getJSONArray("accounts");
-					List<Future> futureList = new ArrayList<Future>();
-//				ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(ControlCentreConstants.numberOfThreadsForDevices);
-//					for(int i = 0 ; i<accountsArray.length(); i++) {
-//						AccountDTO account = mapper.readValue(accountsObject.getJSONArray("accounts").getJSONObject(i).toString(), AccountDTO.class);
-//						account.setUser(cc_user);
-//						Future<JSONObject> futureObj = executor.submit(new FetchDeviceDetails(cc_user, configuration, requestService, accountsRepository));
-//						futureList.add(futureObj);						
-//					}
+				System.out.println(accountsObject);
+				lastPage = accountsObject.getBoolean("lastPage");
+				JSONArray accounts = accountsObject.getJSONArray("accounts");
+				for (Object Obj : accounts) {
+					JSONObject account = new JSONObject(Obj.toString());
+					AccountDTO accountDTO = mapper.readValue(account.toString(), AccountDTO.class);
+					String accountId = account.getString("accountId");
+					accountsMap.put(accountId, accountDTO);
 				}
-				
-				return accountsObject;
+				pageNumber++;
 			}
-		} catch (Exception e) {
-			doAudit("getAllAccounts", configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL, e.getMessage(), ControlCentreConstants.STATUS_FAIL);
-			throw e;
+		} while (!lastPage);
+		System.out.println(accountsMap.size());
+		List<Future<Optional<String>>> accountsFutureList = new ArrayList<>();
+		List<Future<JSONObject>> futureListOfDevices = new ArrayList<>();
+
+		for (String accountId : accountsMap.keySet()) {
+			Future<Optional<String>> future = executor.submit(new FetchDevicesOfAccount(ccUser, configuration,requestService ,accountId, accountsMap));
+			accountsFutureList.add(future);
 		}
+		
+		System.out.println(accountsMap);
+//		int i = 0;
+//		for (Future<Optional<String>> accountFutureObj : accountsFutureList) {
+//			Optional<String> accountJson = accountFutureObj.get();
+//			
+//			for (Object device : deviceArray) {
+//				JSONObject deviceObject = new JSONObject(device.toString());
+//				Future<JSONObject> future = executor
+//						.submit(new GetDeviceDetails(ccUser, configuration, accountJson.getString("accountId"), deviceObject.getString("iccid")));
+//				futureListOfDevices.add(future);
+//			}
+//		}
+//		for (Future<JSONObject> deviceFutureObj : futureListOfDevices) {
+//			JSONObject deviceObj = deviceFutureObj.get();
+//			System.out.println(deviceObj);
+//			i++;
+//		}
+
+//		System.out.println("Total Devices " + i);
+		doAudit("getAllAccounts", configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL, "e.getMessage() here ", ControlCentreConstants.STATUS_FAIL);
+
 		return null;
 
 	}
@@ -90,7 +129,7 @@ class FetchAccountDetails implements Callable<JSONObject> {
 		audit.setErrorDetails(errorDetails);
 		audit.setLastUpdatedOn(new Date());
 		audit.setStatus(status);
-		audit.setUser(cc_user);
+		audit.setUser(ccUser);
 		requestService.save(audit);
 	}
 }

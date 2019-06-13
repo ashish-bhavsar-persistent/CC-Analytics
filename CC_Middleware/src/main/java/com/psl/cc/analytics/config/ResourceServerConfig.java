@@ -18,7 +18,12 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 		.requestMatchers().antMatchers("/api/**")
 		.and().authorizeRequests()
 		.antMatchers("/api/**").access("hasRole('ADMIN') or hasRole('USER') or hasRole('SYSADMIN')")
-		.and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
+		.and().requestMatchers().antMatchers("/actuator/**").and().authorizeRequests().and().exceptionHandling().accessDeniedHandler(new OAuth2AccessDeniedHandler());
+		
+//		http.
+//		anonymous().disable()
+//		.requestMatchers().antMatchers("/actuator/**")
+//		.and().authorizeRequests();
 	}
 	
 }

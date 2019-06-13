@@ -1,6 +1,9 @@
 package com.psl.cc.analytics.scheduler;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -51,29 +54,18 @@ public class GetAllAccounts {
 	}
 
 	private void getAllAccounts()  {
-		List<CC_User> cc_users = userService.findAll();
-		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(ControlCentreConstants.numberOfThreadsForAccounts);
+		List<CC_User> ccUsers = userService.findAll();
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(ControlCentreConstants.NUMBER_OF_THREADS);
 		List<Future> futureList = new ArrayList<Future>();
-		for (CC_User cc_user : cc_users) {
-			Configuration configuration = configRepository.findOneByCC_UserId(cc_user.getId());
+		for (CC_User ccUser : ccUsers) {
+			Configuration configuration = configRepository.findOneByCC_UserId(ccUser.getId());
 			if (configuration != null) {
-				Future<JSONObject> futureObj = executor.submit(new FetchAccountDetails(cc_user, configuration, requestService, accountsRepository));
+				Future<JSONObject> futureObj = executor.submit(new FetchAccountDetails(ccUser, configuration, requestService, accountsRepository, executor));
 				futureList.add(futureObj);
 			}
 		}
-		for(Future future : futureList) {
-			
-//			JSONObject accountsObject;
-//			try {
-//				accountsObject = (JSONObject) future.get();
-//				JSONArray accountsArray = accountsObject.getJSONArray("accounts");
-//				System.out.println("ACCOUNTS ARRAY: "+accountsArray);
-//			} catch (InterruptedException | ExecutionException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			
-			
-		}
+		
+		
+		
 	}
 }
