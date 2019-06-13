@@ -1,6 +1,8 @@
 package com.psl.cc.analytics.controller;
 
 import java.net.URI;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,6 +48,8 @@ import io.swagger.annotations.ApiOperation;
 @Api(tags = { "Users" })
 public class UserController {
 
+	private static final Logger logger = LogManager.getLogger(UserController.class);
+
 	@Autowired
 	private UserService userService;
 
@@ -63,6 +67,7 @@ public class UserController {
 	@GetMapping("/users")
 	@ApiOperation(value = "List of users", response = List.class)
 	public List<User> getAllUsers() {
+		logger.debug("getAllUsers() invoked");
 		List<CC_User> cc_Users = userService.findAll();
 		List<User> users = new ArrayList<User>();
 		if (cc_Users != null)
