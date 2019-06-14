@@ -4,7 +4,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-
 @Document(collection = "requestsAudit")
 public class RequestsAudit extends Audit {
 
@@ -15,6 +14,7 @@ public class RequestsAudit extends Audit {
 	private String endpointUrl;
 	private String apiName;
 	private String status;
+	private String params;
 	private String errorDetails;
 
 	public String getId() {
@@ -63,6 +63,14 @@ public class RequestsAudit extends Audit {
 
 	public void setErrorDetails(String errorDetails) {
 		this.errorDetails = errorDetails;
+	}
+
+	public String getParams() {
+		return params;
+	}
+
+	public void setParams(String params) {
+		this.params = params;
 	}
 
 }

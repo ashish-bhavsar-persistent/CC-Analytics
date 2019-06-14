@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -15,26 +17,34 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.psl.cc.analytics.APIAudits;
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CC_User;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.model.Device;
+import com.psl.cc.analytics.service.RequestsAuditService;
 
 public class GetDeviceDetails implements Callable<JSONObject> {
+	private static final Logger logger = LogManager.getLogger(GetDeviceDetails.class);
 	private final CC_User ccUser;
 	private final Configuration configuration;
 	private final String accountId;
 	private final String deviceId;
 	private final Map<String, AccountDTO> accountsMap;
+	private final APIAudits audit;
+	private final RequestsAuditService requestService;
 
 	public GetDeviceDetails(CC_User ccUser, Configuration configuration, String accountId, String deviceId,
-			Map<String, AccountDTO> accountsMap) {
+			Map<String, AccountDTO> accountsMap, APIAudits audit, RequestsAuditService requestService) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
 		this.accountId = accountId;
 		this.deviceId = deviceId;
 		this.accountsMap = accountsMap;
+		this.audit = audit;
+		this.requestService = requestService;
+
 	}
 
 	@Override
@@ -51,17 +61,29 @@ public class GetDeviceDetails implements Callable<JSONObject> {
 		String url = configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/";
 		URI uri = UriComponentsBuilder.fromUriString(url).path(deviceId).build(true).toUri();
 		ObjectMapper mapper = new ObjectMapper();
-		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
-		if (response.getStatusCode() == HttpStatus.OK) {
-			JSONObject deviceObject = new JSONObject(response.getBody().toString());
-			System.out.println(deviceObject);
-			Device deviceJson = mapper.readValue(deviceObject.toString(), Device.class);
-			for (Device deviceFromMap : accountsMap.get(accountId).getDeviceList()) {
-				if (deviceJson.getIccid().equals(deviceFromMap.getIccid())) {
-					BeanUtils.copyProperties(deviceFromMap, deviceJson);
+		JSONObject params = new JSONObject();
+		try {
+			params.put("accountId", accountId);
+			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
+			if (response.getStatusCode() == HttpStatus.OK) {
+				audit.doAudit("get Device Details",
+						configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/", null, params.toString(),
+						ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
+				JSONObject deviceObject = new JSONObject(response.getBody().toString());
+//				System.out.println(deviceObject);
+				Device deviceJson = mapper.readValue(deviceObject.toString(), Device.class);
+				for (Device deviceFromMap : accountsMap.get(accountId).getDeviceList()) {
+					if (deviceJson.getIccid().equals(deviceFromMap.getIccid())) {
+						BeanUtils.copyProperties(deviceFromMap, deviceJson);
+					}
 				}
+				return deviceObject;
 			}
-			return deviceObject;
+		} catch (Exception e) {
+			logger.error(e);
+			audit.doAudit("sget Device Details", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/",
+					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
+			throw e;
 		}
 		return null;
 	}

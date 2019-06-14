@@ -13,6 +13,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
@@ -23,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import com.psl.cc.analytics.APIAudits;
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CC_User;
@@ -32,20 +35,24 @@ import com.psl.cc.analytics.model.RequestsAudit;
 import com.psl.cc.analytics.service.RequestsAuditService;
 
 public class FetchDevicesOfAccount implements Callable<Optional<String>> {
-
+	private static final Logger logger = LogManager.getLogger(FetchDevicesOfAccount.class);
 	private final String accountId;
 	private final CC_User ccUser;
 	private final Configuration configuration;
 	private final RequestsAuditService requestService;
 	private final Map<String, AccountDTO> accountsMap;
+	private final APIAudits audit;
+	private final String modifiedSince;
 
 	public FetchDevicesOfAccount(CC_User ccUser, Configuration configuration, RequestsAuditService requestService,
-			String accountId, Map<String, AccountDTO> accountsMap) {
+			String accountId, Map<String, AccountDTO> accountsMap, APIAudits audit, String modifiedSince) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
 		this.accountId = accountId;
 		this.requestService = requestService;
 		this.accountsMap = accountsMap;
+		this.audit = audit;
+		this.modifiedSince = modifiedSince;
 	}
 
 	@Override
@@ -62,48 +69,45 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 		final String url = configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL;
 		boolean lastPage = false;
 		int pageNumber = 1;
-		final DateFormat dateFormat = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICESURL);
-		Calendar c = Calendar.getInstance();
-		c.setTime(new Date());
-		c.add(Calendar.MONTH, -100);
-		String modifiedDate = dateFormat.format(c.getTime());
 		URI uri = null;
 		ResponseEntity<String> response = null;
 		List<Device> deviceDTOList = new ArrayList<Device>();
-		do {
-			uri = UriComponentsBuilder.fromUriString(url).queryParam("pageNumber", String.valueOf(pageNumber))
-					.queryParam("modifiedSince",
-							URLEncoder.encode("2000-06-12T13:44:28+05:30", StandardCharsets.UTF_8.toString()))
-					.queryParam("accountId", accountId).build(true).toUri();
-			response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
-			if (response.getStatusCode() == HttpStatus.OK) {
-				doAudit("getAllDevicesForAccount", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL,
-						null, ControlCentreConstants.STATUS_SUCCESS);
-				JSONObject deviceObject = new JSONObject(response.getBody().toString());
-				lastPage = deviceObject.getBoolean("lastPage");
-				JSONArray devicesArray = deviceObject.getJSONArray("devices");
-				for (int i = 0; i < devicesArray.length(); i++) {
-					Device deviceObj = new Device();
-					deviceObj.setIccid(devicesArray.getJSONObject(i).getString("iccid"));
-					deviceDTOList.add(deviceObj);
+		JSONObject params = new JSONObject();
+		try {
+			do {
+				uri = UriComponentsBuilder.fromUriString(url).queryParam("pageNumber", String.valueOf(pageNumber))
+						.queryParam("modifiedSince",
+								URLEncoder.encode(modifiedSince, StandardCharsets.UTF_8.toString()))
+						.queryParam("accountId", accountId).build(true).toUri();
+
+				params.put("pageNumber", pageNumber);
+				params.put("modifiedSince", modifiedSince);
+				params.put("accountId", accountId);
+
+				response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
+				if (response.getStatusCode() == HttpStatus.OK) {
+					audit.doAudit("search Devices",
+							configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL, null, params.toString(),
+							ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
+					JSONObject deviceObject = new JSONObject(response.getBody().toString());
+					lastPage = deviceObject.getBoolean("lastPage");
+					JSONArray devicesArray = deviceObject.getJSONArray("devices");
+					for (int i = 0; i < devicesArray.length(); i++) {
+						Device deviceObj = new Device();
+						deviceObj.setIccid(devicesArray.getJSONObject(i).getString("iccid"));
+						deviceDTOList.add(deviceObj);
+					}
+					pageNumber++;
 				}
-				pageNumber++;
-			}
-		} while (!lastPage);
+			} while (!lastPage);
+		} catch (Exception e) {
+			logger.error(e);
+			audit.doAudit("search Devices", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL,
+					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
+			throw e;
+		}
 		accountsMap.get(accountId).setDeviceList(deviceDTOList);
-		System.out.println("printing accountsMap after fetching device ids " + accountsMap);
 		return null;
 	}
 
-	private void doAudit(String apiName, String endpointUrl, String errorDetails, String status) {
-		RequestsAudit audit = new RequestsAudit();
-		audit.setApiName(apiName);
-		audit.setCreatedOn(new Date());
-		audit.setEndpointUrl(endpointUrl);
-		audit.setErrorDetails(errorDetails);
-		audit.setLastUpdatedOn(new Date());
-		audit.setStatus(status);
-		audit.setUser(ccUser);
-		requestService.save(audit);
-	}
 }
