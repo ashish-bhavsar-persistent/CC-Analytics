@@ -162,6 +162,7 @@ public class User implements Serializable {
 		username = user.getUsername();
 		password = null;
 		roles = new ArrayList<String>();
+		name = user.getName();
 		user.getRoles().forEach(r -> roles.add(r.getRole()));
 		if (config != null) {
 			baseUrl = config.getBaseUrl();
