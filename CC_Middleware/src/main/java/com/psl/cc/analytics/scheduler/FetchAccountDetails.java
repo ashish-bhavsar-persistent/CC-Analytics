@@ -27,6 +27,7 @@ import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CC_User;
 import com.psl.cc.analytics.model.Configuration;
+import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.model.RequestsAudit;
 import com.psl.cc.analytics.repository.AccountsRepository;
 import com.psl.cc.analytics.service.RequestsAuditService;
@@ -88,33 +89,36 @@ class FetchAccountDetails implements Callable<JSONObject> {
 			}
 		} while (!lastPage);
 		System.out.println(accountsMap.size());
-		List<Future<Optional<String>>> accountsFutureList = new ArrayList<>();
+		
+		Map<String, Future<Optional<String>>> accountFutureMap = new HashMap<String, Future<Optional<String>>>();
 		List<Future<JSONObject>> futureListOfDevices = new ArrayList<>();
 
 		for (String accountId : accountsMap.keySet()) {
 			Future<Optional<String>> future = executor.submit(new FetchDevicesOfAccount(ccUser, configuration,requestService ,accountId, accountsMap));
-			accountsFutureList.add(future);
+			accountFutureMap.put(accountId, future);
 		}
 		
 		System.out.println(accountsMap);
-//		int i = 0;
-//		for (Future<Optional<String>> accountFutureObj : accountsFutureList) {
-//			Optional<String> accountJson = accountFutureObj.get();
-//			
-//			for (Object device : deviceArray) {
-//				JSONObject deviceObject = new JSONObject(device.toString());
-//				Future<JSONObject> future = executor
-//						.submit(new GetDeviceDetails(ccUser, configuration, accountJson.getString("accountId"), deviceObject.getString("iccid")));
-//				futureListOfDevices.add(future);
-//			}
-//		}
-//		for (Future<JSONObject> deviceFutureObj : futureListOfDevices) {
-//			JSONObject deviceObj = deviceFutureObj.get();
-//			System.out.println(deviceObj);
-//			i++;
-//		}
 
-//		System.out.println("Total Devices " + i);
+		
+		for( String accountIdKey : accountFutureMap.keySet()) {
+			Future<Optional<String>> accountFutureObj = accountFutureMap.get(accountIdKey);
+			Optional<String> accountJson = accountFutureObj.get();
+			for(Device deviceDto : accountsMap.get(accountIdKey).getDeviceList()) {
+				Future<JSONObject> future = executor
+						.submit(new GetDeviceDetails(ccUser, configuration,accountIdKey, deviceDto.getIccId(), accountsMap));
+				futureListOfDevices.add(future);
+			}
+			
+		}
+
+		for (Future<JSONObject> deviceFutureObj : futureListOfDevices) {
+			JSONObject deviceObj = deviceFutureObj.get();
+			System.out.println(deviceObj);
+		}
+		System.out.println("PRINTING ACCOUNTS MAP BEFORE SAVING IT"+accountsMap);
+		accountsRepository.saveAll(accountsMap.values());
+
 		doAudit("getAllAccounts", configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL, "e.getMessage() here ", ControlCentreConstants.STATUS_FAIL);
 
 		return null;

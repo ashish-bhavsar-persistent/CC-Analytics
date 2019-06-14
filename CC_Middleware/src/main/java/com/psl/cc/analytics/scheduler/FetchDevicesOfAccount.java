@@ -65,9 +65,8 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 		final DateFormat dateFormat = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICESURL);
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
-		c.add(Calendar.MONTH, -200);
+		c.add(Calendar.MONTH, -100);
 		String modifiedDate = dateFormat.format(c.getTime());
-		System.out.println("DATE " + modifiedDate);
 		URI uri = null;
 		ResponseEntity<String> response = null;
 		List<Device> deviceDTOList = new ArrayList<Device>();
@@ -91,6 +90,7 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 			}
 		} while (!lastPage);
 		accountsMap.get(accountId).setDeviceList(deviceDTOList);
+		System.out.println("printing accountsMap after fetching device ids "+accountsMap);
 		return null;
 	}
 
