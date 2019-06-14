@@ -1,17 +1,12 @@
 package com.psl.cc.analytics.scheduler;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,10 +28,10 @@ public class GetAllAccounts {
 
 	@Autowired
 	private RequestsAuditService requestService;
-	
+
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private AccountsRepository accountsRepository;
 
@@ -53,19 +48,19 @@ public class GetAllAccounts {
 		}
 	}
 
-	private void getAllAccounts()  {
+	private void getAllAccounts() {
 		List<CC_User> ccUsers = userService.findAll();
-		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(ControlCentreConstants.NUMBER_OF_THREADS);
+		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors
+				.newFixedThreadPool(ControlCentreConstants.NUMBER_OF_THREADS);
 		List<Future> futureList = new ArrayList<Future>();
 		for (CC_User ccUser : ccUsers) {
 			Configuration configuration = configRepository.findOneByCC_UserId(ccUser.getId());
 			if (configuration != null) {
-				Future<JSONObject> futureObj = executor.submit(new FetchAccountDetails(ccUser, configuration, requestService, accountsRepository, executor));
+				Future<JSONObject> futureObj = executor.submit(
+						new FetchAccountDetails(ccUser, configuration, requestService, accountsRepository, executor));
 				futureList.add(futureObj);
 			}
 		}
-		
-		
-		
+
 	}
 }

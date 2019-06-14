@@ -4,6 +4,7 @@ import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +28,8 @@ public class GetDeviceDetails implements Callable<JSONObject> {
 	private final String deviceId;
 	private final Map<String, AccountDTO> accountsMap;
 
-	public GetDeviceDetails(CC_User ccUser, Configuration configuration,String accountId, String deviceId,  Map<String, AccountDTO> accountsMap) {
+	public GetDeviceDetails(CC_User ccUser, Configuration configuration, String accountId, String deviceId,
+			Map<String, AccountDTO> accountsMap) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
 		this.accountId = accountId;
@@ -43,30 +45,20 @@ public class GetDeviceDetails implements Callable<JSONObject> {
 			password = configuration.getApiKey();
 		}
 		final HttpHeaders headers = new HttpHeaders();
-		headers.setBasicAuth(username, password); 
+		headers.setBasicAuth(username, password);
 		final HttpEntity<String> request = new HttpEntity<String>(headers);
 		RestTemplate restTemplate = new RestTemplate();
-		String url = configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL;
-		URI uri  = UriComponentsBuilder.fromUriString(url).path(deviceId).build(true).toUri();
+		String url = configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/";
+		URI uri = UriComponentsBuilder.fromUriString(url).path(deviceId).build(true).toUri();
 		ObjectMapper mapper = new ObjectMapper();
 		ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
 		if (response.getStatusCode() == HttpStatus.OK) {
 			JSONObject deviceObject = new JSONObject(response.getBody().toString());
+			System.out.println(deviceObject);
 			Device deviceJson = mapper.readValue(deviceObject.toString(), Device.class);
-			for(Device deviceFromMap : accountsMap.get(accountId).getDeviceList()) {
-				if(deviceJson.getIccId().equals(deviceFromMap.getIccId())){
-					deviceFromMap.setAccount(accountsMap.get(accountId));
-					deviceFromMap.setActivationReadyDate(deviceJson.getActivationReadyDate());
-					deviceFromMap.setCommPlanDetails(deviceJson.getCommPlanDetails());
-					deviceFromMap.setDateActivated(deviceJson.getDateActivated());
-					deviceFromMap.setDateAdded(deviceJson.getDateAdded());
-					deviceFromMap.setDateShipped(deviceJson.getDateShipped());
-					deviceFromMap.setDateUpdated(deviceJson.getDateUpdated());
-					deviceFromMap.setDeactivatedDate(deviceJson.getDeactivatedDate());
-					deviceFromMap.setInventoryDate(deviceJson.getInventoryDate());
-					deviceFromMap.setRatePlan(deviceJson.getRatePlan());
-					deviceFromMap.setRetiredDate(deviceJson.getRetiredDate());
-					deviceFromMap.setStatus(deviceJson.getStatus());
+			for (Device deviceFromMap : accountsMap.get(accountId).getDeviceList()) {
+				if (deviceJson.getIccid().equals(deviceFromMap.getIccid())) {
+					BeanUtils.copyProperties(deviceFromMap, deviceJson);
 				}
 			}
 			return deviceObject;

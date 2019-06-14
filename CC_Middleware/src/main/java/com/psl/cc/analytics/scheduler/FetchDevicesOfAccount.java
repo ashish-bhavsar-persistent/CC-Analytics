@@ -72,7 +72,8 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 		List<Device> deviceDTOList = new ArrayList<Device>();
 		do {
 			uri = UriComponentsBuilder.fromUriString(url).queryParam("pageNumber", String.valueOf(pageNumber))
-					.queryParam("modifiedSince", URLEncoder.encode("2000-06-12T13:44:28+05:30", StandardCharsets.UTF_8.toString()))
+					.queryParam("modifiedSince",
+							URLEncoder.encode("2000-06-12T13:44:28+05:30", StandardCharsets.UTF_8.toString()))
 					.queryParam("accountId", accountId).build(true).toUri();
 			response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
 			if (response.getStatusCode() == HttpStatus.OK) {
@@ -81,16 +82,16 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 				JSONObject deviceObject = new JSONObject(response.getBody().toString());
 				lastPage = deviceObject.getBoolean("lastPage");
 				JSONArray devicesArray = deviceObject.getJSONArray("devices");
-				for (int i = 0; i < devicesArray.length(); i++) {	
+				for (int i = 0; i < devicesArray.length(); i++) {
 					Device deviceObj = new Device();
-					deviceObj.setIccId(devicesArray.getJSONObject(i).getString("iccid"));
+					deviceObj.setIccid(devicesArray.getJSONObject(i).getString("iccid"));
 					deviceDTOList.add(deviceObj);
 				}
 				pageNumber++;
 			}
 		} while (!lastPage);
 		accountsMap.get(accountId).setDeviceList(deviceDTOList);
-		System.out.println("printing accountsMap after fetching device ids "+accountsMap);
+		System.out.println("printing accountsMap after fetching device ids " + accountsMap);
 		return null;
 	}
 

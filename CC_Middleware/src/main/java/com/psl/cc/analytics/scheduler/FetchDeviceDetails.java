@@ -23,14 +23,13 @@ import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.repository.AccountsRepository;
 import com.psl.cc.analytics.service.RequestsAuditService;
 
-public class FetchDeviceDetails implements Callable<JSONObject>{
+public class FetchDeviceDetails implements Callable<JSONObject> {
 
 	private CC_User cc_user;
 	private Configuration configuration;
 	private RequestsAuditService requestService;
 	private AccountsRepository accountsRepository;
-	
-	
+
 	public FetchDeviceDetails(CC_User cc_user, Configuration configuration, RequestsAuditService requestService,
 			AccountsRepository accountsRepository) {
 		super();
@@ -50,28 +49,25 @@ public class FetchDeviceDetails implements Callable<JSONObject>{
 		HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(username, password);
 		HttpEntity<String> request = new HttpEntity<String>(headers);
-		
+
 		RestTemplate restTemplate = new RestTemplate();
 		URI url = new URI(configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL);
 		ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, request, String.class);
 		ObjectMapper mapper = new ObjectMapper();
 		List<Device> deviceList = new ArrayList<Device>();
 		if (response.getStatusCode() == HttpStatus.OK) {
-			JSONObject devicesObject = new JSONObject(response.getBody().toString());			
+			JSONObject devicesObject = new JSONObject(response.getBody().toString());
 			JSONArray devicesArray = devicesObject.getJSONArray("devices");
-			for(int i=0 ; i<devicesArray.length() ; i++) {
-				
+			for (int i = 0; i < devicesArray.length(); i++) {
+
 				Device device = mapper.readValue(devicesArray.get(i).toString(), Device.class);
 				deviceList.add(device);
 			}
-			
-			System.out.println(" DEVICE LIST LENGTH : "+ deviceList.size());
-			
-			
+
+			System.out.println(" DEVICE LIST LENGTH : " + deviceList.size());
+
 		}
-		
-		
-		
+
 		return null;
 	}
 
