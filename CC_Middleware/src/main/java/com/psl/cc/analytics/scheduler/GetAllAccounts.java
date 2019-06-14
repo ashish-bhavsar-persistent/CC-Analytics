@@ -17,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.psl.cc.analytics.APIAudits;
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.CC_User;
 import com.psl.cc.analytics.model.Configuration;
@@ -25,6 +24,7 @@ import com.psl.cc.analytics.repository.AccountsRepository;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
 import com.psl.cc.analytics.service.RequestsAuditService;
 import com.psl.cc.analytics.service.UserService;
+import com.psl.cc.analytics.utils.APIAudits;
 
 @Component
 public class GetAllAccounts {

@@ -1,4 +1,4 @@
-package com.psl.cc.analytics;
+package com.psl.cc.analytics.utils;
 
 import java.util.Date;
 

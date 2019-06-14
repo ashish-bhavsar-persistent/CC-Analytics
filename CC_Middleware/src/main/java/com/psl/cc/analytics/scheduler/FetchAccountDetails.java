@@ -2,7 +2,6 @@ package com.psl.cc.analytics.scheduler;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,16 +23,14 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.psl.cc.analytics.APIAudits;
 import com.psl.cc.analytics.constants.ControlCentreConstants;
-import com.psl.cc.analytics.exception.CC_APIException;
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CC_User;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.model.Device;
-import com.psl.cc.analytics.model.RequestsAudit;
 import com.psl.cc.analytics.repository.AccountsRepository;
 import com.psl.cc.analytics.service.RequestsAuditService;
+import com.psl.cc.analytics.utils.APIAudits;
 
 class FetchAccountDetails implements Callable<JSONObject> {
 	private static final Logger logger = LogManager.getLogger(FetchAccountDetails.class);
