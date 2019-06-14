@@ -46,7 +46,7 @@ export class LoginComponent implements OnInit {
         let temp = res;
         if (temp.length != 0) {
           sessionStorage.setItem('token',res.access_token);
-          this.router.navigate(["dashboard"]);
+          this.router.navigate(["dashboard.html"]);
         }
       });
   }

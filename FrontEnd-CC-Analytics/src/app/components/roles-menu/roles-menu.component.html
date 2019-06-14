@@ -1,0 +1,4 @@
+<button mat-icon-button color="primary" [matMenuTriggerFor]="menu"><mat-icon>visibility</mat-icon></button>
+<mat-menu #menu="matMenu">
+  <button mat-menu-item *ngFor="let role of roles">{{role}}</button>
+</mat-menu>

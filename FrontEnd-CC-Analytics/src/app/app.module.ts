@@ -14,12 +14,14 @@ import { MatInputModule } from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import { MainDashboardComponent } from './main-dashboard/main-dashboard.component';
-import { MatGridListModule, MatCardModule, MatMenuModule, MatIconModule, MatSlideToggleModule } from '@angular/material';
+import { MatGridListModule, MatCardModule, MatMenuModule, MatIconModule, MatSlideToggleModule, MatTooltipModule, MatAutocompleteModule } from '@angular/material';
 import { LayoutModule } from '@angular/cdk/layout';
 import { AuthGuard } from './guards/auth.guard';
 import { TokenInterceptorService } from './services/token-interceptor.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
+import { RolesMenuComponent } from './components/roles-menu/roles-menu.component';
+import { AutocompleteInputComponent } from './components/autocomplete-input/autocomplete-input.component';
 
 
 @NgModule({
@@ -28,7 +30,9 @@ import { NavBarComponent } from './components/nav-bar/nav-bar.component';
     LoginComponent,
     HomeComponent,
     MainDashboardComponent,
-    NavBarComponent
+    NavBarComponent,
+    RolesMenuComponent,
+    AutocompleteInputComponent
   ],
   imports: [
     BrowserModule,
@@ -47,7 +51,11 @@ import { NavBarComponent } from './components/nav-bar/nav-bar.component';
     MatIconModule,
     LayoutModule,
     MatToolbarModule,
-    MatSlideToggleModule
+    MatSlideToggleModule,
+    MatMenuModule,
+    MatIconModule,
+    MatTooltipModule,
+    MatAutocompleteModule
   ],
   providers: [ApiService, AuthService, AuthGuard,
      { 

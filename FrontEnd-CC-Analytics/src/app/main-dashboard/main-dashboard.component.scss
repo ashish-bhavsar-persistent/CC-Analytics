@@ -28,4 +28,19 @@
   h2{
     float: left;
   }
+
+  h5{
+    padding: 8px;
+    background: rgb(100, 100, 100);
+    border-radius: 8px;
+    display: block;
+    color: white;
+    width: fit-content;
+  }
+
+  .user-info-roles{
+    *{
+      display: inline-block;
+    }
+  }
 }

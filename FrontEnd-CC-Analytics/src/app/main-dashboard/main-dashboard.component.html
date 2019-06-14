@@ -1,29 +1,29 @@
 <nav-bar></nav-bar>
 <div class="grid-container">
 
-    <mat-grid-list cols="1" rowHeight="100px">
+    <mat-grid-list cols="1" rowHeight="220px">
         <mat-grid-tile [colspan]="1" [rowspan]="1">
           <div class="user-info">
-          <h2>Welcome, {{username}}</h2>
+            <h5>{{name}}</h5>
+            <div class=user-info-roles>
+          <h4>Welcome, {{username}}</h4>
+          <roles-menu [roles]="roles" matTooltip="click to display roles"></roles-menu>
+        </div>
+          <h6>{{today | date:'medium'}}</h6>
+          <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input>
+          <!-- <autocomplete-input [placeholderData]="placeholderData2"></autocomplete-input> -->
         </div>
         </mat-grid-tile>
       </mat-grid-list>
 
 
   <!-- <h1 class="mat-h1">Dashboard</h1> -->
-  <mat-grid-list cols="2" rowHeight="350px">
-    <mat-grid-tile *ngFor="let card of cards | async" [colspan]="card.cols" [rowspan]="card.rows">
+  <mat-grid-list cols="4" rowHeight="350px">
+    <mat-grid-tile [colspan]="1" [rowspan]="1">
       <mat-card class="dashboard-card">
         <mat-card-header>
           <mat-card-title>
-            {{card.title}}
-            <button mat-icon-button class="more-button" [matMenuTriggerFor]="menu" aria-label="Toggle menu">
-              <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu" xPosition="before">
-              <button mat-menu-item>Expand</button>
-              <button mat-menu-item>Remove</button>
-            </mat-menu>
+            Hello
           </mat-card-title>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
@@ -31,5 +31,18 @@
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>
+
+    <mat-grid-tile [colspan]="1" [rowspan]="1">
+        <mat-card class="dashboard-card">
+          <mat-card-header>
+            <mat-card-title>
+              Hello
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content class="dashboard-card-content">
+            <div>Card Content Here</div>
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
   </mat-grid-list>
 </div>
