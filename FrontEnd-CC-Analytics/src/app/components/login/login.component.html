@@ -1,13 +1,15 @@
 <div class="wrapper">
 <form class="form-container">
+  <h6>CC Dashboard Login</h6>
+  <br>
   <mat-form-field class="full-width" appearance="outline">
-      <mat-label>email</mat-label>
+      <mat-label>username</mat-label>
     <input matInput placeholder="johndoe@gmail.com" [formControl]="email">
   </mat-form-field>
   <mat-form-field class="full-width" appearance="outline">
       <mat-label>password</mat-label>
     <input matInput placeholder="**********" [formControl]="password" type="password">
   </mat-form-field>
-  <button mat-button (click)="loginUser()">login</button>
+  <button mat-raised-button color="primary" (click)="loginUser()">login</button>
 </form>
 </div>

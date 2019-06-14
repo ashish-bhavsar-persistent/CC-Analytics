@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<include
+		resource="org/springframework/boot/logging/logback/base.xml" />
+
+
+	<appender name="FileAppender"
+		class="ch.qos.logback.core.FileAppender">
+		<file>logs/cc_analytics.log</file>
+		<encoder
+			class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<pattern> %d{dd-MM-yyyy HH:mm:ss.SSS} [%thread] %-5level %logger{36}.%M - %msg%n</pattern>
+		</encoder>
+	</appender>
+
+
+	<logger name="com.psl.cc.analytics" level="info"
+		additivity="false">
+		<appender-ref ref="FileAppender"></appender-ref>
+	</logger>
+</configuration>

@@ -3,6 +3,7 @@ import { map } from "rxjs/operators";
 import { environment } from "../../environments/environment";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
+import { Router } from '@angular/router';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +14,7 @@ export class AuthService {
   private loginUrl = environment.ENV.baseURL + "/login";
   private tokenUrl = environment.ENV.baseURL + "/oauth/token";
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private router: Router) {}
 
   getToken(username, password): Observable<any> {
     const body = new HttpParams()
@@ -36,5 +37,18 @@ export class AuthService {
           return res;
         })
       );
+  }
+
+  loggedIn(){
+      return !!sessionStorage.getItem('token');
+  }
+
+  logout(){
+    sessionStorage.removeItem('token');
+    this.router.navigate(['login']);
+  }
+
+  getTokenFromLocalStorage(){
+      return sessionStorage.getItem('token');
   }
 }
