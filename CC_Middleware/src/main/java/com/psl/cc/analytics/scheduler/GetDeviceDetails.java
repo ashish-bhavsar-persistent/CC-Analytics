@@ -83,7 +83,7 @@ public class GetDeviceDetails implements Callable<JSONObject> {
 			audit.doAudit("sget Device Details", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/",
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
 			throw e;
-		}
+		} 
 		return null;
 	}
 

@@ -21,7 +21,7 @@
 	</appender>
 
 
-	<logger name="com.psl.cc.analytics" level="info"
+	<logger name="com.psl.cc.analytics" level="debug"
 		additivity="false">
 		<appender-ref ref="FileAppender"></appender-ref>
 	</logger>
