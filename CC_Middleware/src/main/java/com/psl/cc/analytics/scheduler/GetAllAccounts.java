@@ -20,8 +20,8 @@ import org.springframework.stereotype.Component;
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.CC_User;
 import com.psl.cc.analytics.model.Configuration;
-import com.psl.cc.analytics.repository.AccountsRepository;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
+import com.psl.cc.analytics.service.AccountService;
 import com.psl.cc.analytics.service.RequestsAuditService;
 import com.psl.cc.analytics.service.UserService;
 import com.psl.cc.analytics.utils.APIAudits;
@@ -39,7 +39,7 @@ public class GetAllAccounts {
 	private UserService userService;
 
 	@Autowired
-	private AccountsRepository accountsRepository;
+	private AccountService accountsService;
 
 	final DateFormat dateFormat = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICESURL);
 
@@ -83,7 +83,7 @@ public class GetAllAccounts {
 			Configuration configuration = configRepository.findOneByCC_UserId(ccUser.getId());
 			if (configuration != null) {
 				Future<JSONObject> futureObj = executor.submit(new FetchAccountDetails(ccUser, configuration,
-						requestService, accountsRepository, executor, audit, modifiedSince));
+						requestService, accountsService, executor, audit, modifiedSince));
 				futureList.add(futureObj);
 			}
 		}

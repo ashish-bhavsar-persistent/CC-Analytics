@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -81,17 +82,21 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 
 				response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
 				if (response.getStatusCode() == HttpStatus.OK) {
-					audit.doAudit("search Devices",
-							configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL, null, params.toString(),
-							ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
+					audit.doAudit("search Devices", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL,
+							null, params.toString(), ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
 					JSONObject deviceObject = new JSONObject(response.getBody().toString());
 					lastPage = deviceObject.getBoolean("lastPage");
 					JSONArray devicesArray = deviceObject.getJSONArray("devices");
-					for (int i = 0; i < devicesArray.length(); i++) {
-						Device deviceObj = new Device();
-						deviceObj.setIccid(devicesArray.getJSONObject(i).getString("iccid"));
-						deviceDTOList.add(deviceObj);
-					}
+					devicesArray.forEach(deviceObj -> {
+						Device devicedto = new Device();
+						devicedto.setIccid(new JSONObject(deviceObj.toString()).getString("iccid"));
+						deviceDTOList.add(devicedto);
+					});
+//					for (int i = 0; i < devicesArray.length(); i++) {
+//						Device deviceObj = new Device();
+//						deviceObj.setIccid(devicesArray.getJSONObject(i).getString("iccid"));
+//						deviceDTOList.add(deviceObj);
+//					}
 					pageNumber++;
 				}
 			} while (!lastPage);
@@ -101,7 +106,24 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
 			throw e;
 		}
-		accountsMap.get(accountId).setDeviceList(deviceDTOList);
+		if (accountsMap.get(accountId).getDeviceList().isEmpty()) {
+			accountsMap.get(accountId).setDeviceList(deviceDTOList);
+		} else {
+			deviceDTOList.forEach(device -> {
+				Optional<Device> deviceDTO = accountsMap.get(accountId).getDeviceList().stream() // convert list to
+																									// stream
+						.filter(oldDevice -> !oldDevice.getIccid().equals(device.getIccid())).findFirst();
+
+				if (deviceDTO.get() != null) {
+					deviceDTO.get().setLastUpdatedOn(new Date());
+				} else {
+					device.setCreatedOn(new Date());
+					device.setLastUpdatedOn(new Date());
+					accountsMap.get(accountId).getDeviceList().add(device);
+				}
+
+			});
+		}
 		return null;
 	}
 

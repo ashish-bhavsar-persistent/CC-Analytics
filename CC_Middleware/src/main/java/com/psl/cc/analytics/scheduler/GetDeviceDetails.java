@@ -70,7 +70,6 @@ public class GetDeviceDetails implements Callable<JSONObject> {
 						configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/", null, params.toString(),
 						ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
 				JSONObject deviceObject = new JSONObject(response.getBody().toString());
-//				System.out.println(deviceObject);
 				Device deviceJson = mapper.readValue(deviceObject.toString(), Device.class);
 				for (Device deviceFromMap : accountsMap.get(accountId).getDeviceList()) {
 					if (deviceJson.getIccid().equals(deviceFromMap.getIccid())) {

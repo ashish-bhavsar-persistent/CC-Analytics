@@ -2,6 +2,7 @@ package com.psl.cc.analytics.scheduler;
 
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -28,7 +30,7 @@ import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CC_User;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.model.Device;
-import com.psl.cc.analytics.repository.AccountsRepository;
+import com.psl.cc.analytics.service.AccountService;
 import com.psl.cc.analytics.service.RequestsAuditService;
 import com.psl.cc.analytics.utils.APIAudits;
 
@@ -38,24 +40,32 @@ class FetchAccountDetails implements Callable<JSONObject> {
 	private final CC_User ccUser;
 	private final Configuration configuration;
 	private final RequestsAuditService requestService;
-	private final AccountsRepository accountsRepository;
+	private final AccountService accountsService;
 	private final ThreadPoolExecutor executor;
 	private final APIAudits audit;
 	private final String modifiedSince;
 
 	public FetchAccountDetails(CC_User ccUser, Configuration configuration, RequestsAuditService requestService,
-			AccountsRepository accountsRepository, ThreadPoolExecutor executor, APIAudits audit, String modifiedSince) {
+			AccountService accountsService, ThreadPoolExecutor executor, APIAudits audit, String modifiedSince) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
 		this.requestService = requestService;
-		this.accountsRepository = accountsRepository;
+		this.accountsService = accountsService;
 		this.executor = executor;
 		this.audit = audit;
 		this.modifiedSince = modifiedSince;
+
 	}
 
 	@Override
 	public JSONObject call() throws Exception {
+		final Map<String, AccountDTO> accountsMap = new HashMap<>();
+		List<AccountDTO> accountsList = accountsService.getAllByUserId(ccUser.getId());
+		if (accountsList != null) {
+			accountsList.forEach((accountDTO) -> {
+				accountsMap.put(accountDTO.getAccountId(), accountDTO);
+			});
+		}
 		String username = ccUser.getUsername();
 		String password = ccUser.getPassword();
 		if (configuration.isUseAPIKey()) {
@@ -64,7 +74,7 @@ class FetchAccountDetails implements Callable<JSONObject> {
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(username, password);
 		final HttpEntity<String> request = new HttpEntity<String>(headers);
-		final Map<String, AccountDTO> accountsMap = new HashMap<>();
+
 		boolean lastPage = false;
 		int pageNumber = 1;
 		RestTemplate restTemplate = new RestTemplate();
@@ -88,7 +98,18 @@ class FetchAccountDetails implements Callable<JSONObject> {
 					for (Object Obj : accounts) {
 						JSONObject account = new JSONObject(Obj.toString());
 						AccountDTO accountDTO = mapper.readValue(account.toString(), AccountDTO.class);
+						if (accountsMap.containsKey(account.getString("accountId"))) {
+							AccountDTO tempAccountDTO = accountsMap.get(account.getString("accountId"));
+							accountDTO.setCreatedOn(tempAccountDTO.getCreatedOn());
+							accountDTO.setDeviceList(tempAccountDTO.getDeviceList());
+						}
+
 						String accountId = account.getString("accountId");
+						accountDTO.setUser(ccUser);
+						accountDTO.setLastUpdatedOn(new Date());
+						if (accountDTO.getCreatedOn() == null) {
+							accountDTO.setCreatedOn(new Date());
+						}
 						accountsMap.put(accountId, accountDTO);
 					}
 					pageNumber++;
@@ -127,12 +148,12 @@ class FetchAccountDetails implements Callable<JSONObject> {
 
 		for (Future<JSONObject> deviceFutureObj : futureListOfDevices) {
 			try {
-				JSONObject deviceObj = deviceFutureObj.get();
+				deviceFutureObj.get();
 			} catch (Exception e) {
 				throw e;
 			}
 		}
-		accountsRepository.saveAll(accountsMap.values());
+		accountsService.saveAll(accountsMap.values());
 		System.out.println("Execution Done");
 		return null;
 	}
