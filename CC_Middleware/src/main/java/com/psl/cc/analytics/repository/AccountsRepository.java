@@ -11,6 +11,6 @@ public interface AccountsRepository extends MongoRepository<AccountDTO, String> 
 	@Query("{'user.id': ?0}")
 	List<AccountDTO> getAllByUserId(String userId);
 	
-	@Query(value = "{'user.id': ?0}", fields = "{'accountName':1,'_id':0}")
+	@Query(value = "{'user.id': ?0}", fields = "{'accountName':1,'_id':0,'accountId':1}")
 	public List<AccountDTO> getAllAccountNames(String userId);
 }

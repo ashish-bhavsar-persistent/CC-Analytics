@@ -36,19 +36,19 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 	private final CC_User ccUser;
 	private final Configuration configuration;
 	private final RequestsAuditService requestService;
-	private final Map<String, AccountDTO> accountsMap;
+	private final AccountDTO account;
 	private final APIAudits audit;
 	private final String modifiedSince;
 
-	public FetchDevicesOfAccount(CC_User ccUser, Configuration configuration, RequestsAuditService requestService,
-			String accountId, Map<String, AccountDTO> accountsMap, APIAudits audit, String modifiedSince) {
-		this.ccUser = ccUser;
-		this.configuration = configuration;
+	public FetchDevicesOfAccount(Configuration configuration, RequestsAuditService requestService, String accountId,
+			AccountDTO account, APIAudits audit, String modifiedSince) {
+		this.ccUser = account.getUser();
 		this.accountId = accountId;
 		this.requestService = requestService;
-		this.accountsMap = accountsMap;
+		this.account = account;
 		this.audit = audit;
 		this.modifiedSince = modifiedSince;
+		this.configuration = configuration;
 	}
 
 	@Override
@@ -74,11 +74,13 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 				uri = UriComponentsBuilder.fromUriString(url).queryParam("pageNumber", String.valueOf(pageNumber))
 						.queryParam("modifiedSince",
 								URLEncoder.encode(modifiedSince, StandardCharsets.UTF_8.toString()))
-						.queryParam("accountId", accountId).build(true).toUri();
+						.queryParam("accountId", accountId).queryParam("pageSize", ControlCentreConstants.PAGE_SIZE)
+						.build(true).toUri();
 
 				params.put("pageNumber", pageNumber);
 				params.put("modifiedSince", modifiedSince);
 				params.put("accountId", accountId);
+				params.put("pageSize", ControlCentreConstants.PAGE_SIZE);
 
 				response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
 				if (response.getStatusCode() == HttpStatus.OK) {
@@ -87,16 +89,13 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 					JSONObject deviceObject = new JSONObject(response.getBody().toString());
 					lastPage = deviceObject.getBoolean("lastPage");
 					JSONArray devicesArray = deviceObject.getJSONArray("devices");
+
 					devicesArray.forEach(deviceObj -> {
 						Device devicedto = new Device();
 						devicedto.setIccid(new JSONObject(deviceObj.toString()).getString("iccid"));
 						deviceDTOList.add(devicedto);
 					});
-//					for (int i = 0; i < devicesArray.length(); i++) {
-//						Device deviceObj = new Device();
-//						deviceObj.setIccid(devicesArray.getJSONObject(i).getString("iccid"));
-//						deviceDTOList.add(deviceObj);
-//					}
+
 					pageNumber++;
 				}
 			} while (!lastPage);
@@ -106,24 +105,26 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
 			throw e;
 		}
-		if (accountsMap.get(accountId).getDeviceList().isEmpty()) {
-			accountsMap.get(accountId).setDeviceList(deviceDTOList);
+		logger.debug("Length of device array is {} for account number {}", deviceDTOList.size(), accountId);
+		if (account.getDeviceList() == null) {
+			account.setDeviceList(deviceDTOList);
 		} else {
 			deviceDTOList.forEach(device -> {
-				Optional<Device> deviceDTO = accountsMap.get(accountId).getDeviceList().stream() // convert list to
-																									// stream
-						.filter(oldDevice -> !oldDevice.getIccid().equals(device.getIccid())).findFirst();
+				Optional<Device> deviceDTO = account.getDeviceList().stream() // convert list to
+																				// stream
+						.filter(oldDevice -> oldDevice.getIccid().equals(device.getIccid())).findFirst();
 
-				if (deviceDTO.get() != null) {
+				if (deviceDTO.isPresent()) {
 					deviceDTO.get().setLastUpdatedOn(new Date());
 				} else {
 					device.setCreatedOn(new Date());
 					device.setLastUpdatedOn(new Date());
-					accountsMap.get(accountId).getDeviceList().add(device);
+					account.getDeviceList().add(device);
 				}
 
 			});
 		}
+
 		return null;
 	}
 

@@ -5,19 +5,22 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
+import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CC_User;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
@@ -51,9 +54,11 @@ public class GetAllAccounts {
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		if (requestService.getLatestRecord() == null) {
-			c.add(Calendar.MONTH, -100);
+			c.set(c.get(Calendar.YEAR), 0, 1, 0, 0, 0);
 			modifiedSince = dateFormat.format(c.getTime());
 		} else {
+			c.add(Calendar.DATE, -1);
+			c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DATE), 0, 0, 0);
 			modifiedSince = dateFormat.format(c.getTime());
 		}
 		logger.info("value of modifiedSince is {}", modifiedSince);
@@ -64,8 +69,7 @@ public class GetAllAccounts {
 		if (requestService.getLatestRecord() == null) {
 			logger.debug("initializeFirstTime method invoked at {}", new Date());
 			Calendar c = Calendar.getInstance();
-			c.setTime(new Date());
-			c.add(Calendar.MONTH, -100);
+			c.set(c.get(Calendar.YEAR), 0, 1, 0, 0, 0);
 			String modifiedSince = dateFormat.format(c.getTime());
 			logger.info("value of modifiedSince is {}", modifiedSince);
 			getAllAccounts(modifiedSince);
@@ -76,28 +80,79 @@ public class GetAllAccounts {
 		List<CC_User> ccUsers = userService.findAll();
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors
 				.newFixedThreadPool(ControlCentreConstants.NUMBER_OF_THREADS);
-		List<Future> futureList = new ArrayList<Future>();
+		List<Future<Map<String, AccountDTO>>> futureList = new ArrayList<Future<Map<String, AccountDTO>>>();
 		APIAudits audit = new APIAudits();
+		final Map<String, AccountDTO> accountsMap = new HashMap<String, AccountDTO>();
+		final Map<String, Configuration> configMap = new HashMap<String, Configuration>();
 		logger.info("number of Users are {}", ccUsers.size());
+		// get All Account
 		for (CC_User ccUser : ccUsers) {
 			Configuration configuration = configRepository.findOneByCC_UserId(ccUser.getId());
 			if (configuration != null) {
-				Future<JSONObject> futureObj = executor.submit(new FetchAccountDetails(ccUser, configuration,
-						requestService, accountsService, executor, audit, modifiedSince));
+				configMap.put(ccUser.getId(), configuration);
+				Future<Map<String, AccountDTO>> futureObj = executor
+						.submit(new FetchAccountDetails(ccUser, configuration, requestService, accountsService, audit));
 				futureList.add(futureObj);
 			}
 		}
 
-//		for (Future<JSONObject> futureObj : futureList) {
-//			try {
-//				futureObj.get();
-//			} catch (Exception e) {
-//				CC_APIException apiException = (CC_APIException) e;
-//				audit.doAudit(apiException.getApiName(), apiException.getEndpointUrl(), apiException.getErrorDetails(),
-//						apiException.getParams(), apiException.getStatus(), apiException.getCcUser(), requestService);
-//
-//			}
-//		}
+		futureList.forEach(futureObj -> {
+			try {
+				Map<String, AccountDTO> tempAccountsMap = futureObj.get();
+				accountsMap.putAll(tempAccountsMap);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		logger.info("{} accounts are retrieved from {} users", accountsMap.size(), ccUsers.size());
+		logger.debug("Execution of getAllAccounts API is Done.");
+		// Search Device
+		final List<Future<Optional<String>>> futureListOfDevices = new ArrayList<>();
 
+		accountsMap.forEach((accountId, accountDTO) -> {
+			Configuration configuration = configMap.get(accountDTO.getUser().getId());
+			Future<Optional<String>> future = executor.submit(new FetchDevicesOfAccount(configuration, requestService,
+					accountId, accountDTO, audit, modifiedSince));
+			futureListOfDevices.add(future);
+
+		});
+		logger.debug("length of futureListOfDevices is {}", futureListOfDevices.size());
+		futureListOfDevices.forEach(futureObj -> {
+			try {
+				futureObj.get();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		logger.debug("Execution of searchDevices API is Done.");
+
+		// get Device Details
+		futureListOfDevices.clear();
+		accountsMap.forEach((accountId, accountDTO) -> {
+			Configuration configuration = configMap.get(accountDTO.getUser().getId());
+//			System.out.println("accountDTO " + accountDTO);
+			if (accountDTO != null) {
+				if (accountDTO.getDeviceList() != null) {
+					accountDTO.getDeviceList().forEach(device -> {
+						Future<Optional<String>> future = executor.submit(new GetDeviceDetails(accountDTO.getUser(),
+								configuration, accountId, device.getIccid(), accountDTO, audit, requestService));
+						futureListOfDevices.add(future);
+					});
+				}
+			}
+		});
+
+		futureListOfDevices.forEach(futureObj -> {
+			try {
+				futureObj.get();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		});
+		logger.debug("Execution of getDeviceDetails API is Done.");
+		accountsService.saveAll(accountsMap.values());
+		logger.info("{} records are stored into database", accountsMap.size());
+		logger.debug("Terminating thread pool");
+		executor.shutdownNow();
 	}
 }

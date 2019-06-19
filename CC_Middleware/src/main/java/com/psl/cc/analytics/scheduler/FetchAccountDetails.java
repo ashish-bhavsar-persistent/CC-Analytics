@@ -34,31 +34,26 @@ import com.psl.cc.analytics.service.AccountService;
 import com.psl.cc.analytics.service.RequestsAuditService;
 import com.psl.cc.analytics.utils.APIAudits;
 
-class FetchAccountDetails implements Callable<JSONObject> {
+class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 	private static final Logger logger = LogManager.getLogger(FetchAccountDetails.class);
 
 	private final CC_User ccUser;
 	private final Configuration configuration;
 	private final RequestsAuditService requestService;
 	private final AccountService accountsService;
-	private final ThreadPoolExecutor executor;
 	private final APIAudits audit;
-	private final String modifiedSince;
 
 	public FetchAccountDetails(CC_User ccUser, Configuration configuration, RequestsAuditService requestService,
-			AccountService accountsService, ThreadPoolExecutor executor, APIAudits audit, String modifiedSince) {
+			AccountService accountsService, APIAudits audit) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
 		this.requestService = requestService;
 		this.accountsService = accountsService;
-		this.executor = executor;
 		this.audit = audit;
-		this.modifiedSince = modifiedSince;
-
 	}
 
 	@Override
-	public JSONObject call() throws Exception {
+	public Map<String, AccountDTO> call() throws Exception {
 		final Map<String, AccountDTO> accountsMap = new HashMap<>();
 		List<AccountDTO> accountsList = accountsService.getAllByUserId(ccUser.getId());
 		if (accountsList != null) {
@@ -109,6 +104,7 @@ class FetchAccountDetails implements Callable<JSONObject> {
 						accountDTO.setLastUpdatedOn(new Date());
 						if (accountDTO.getCreatedOn() == null) {
 							accountDTO.setCreatedOn(new Date());
+							accountDTO.setDeviceList(new ArrayList<>());
 						}
 						accountsMap.put(accountId, accountDTO);
 					}
@@ -122,39 +118,7 @@ class FetchAccountDetails implements Callable<JSONObject> {
 			throw e;
 		}
 
-		Map<String, Future<Optional<String>>> accountFutureMap = new HashMap<String, Future<Optional<String>>>();
-		List<Future<JSONObject>> futureListOfDevices = new ArrayList<>();
+		return accountsMap;
 
-		for (String accountId : accountsMap.keySet()) {
-			Future<Optional<String>> future = executor.submit(new FetchDevicesOfAccount(ccUser, configuration,
-					requestService, accountId, accountsMap, audit, modifiedSince));
-			accountFutureMap.put(accountId, future);
-		}
-
-		for (String accountIdKey : accountFutureMap.keySet()) {
-			Future<Optional<String>> accountFutureObj = accountFutureMap.get(accountIdKey);
-			try {
-				accountFutureObj.get();
-				for (Device deviceDto : accountsMap.get(accountIdKey).getDeviceList()) {
-					Future<JSONObject> future = executor.submit(new GetDeviceDetails(ccUser, configuration,
-							accountIdKey, deviceDto.getIccid(), accountsMap, audit, requestService));
-					futureListOfDevices.add(future);
-				}
-			} catch (Exception e) {
-				throw e;
-			}
-
-		}
-
-		for (Future<JSONObject> deviceFutureObj : futureListOfDevices) {
-			try {
-				deviceFutureObj.get();
-			} catch (Exception e) {
-				throw e;
-			}
-		}
-		accountsService.saveAll(accountsMap.values());
-		System.out.println("Execution Done");
-		return null;
 	}
 }
