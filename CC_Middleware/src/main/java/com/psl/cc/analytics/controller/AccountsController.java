@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -36,7 +37,7 @@ public class AccountsController {
 	@Autowired
 	private AccountService accountService;
 
-	@GetMapping("/account/names")
+	@GetMapping("/accounts/name")
 	@ApiOperation(value = "List of Account Names Associated with Current User", response = List.class)
 	public List<AccountDTO> getAccountNames() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -45,33 +46,5 @@ public class AccountsController {
 		return accountService.getAllAccountNames(ccUser.getId());
 	}
 
-	@GetMapping("/account/ratePlan")
-	@ApiOperation(value = "Get yearly rate plan count for perticular account", response = List.class)
-	public List<AccountAggregation> getRatePlanCount(@RequestParam(required = true) String accountId) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
-		return accountService.getRatePlanCountOrCommPlanByAccountId(ccUser.getId(), accountId,
-				ControlCentreConstants.RATE_PLAN);
-	}
-
-	@GetMapping("/account/commPlan")
-	@ApiOperation(value = "Get yearly communication plan count for perticular account", response = List.class)
-	public List<AccountAggregation> getCommPlanCount(@RequestParam(required = true) String accountId) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
-		return accountService.getRatePlanCountOrCommPlanByAccountId(ccUser.getId(), accountId,
-				ControlCentreConstants.COMM_PLAN);
-	}
-
-	@GetMapping("/account/status")
-	@ApiOperation(value = "Get yearly/monthly device status count for perticular account by passing granularity = MONTHLY/YEARLY", response = List.class)
-	public List<AccountAggregation> getStatusCount(@RequestParam(required = true) String accountId,
-			@RequestParam(defaultValue = "monthly") String granularity) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
-		return accountService.getStatusCountByAccountId(ccUser.getId(), accountId, granularity);
-	}
+	
 }
