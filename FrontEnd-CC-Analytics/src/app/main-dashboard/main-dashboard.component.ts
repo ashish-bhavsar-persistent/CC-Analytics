@@ -39,14 +39,23 @@ export class MainDashboardComponent implements OnInit {
   roles: any;
   name: string;
   today = Date.now();
-  placeholderData = "hello";
+  placeholderData = "Choose";
   placeholderData2 = "hell222o";
+
+  planName: string = "Rate Plan"
+  ratePlanDonutDisplay: boolean = true;
+  commPlanDonutDisplay: boolean = false;
 
   constructor(
     private breakpointObserver: BreakpointObserver,
     private _authService: AuthService,
     private http: HttpClient
   ) {}
+
+  donutChartToggle(event){
+    if(event.checked) { this.commPlanDonutDisplay = true; this.ratePlanDonutDisplay = false; this.planName = "Comm Plan"}
+    else { this.commPlanDonutDisplay = false; this.ratePlanDonutDisplay = true; this.planName = "Rate Plan"}
+  }
 
   ngOnInit() {
 

@@ -44,3 +44,19 @@
     }
   }
 }
+
+.custom-card{
+  width: 18vw;
+  margin-inline-end: 0.5vw;
+
+  mat-card-content{
+    h2{
+      text-align: center;
+    }
+  }
+}
+
+.chart-toggle-card-header{
+  justify-content: space-between;
+  padding-right: 10px;
+}

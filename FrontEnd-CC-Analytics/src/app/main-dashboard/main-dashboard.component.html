@@ -1,48 +1,115 @@
 <nav-bar></nav-bar>
 <div class="grid-container">
 
-    <mat-grid-list cols="1" rowHeight="220px">
-        <mat-grid-tile [colspan]="1" [rowspan]="1">
-          <div class="user-info">
-            <h5>{{name}}</h5>
-            <div class=user-info-roles>
+  <mat-grid-list cols="5" rowHeight="150px">
+    <mat-grid-tile [colspan]="1" [rowspan]="1">
+      <div class="user-info">
+        <h5>{{name}}</h5>
+        <div class=user-info-roles>
           <h4>Welcome, {{username}}</h4>
           <roles-menu [roles]="roles" matTooltip="click to display roles"></roles-menu>
         </div>
-          <h6>{{today | date:'medium'}}</h6>
-          <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input>
-          <!-- <autocomplete-input [placeholderData]="placeholderData2"></autocomplete-input> -->
-        </div>
-        </mat-grid-tile>
-      </mat-grid-list>
+        <h6>{{today | date:'medium'}}</h6>
+        <!-- <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input> -->
+        <!-- <autocomplete-input [placeholderData]="placeholderData2"></autocomplete-input> -->
+      </div>
+    </mat-grid-tile>
 
-
-  <!-- <h1 class="mat-h1">Dashboard</h1> -->
-  <mat-grid-list cols="4" rowHeight="350px">
     <mat-grid-tile [colspan]="1" [rowspan]="1">
-      <mat-card class="dashboard-card">
+      <mat-card class="custom-card">
         <mat-card-header>
-          <mat-card-title>
-            Hello
-          </mat-card-title>
+          <mat-card-title>Activated</mat-card-title>
+          <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
         </mat-card-header>
-        <mat-card-content class="dashboard-card-content">
-          <div>Card Content Here</div>
+        <mat-card-content>
+          <h2>24 | 454</h2>
         </mat-card-content>
       </mat-card>
     </mat-grid-tile>
 
     <mat-grid-tile [colspan]="1" [rowspan]="1">
-        <mat-card class="dashboard-card">
-          <mat-card-header>
-            <mat-card-title>
-              Hello
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content class="dashboard-card-content">
-            <div>Card Content Here</div>
-          </mat-card-content>
-        </mat-card>
-      </mat-grid-tile>
+      <mat-card class="custom-card">
+        <mat-card-header>
+          <mat-card-title>Deactivated</mat-card-title>
+          <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <h2>11 | 238</h2>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile [colspan]="1" [rowspan]="1">
+      <mat-card class="custom-card">
+        <mat-card-header>
+          <mat-card-title>Retired</mat-card-title>
+          <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <h2>19 | 342</h2>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile [colspan]="1" [rowspan]="1">
+      <mat-card class="custom-card">
+        <mat-card-header>
+          <mat-card-title>Purged</mat-card-title>
+          <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <h2>34 | 134</h2>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
   </mat-grid-list>
+
+
+  <!-- <h1 class="mat-h1">Dashboard</h1> -->
+  <mat-grid-list cols="5" rowHeight="1:1.11">
+    
+    <mat-grid-tile [colspan]="1" [rowspan]="1">
+      <mat-card class="dashboard-card">
+        <mat-card-header class="chart-toggle-card-header">
+          <mat-card-title>
+            {{planName}} Analysis
+          </mat-card-title>
+          <mat-card-subtitle>
+            <!-- <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input> -->
+          </mat-card-subtitle>
+          <mat-card-actions>
+            <mat-slide-toggle [color]="color" [checked]="checked" [disabled]="disabled" (change)="donutChartToggle($event)" matTooltip="toggle between rate and comm plan" color="primary">
+            </mat-slide-toggle>
+          </mat-card-actions>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content">
+          <div style="margin-top: 35px;">
+            <rate-plan-donut-chart *ngIf="ratePlanDonutDisplay"></rate-plan-donut-chart>
+            <comm-plan-donut-chart *ngIf="commPlanDonutDisplay"></comm-plan-donut-chart>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+
+    <mat-grid-tile [colspan]="4" [rowspan]="1">
+      <mat-card class="dashboard-card">
+        <mat-card-header>
+          <mat-card-title>
+            Communication Plan Analysis
+          </mat-card-title>
+          <mat-card-subtitle>
+            <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input>
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="dashboard-card-content">
+          <div>
+            <comm-plan-donut-chart></comm-plan-donut-chart>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </mat-grid-tile>
+  </mat-grid-list>
+
+
 </div>
