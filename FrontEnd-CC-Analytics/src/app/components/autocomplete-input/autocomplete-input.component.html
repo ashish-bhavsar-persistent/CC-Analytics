@@ -1,10 +1,10 @@
-<form class="form">
-    <mat-form-field class="full-width">
-      <input type="text" placeholder="{{placeholderData}}" aria-label="Assignee" matInput [formControl]="myControl" [matAutocomplete]="auto">
-      <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-        <mat-option *ngFor="let option of filteredOptions | async" [value]="option.accountId">
-          {{option.accountName}}
-        </mat-option>
-      </mat-autocomplete>
-    </mat-form-field>
-  </form>
+<form class="example-form">
+  <mat-form-field class="example-full-width">
+    <input type="text" placeholder="Accounts" aria-label="Accounts" matInput [formControl]="myControl" [matAutocomplete]="auto">
+    <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+      <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+        {{option.accountName}}
+      </mat-option>
+    </mat-autocomplete>
+  </mat-form-field>
+</form>
