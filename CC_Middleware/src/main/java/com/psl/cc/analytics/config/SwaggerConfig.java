@@ -24,7 +24,7 @@ import static org.hibernate.validator.internal.util.CollectionHelper.newArrayLis
 
 @Configuration
 @EnableSwagger2
-@ComponentScan(basePackages = "com.psl.cc.analytics")
+@ComponentScan(basePackages = "com.psl.cc.analytics.controller")
 public class SwaggerConfig {
 
 	@Value("${config.oauth2.accessTokenUri}")

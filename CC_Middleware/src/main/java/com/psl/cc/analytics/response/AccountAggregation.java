@@ -6,6 +6,9 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 public class AccountAggregation {
 
 	private long total;
+	private long monthlyTotal;
+	private long yearlyTotal;
+
 	private String ratePlan;
 	private String communicationPlan;
 	private String id;
@@ -13,6 +16,22 @@ public class AccountAggregation {
 
 	public String getId() {
 		return id;
+	}
+
+	public long getMonthlyTotal() {
+		return monthlyTotal;
+	}
+
+	public void setMonthlyTotal(long monthlyTotal) {
+		this.monthlyTotal = monthlyTotal;
+	}
+
+	public long getYearlyTotal() {
+		return yearlyTotal;
+	}
+
+	public void setYearlyTotal(long yearlyTotal) {
+		this.yearlyTotal = yearlyTotal;
 	}
 
 	public void setId(String id) {

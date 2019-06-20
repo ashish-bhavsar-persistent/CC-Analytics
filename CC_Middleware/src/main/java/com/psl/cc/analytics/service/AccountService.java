@@ -13,8 +13,14 @@ public interface AccountService {
 
 	public List<AccountDTO> getAllAccountNames(String userId);
 
-	public List<AccountAggregation> getRatePlanCountOrCommPlanByAccountId(String userId, String accountId,
+	public List<AccountAggregation> getDeviceRatePlanOrCommCountPlanByAccountId(String userId, String accountId,
 			String fieldName);
 
-	public List<AccountAggregation> getStatusCountByAccountId(String userId, String accountId, String granularity);
+	public List<AccountAggregation> getDeviceStatusCountByAccountId(String userId, String accountId,
+			String granularity);
+
+	public List<AccountAggregation> getAccountRatePlanOrCommCountPlan(String userId, String inputFieldName,
+			String outputFieldName);
+
+	public List<AccountAggregation> getDeviceStatusCountByUserId(String userId, String granularity);
 }

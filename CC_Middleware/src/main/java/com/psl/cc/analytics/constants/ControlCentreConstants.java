@@ -12,7 +12,9 @@ public class ControlCentreConstants {
 
 	public static final String DATEFORMAT_DEVICESURL = "yyyy-MM-dd'T'HH:mm:ssXXX";
 	public static final String DATEFORMAT_DEVICES = "yyyy-MM-dd HH:mm:ss.SSSZ";
-	public static final String RATE_PLAN = "ratePlan";
-	public static final String COMM_PLAN = "communicationPlan";
+	public static final String DEVICE_RATE_PLAN = "ratePlan";
+	public static final String DEVICE_COMM_PLAN = "communicationPlan";
+	public static final String ACCOUNT_RATE_PLAN = "defaultRatePlan.defaultRatePlanName";
+	public static final String ACCOUNT_COMM_PLAN = "commPlanDetails.defaultCommPlan";
 
 }

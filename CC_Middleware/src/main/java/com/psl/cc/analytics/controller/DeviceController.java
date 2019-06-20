@@ -42,8 +42,8 @@ public class DeviceController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CC_User ccUser = userService.findOneByUsername(username);
-		return accountService.getRatePlanCountOrCommPlanByAccountId(ccUser.getId(), accountId,
-				ControlCentreConstants.RATE_PLAN);
+		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(ccUser.getId(), accountId,
+				ControlCentreConstants.DEVICE_RATE_PLAN);
 	}
 
 	@GetMapping("/devices/commPlan")
@@ -52,8 +52,8 @@ public class DeviceController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CC_User ccUser = userService.findOneByUsername(username);
-		return accountService.getRatePlanCountOrCommPlanByAccountId(ccUser.getId(), accountId,
-				ControlCentreConstants.COMM_PLAN);
+		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(ccUser.getId(), accountId,
+				ControlCentreConstants.DEVICE_COMM_PLAN);
 	}
 
 	@GetMapping("/devices/status")
@@ -63,6 +63,6 @@ public class DeviceController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CC_User ccUser = userService.findOneByUsername(username);
-		return accountService.getStatusCountByAccountId(ccUser.getId(), accountId, granularity);
+		return accountService.getDeviceStatusCountByAccountId(ccUser.getId(), accountId, granularity);
 	}
 }
