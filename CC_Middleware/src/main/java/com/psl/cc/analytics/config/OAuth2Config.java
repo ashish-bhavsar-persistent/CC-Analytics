@@ -33,7 +33,7 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 	@Value("${security.oauth2.client.grantType.password}")
 	private String password;
 	@Value("${security.oauth2.client.grantType.refresh_token}")
-	private String refresh_token;
+	private String refreshToken;
 	
 	private static final int ONE_DAY = 60 * 60 * 24;
 	private static final int THIRTY_DAYS = 60 * 60 * 24 * 30;
@@ -80,7 +80,7 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
 		clients.inMemory().withClient(clientId).secret(encoder.encode(clientSecret))
-				.authorizedGrantTypes(password, refresh_token).authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
+				.authorizedGrantTypes(password, refreshToken).authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
 				.scopes("read", "write", "trust").accessTokenValiditySeconds(ONE_DAY)
 				.refreshTokenValiditySeconds(THIRTY_DAYS);
 

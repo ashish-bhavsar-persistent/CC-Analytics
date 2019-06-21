@@ -44,7 +44,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Order(Ordered.HIGHEST_PRECEDENCE)
 	protected void configure(HttpSecurity http) throws Exception {
 		http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and().csrf().disable()
-				.authorizeRequests().antMatchers("/oauth/token").permitAll().anyRequest().authenticated();
+				.authorizeRequests().antMatchers("/oauth/token").permitAll().anyRequest().authenticated().and()
+				.formLogin().loginPage("/login").permitAll();
 
 	}
 
