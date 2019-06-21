@@ -32,12 +32,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Autowired
 	private UserDetailsService customUserService;
 
-//	@Autowired
-//	public void globalUserDetails(AuthenticationManagerBuilder auth) throws Exception {
-//		auth.inMemoryAuthentication().withUser("VivoSpAdmin").password(encoder.encode("password")).roles("ADMIN", "USER")
-//				.and().withUser("crmuser").password(encoder.encode("pass123")).roles("USER");
-//	}
-
 	@Override
 	public void configure(WebSecurity web) throws Exception {
 		// Filters will not get executed for the resources

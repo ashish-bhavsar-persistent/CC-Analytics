@@ -2,7 +2,8 @@
   <mat-form-field class="example-full-width">
     <input type="text" placeholder="Accounts" aria-label="Accounts" matInput [formControl]="myControl" [matAutocomplete]="auto">
     <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
-      <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+      <mat-option *ngFor="let option of filteredOptions | async" [value]="option.accountId"
+      matTooltip="{{option.accountName}}" matToolTipPosition="after" matTooltipShowDelay="100" matTooltipHideDelay="100">
         {{option.accountName}}
       </mat-option>
     </mat-autocomplete>

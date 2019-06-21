@@ -190,7 +190,7 @@ public class UserController {
 			configuration.setApiKey(user.getApiKey());
 			configRepository.save(configuration);
 
-			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
+			URI location = ServletUriComponentsBuilder.fromCurrentRequest()
 					.buildAndExpand(cc_User.getId()).toUri();
 			return ResponseEntity.created(location).build();
 		} else {
