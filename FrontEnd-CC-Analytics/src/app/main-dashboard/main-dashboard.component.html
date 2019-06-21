@@ -68,25 +68,23 @@
 
   <!-- <h1 class="mat-h1">Dashboard</h1> -->
   <mat-grid-list cols="5" rowHeight="1:1.11">
-    
+
     <mat-grid-tile [colspan]="1" [rowspan]="1">
       <mat-card class="dashboard-card">
         <mat-card-header class="chart-toggle-card-header">
-          <mat-card-title>
-            {{planName}} Analysis
-          </mat-card-title>
-          <mat-card-subtitle>
-            <!-- <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input> -->
-          </mat-card-subtitle>
-          <mat-card-actions>
-            <mat-slide-toggle [color]="color" [checked]="checked" [disabled]="disabled" (change)="donutChartToggle($event)" matTooltip="toggle between rate and comm plan" color="primary">
-            </mat-slide-toggle>
-          </mat-card-actions>
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
-          <div style="margin-top: 35px;">
-            <rate-plan-donut-chart *ngIf="ratePlanDonutDisplay"></rate-plan-donut-chart>
-            <comm-plan-donut-chart *ngIf="commPlanDonutDisplay"></comm-plan-donut-chart>
+          <div>
+              <mat-tab-group style="width: auto;">
+                  <mat-tab label="Rate Plan">
+                    <div style="height: 30px;"></div>
+                    <rate-plan-donut-chart></rate-plan-donut-chart>
+                  </mat-tab>
+                  <mat-tab label="Comm Plan">
+                    <div style="height: 30px;"></div>
+                    <comm-plan-donut-chart></comm-plan-donut-chart>
+                  </mat-tab>
+                </mat-tab-group>
           </div>
         </mat-card-content>
       </mat-card>
@@ -96,7 +94,7 @@
       <mat-card class="dashboard-card">
         <mat-card-header>
           <mat-card-title>
-            Communication Plan Analysis
+            Account Analysis
           </mat-card-title>
           <mat-card-subtitle>
             <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input>
@@ -104,7 +102,7 @@
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
           <div>
-            <comm-plan-donut-chart></comm-plan-donut-chart>
+            <account-analysis-chart></account-analysis-chart>
           </div>
         </mat-card-content>
       </mat-card>

@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { AccountanalysisdataserviceService } from 'src/app/services/accountanalysisdataservice.service';
 
 export interface User {
   accountName: string;
@@ -24,8 +25,14 @@ export class AutocompleteInputComponent implements OnInit {
   options: User[] = [];
   filteredOptions: Observable<User[]>;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private accAnalysisService: AccountanalysisdataserviceService) {
 
+  }
+
+  fetchAccountDetails(event){
+    let accountDetails: any = event.option.value;
+    let accountId: string = accountDetails.accountId;
+    this.accAnalysisService.setAccountId(accountId);
   }
 
   ngOnInit() {

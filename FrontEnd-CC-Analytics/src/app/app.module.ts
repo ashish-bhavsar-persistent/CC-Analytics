@@ -15,7 +15,7 @@ import { MatInputModule } from '@angular/material/input';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import {MatButtonModule} from '@angular/material/button';
 import { MainDashboardComponent } from './main-dashboard/main-dashboard.component';
-import { MatGridListModule, MatCardModule, MatMenuModule, MatIconModule, MatSlideToggleModule, MatTooltipModule, MatAutocompleteModule } from '@angular/material';
+import { MatGridListModule, MatCardModule, MatMenuModule, MatIconModule, MatSlideToggleModule, MatTooltipModule, MatAutocompleteModule, MatButtonToggleModule, MatTabsModule } from '@angular/material';
 import { LayoutModule } from '@angular/cdk/layout';
 import { AuthGuard } from './guards/auth.guard';
 import { TokenInterceptorService } from './services/token-interceptor.service';
@@ -27,6 +27,8 @@ import { AutocompleteInputComponent } from './components/autocomplete-input/auto
 import { InformationCardsComponent } from './components/information-cards/information-cards.component';
 import { RatePlanDonutChartComponent } from './components/charts/rate-plan-donut-chart/rate-plan-donut-chart.component';
 import { CommPlanDonutChartComponent } from './components/charts/comm-plan-donut-chart/comm-plan-donut-chart.component';
+import { AccountAnalysisChartComponent } from './components/charts/account-analysis-chart/account-analysis-chart.component';
+import { AccountanalysisdataserviceService } from './services/accountanalysisdataservice.service';
 
 
 @NgModule({
@@ -40,7 +42,8 @@ import { CommPlanDonutChartComponent } from './components/charts/comm-plan-donut
     AutocompleteInputComponent,
     InformationCardsComponent,
     RatePlanDonutChartComponent,
-    CommPlanDonutChartComponent
+    CommPlanDonutChartComponent,
+    AccountAnalysisChartComponent
   ],
   imports: [
     BrowserModule,
@@ -65,9 +68,11 @@ import { CommPlanDonutChartComponent } from './components/charts/comm-plan-donut
     MatTooltipModule,
     MatAutocompleteModule,
     ChartsModule,
-    ScrollDispatchModule
+    ScrollDispatchModule,
+    MatButtonToggleModule,
+    MatTabsModule
   ],
-  providers: [ApiService, AuthService, AuthGuard,
+  providers: [ApiService, AuthService, AuthGuard, AccountanalysisdataserviceService,
      { 
        provide: HTTP_INTERCEPTORS,
        useClass: TokenInterceptorService,

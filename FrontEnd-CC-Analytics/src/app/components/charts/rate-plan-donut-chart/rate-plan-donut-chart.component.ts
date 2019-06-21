@@ -35,7 +35,6 @@ export class RatePlanDonutChartComponent implements OnInit {
   };
   public pieChartType: ChartType = 'pie';
   public pieChartLegend = false;
-  //public pieChartPlugins = [pluginDataLabels];
   public pieChartColors = [
     {
       backgroundColor: [

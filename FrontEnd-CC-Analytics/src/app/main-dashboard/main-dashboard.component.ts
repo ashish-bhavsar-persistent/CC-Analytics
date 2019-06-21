@@ -7,6 +7,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { environment } from "../../environments/environment";
 import { Observable } from 'rxjs';
 import { timer } from 'rxjs';
+import { AccountanalysisdataserviceService } from '../services/accountanalysisdataservice.service';
 
 @Component({
   selector: "app-main-dashboard",
@@ -39,8 +40,7 @@ export class MainDashboardComponent implements OnInit {
   roles: any;
   name: string;
   today = Date.now();
-  placeholderData = "Choose";
-  placeholderData2 = "hell222o";
+  placeholderData = "Accounts";
 
   planName: string = "Rate Plan"
   ratePlanDonutDisplay: boolean = true;
@@ -49,7 +49,8 @@ export class MainDashboardComponent implements OnInit {
   constructor(
     private breakpointObserver: BreakpointObserver,
     private _authService: AuthService,
-    private http: HttpClient
+    private http: HttpClient,
+    private accAnalysisService: AccountanalysisdataserviceService
   ) {}
 
   donutChartToggle(event){

@@ -7,3 +7,7 @@ form {
   full-width {
     width: 100%;
   }
+
+  .cdk-overlay-pane .mat-autocomplete-panel-above{
+    width: auto;
+  }
