@@ -6,7 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.repository.UserRepository;
 import com.psl.cc.analytics.service.UserService;
 
@@ -17,27 +17,27 @@ public class UserServiceImpl implements UserService {
 	private UserRepository repository;
 
 	@Override
-	public CC_User findOneByUsername(String username) {
+	public CCUser findOneByUsername(String username) {
 		return repository.findOneByUsername(username);
 	}
 
 	@Override
-	public CC_User save(CC_User user) {
+	public CCUser save(CCUser user) {
 		return repository.save(user);
 	}
 
 	@Override
-	public void delete(CC_User user) {
+	public void delete(CCUser user) {
 		repository.delete(user);
 	}
 
 	@Override
-	public Optional<CC_User> findOneById(String id) {
+	public Optional<CCUser> findOneById(String id) {
 		return repository.findOneById(id);
 	}
 
 	@Override
-	public List<CC_User> findAll() {
+	public List<CCUser> findAll() {
 		return repository.findAll();
 	}
 

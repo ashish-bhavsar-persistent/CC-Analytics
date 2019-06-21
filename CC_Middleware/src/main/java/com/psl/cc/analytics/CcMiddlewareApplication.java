@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Role;
 import com.psl.cc.analytics.repository.RoleRepository;
 import com.psl.cc.analytics.scheduler.GetAllAccounts;
@@ -36,30 +36,30 @@ public class CcMiddlewareApplication {
 	@Bean
 	CommandLineRunner init(RoleRepository roleRepository, UserService userService) {
 		return args -> {
-			Role adminRole = roleRepository.findOneByRole("ADMIN");
+			Role adminRole = roleRepository.findOneByName("ADMIN");
 			if (adminRole == null) {
 				adminRole = new Role();
-				adminRole.setRole("ADMIN");
+				adminRole.setName("ADMIN");
 				roleRepository.save(adminRole);
 			}
 
-			Role userRole = roleRepository.findOneByRole("USER");
+			Role userRole = roleRepository.findOneByName("USER");
 			if (userRole == null) {
 				userRole = new Role();
-				userRole.setRole("USER");
+				userRole.setName("USER");
 				roleRepository.save(userRole);
 			}
 
-			Role sysRole = roleRepository.findOneByRole("SYSADMIN");
+			Role sysRole = roleRepository.findOneByName("SYSADMIN");
 			if (sysRole == null) {
 				sysRole = new Role();
-				sysRole.setRole("SYSADMIN");
+				sysRole.setName("SYSADMIN");
 				sysRole = roleRepository.save(sysRole);
 			}
 
-			CC_User user = userService.findOneByUsername("cc_sysadmin");
+			CCUser user = userService.findOneByUsername("cc_sysadmin");
 			if (user == null) {
-				user = new CC_User();
+				user = new CCUser();
 				user.setUsername("cc_sysadmin");
 				user.setName("Root User");
 				user.setPassword(passwordEncoder.encode("password"));

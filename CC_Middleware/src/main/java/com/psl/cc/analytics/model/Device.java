@@ -9,12 +9,46 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_EMPTY)
 
 public class Device extends Audit {
-	private String ratePlan, euiccid, imsi, dateAdded, operatorCustom2, operatorCustom1, iccid, operatorCustom4,
-			operatorCustom3, customerCustom1, dateShipped, customerCustom2, globalSimType, msisdn, customerCustom5,
-			customerCustom3, customerCustom4, modemID, communicationPlan, fixedIPAddress, endConsumerId,
-			operatorCustom5, deviceID, dateUpdated, accountCustom3, accountId, accountCustom2, accountCustom10,
-			accountCustom5, accountCustom4, accountCustom1, imei, dateActivated, accountCustom7, accountCustom6,
-			accountCustom9, status, customer, accountCustom8, simNotes;
+	private String ratePlan;
+	private String euiccid;
+	private String imsi;
+	private String dateAdded;
+	private String operatorCustom2;
+	private String operatorCustom1;
+	private String iccid;
+	private String operatorCustom4;
+	private String operatorCustom3;
+	private String customerCustom1;
+	private String dateShipped;
+	private String customerCustom2;
+	private String globalSimType;
+	private String msisdn;
+	private String customerCustom5;
+	private String customerCustom3;
+	private String customerCustom4;
+	private String modemID;
+	private String communicationPlan;
+	private String fixedIPAddress;
+	private String endConsumerId;
+	private String operatorCustom5;
+	private String deviceID;
+	private String dateUpdated;
+	private String accountCustom3;
+	private String accountId;
+	private String accountCustom2;
+	private String accountCustom10;
+	private String accountCustom5;
+	private String accountCustom4;
+	private String accountCustom1;
+	private String imei;
+	private String dateActivated;
+	private String accountCustom7;
+	private String accountCustom6;
+	private String accountCustom9;
+	private String status;
+	private String customer;
+	private String accountCustom8;
+	private String simNotes;
 
 	public String getRatePlan() {
 		return ratePlan;

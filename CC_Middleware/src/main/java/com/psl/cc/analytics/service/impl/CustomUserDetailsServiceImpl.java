@@ -6,7 +6,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.TokenUser;
 import com.psl.cc.analytics.service.UserService;
 
@@ -17,13 +17,13 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
 	private UserService userSevice;
 
 	@Override
-	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-		CC_User cc_user = userSevice.findOneByUsername(username);
-		if (cc_user == null) {
+	public UserDetails loadUserByUsername(String username) {
+		CCUser ccUser = userSevice.findOneByUsername(username);
+		if (ccUser == null) {
 			throw new UsernameNotFoundException("User Not Found");
 		}
-		TokenUser tokenUser =  new TokenUser(cc_user);
-		return tokenUser;
+		return new TokenUser(ccUser);
+		
 	}
 
 }

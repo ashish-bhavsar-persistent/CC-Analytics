@@ -7,6 +7,6 @@ import com.psl.cc.analytics.model.Configuration;
 
 public interface ConfigurationRepository extends MongoRepository<Configuration, String> {
 	@Query("{'user.id': ?0}")
-	Configuration findOneByCC_UserId(String userId);
+	Configuration findOneByUserId(String userId);
 
 }

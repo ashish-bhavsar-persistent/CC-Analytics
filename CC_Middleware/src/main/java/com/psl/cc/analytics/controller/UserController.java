@@ -29,9 +29,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.psl.cc.analytics.exception.CC_Exception;
+import com.psl.cc.analytics.exception.CCException;
 import com.psl.cc.analytics.exception.InAppropriateDataException;
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.model.Role;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
@@ -67,11 +67,11 @@ public class UserController {
 	@ApiOperation(value = "List of users", response = List.class)
 	public List<User> getAllUsers() {
 		logger.debug("getAllUsers() invoked");
-		List<CC_User> cc_Users = userService.findAll();
-		List<User> users = new ArrayList<User>();
-		if (cc_Users != null)
-			for (CC_User cc_user : cc_Users) {
-				Configuration configuration = configRepository.findOneByCC_UserId(cc_user.getId());
+		List<CCUser> ccUsers = userService.findAll();
+		List<User> users = new ArrayList<>();
+		if (ccUsers != null)
+			for (CCUser cc_user : ccUsers) {
+				Configuration configuration = configRepository.findOneByUserId(cc_user.getId());
 				User tempUser = new User(cc_user, configuration);
 				users.add(tempUser);
 			}
@@ -81,14 +81,14 @@ public class UserController {
 	@GetMapping("/users/{id}")
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
 	@ApiOperation(value = "Search user by Id", response = User.class)
-	public User getUserById(@PathVariable String id) {
-		Optional<CC_User> cc_User = userService.findOneById(id);
+	public User getUserById(@PathVariable String id) throws CCException {
+		Optional<CCUser> ccUser = userService.findOneById(id);
 		User tempUser = null;
-		if (cc_User.isPresent()) {
-			Configuration configuration = configRepository.findOneByCC_UserId(cc_User.get().getId());
-			tempUser = new User(cc_User.get(), configuration);
+		if (ccUser.isPresent()) {
+			Configuration configuration = configRepository.findOneByUserId(ccUser.get().getId());
+			tempUser = new User(ccUser.get(), configuration);
 		} else {
-			throw new CC_Exception(id + " Not Found");
+			throw new CCException(id + ": Not Found");
 		}
 		return tempUser;
 	}
@@ -96,24 +96,24 @@ public class UserController {
 	@PostMapping("/users")
 	@ApiOperation(value = "Add a user")
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
-	public ResponseEntity<?> createUser(@RequestBody @Valid User user) {
-		CC_User cc_User = new CC_User();
+	public ResponseEntity<String> createUser(@RequestBody @Valid User user) {
+		CCUser ccUser = new CCUser();
 		List<Role> roles = new ArrayList<>();
 		for (String role : user.getRoles()) {
-			Role tempRole = roleRepository.findOneByRole(role);
+			Role tempRole = roleRepository.findOneByName(role);
 			if (tempRole == null) {
-				return new ResponseEntity<>(role + " Not Found", HttpStatus.NOT_FOUND);
+				return new ResponseEntity<>(role + ": Not Found", HttpStatus.NOT_FOUND);
 			}
 			roles.add(tempRole);
 		}
-		cc_User.setUsername(user.getUsername());
-		cc_User.setName(user.getName());
-		cc_User.setPassword(passwordEncoder.encode(user.getPassword()));
-		cc_User.setActive(true);
-		cc_User.setCreatedOn(new Date());
-		cc_User.setLastUpdatedOn(new Date());
-		cc_User.setRoles(roles);
-		userService.save(cc_User);
+		ccUser.setUsername(user.getUsername());
+		ccUser.setName(user.getName());
+		ccUser.setPassword(passwordEncoder.encode(user.getPassword()));
+		ccUser.setActive(true);
+		ccUser.setCreatedOn(new Date());
+		ccUser.setLastUpdatedOn(new Date());
+		ccUser.setRoles(roles);
+		userService.save(ccUser);
 
 		Configuration configuration = new Configuration();
 		configuration.setBaseUrl(user.getBaseUrl());
@@ -124,11 +124,11 @@ public class UserController {
 		configuration.setDeviceStates(user.getDeviceStates());
 		configuration.setUseAPIKey(user.isUseAPIKey());
 		configuration.setUsePassword(user.isUsePassword());
-		configuration.setUser(cc_User);
+		configuration.setUser(ccUser);
 		configuration.setApiKey(user.getApiKey());
 		configRepository.save(configuration);
 
-		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(cc_User.getId())
+		URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(ccUser.getId())
 				.toUri();
 		return ResponseEntity.created(location).build();
 	}
@@ -136,48 +136,48 @@ public class UserController {
 	@DeleteMapping("/users/{id}")
 	@ApiOperation(value = "Delete a user by Id")
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
-	public ResponseEntity<Void> deleteUserById(@PathVariable String id) {
-		Optional<CC_User> cc_User = userService.findOneById(id);
-		if (cc_User.isPresent()) {
-			Configuration configuration = configRepository.findOneByCC_UserId(cc_User.get().getId());
+	public ResponseEntity<Void> deleteUserById(@PathVariable String id) throws CCException {
+		Optional<CCUser> ccUser = userService.findOneById(id);
+		if (ccUser.isPresent()) {
+			Configuration configuration = configRepository.findOneByUserId(ccUser.get().getId());
 			configRepository.delete(configuration);
-			userService.delete(cc_User.get());
+			userService.delete(ccUser.get());
 		} else {
-			throw new CC_Exception(id + " Not Found");
+			throw new CCException(id + ": Not Found");
 		}
-		return new ResponseEntity<Void>(HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 
 	@PutMapping("/users/{id}")
 	@ApiOperation(value = "Update a user by Id")
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
-	public ResponseEntity<?> updateUser(@PathVariable String id, @Valid @RequestBody User user) {
+	public ResponseEntity<String> updateUser(@PathVariable String id, @Valid @RequestBody User user) {
 		if (user.isUseAPIKey() && user.isUsePassword()) {
 			throw new InAppropriateDataException("Both useAPIKey and usePassword can not be true");
 		} else if (!user.isUseAPIKey() && !user.isUsePassword()) {
 			throw new InAppropriateDataException("Both useAPIKey and usePassword can not be false");
 		}
-		Optional<CC_User> cc_UserOptional = userService.findOneById(id);
-		if (cc_UserOptional.isPresent()) {
-			CC_User cc_User = cc_UserOptional.get();
+		Optional<CCUser> optionalUser = userService.findOneById(id);
+		if (optionalUser.isPresent()) {
+			CCUser ccUser = optionalUser.get();
 			List<Role> roles = new ArrayList<>();
 			for (String role : user.getRoles()) {
-				Role tempRole = roleRepository.findOneByRole(role);
+				Role tempRole = roleRepository.findOneByName(role);
 				if (tempRole == null) {
-					return new ResponseEntity<>(role + " Not Found", HttpStatus.NOT_FOUND);
+					return new ResponseEntity<>(role + ": Not Found", HttpStatus.NOT_FOUND);
 				}
 				roles.add(tempRole);
 			}
-			cc_User.setUsername(user.getUsername());
-			cc_User.setName(user.getName());
-			cc_User.setPassword(passwordEncoder.encode(user.getPassword()));
-			cc_User.setActive(true);
-			cc_User.setLastUpdatedOn(new Date());
-			cc_User.setRoles(roles);
+			ccUser.setUsername(user.getUsername());
+			ccUser.setName(user.getName());
+			ccUser.setPassword(passwordEncoder.encode(user.getPassword()));
+			ccUser.setActive(true);
+			ccUser.setLastUpdatedOn(new Date());
+			ccUser.setRoles(roles);
 
-			userService.save(cc_User);
+			userService.save(ccUser);
 
-			Configuration configuration = configRepository.findOneByCC_UserId(cc_User.getId());
+			Configuration configuration = configRepository.findOneByUserId(ccUser.getId());
 			configuration.setBaseUrl(user.getBaseUrl());
 			configuration.setBillingCyclePeriod(user.getBillingCyclePeriod());
 			configuration.setBillingCycleStartDay(user.getBillingCycleStartDay());
@@ -186,12 +186,11 @@ public class UserController {
 			configuration.setDeviceStates(user.getDeviceStates());
 			configuration.setUseAPIKey(user.isUseAPIKey());
 			configuration.setUsePassword(user.isUsePassword());
-			configuration.setUser(cc_User);
+			configuration.setUser(ccUser);
 			configuration.setApiKey(user.getApiKey());
 			configRepository.save(configuration);
 
-			URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-					.buildAndExpand(cc_User.getId()).toUri();
+			URI location = ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(ccUser.getId()).toUri();
 			return ResponseEntity.created(location).build();
 		} else {
 			return new ResponseEntity<>(id + " Not Found", HttpStatus.NOT_FOUND);
@@ -200,18 +199,17 @@ public class UserController {
 
 	@GetMapping("/users/me")
 	@ApiOperation(value = "Get current user details")
-	public User getCurrentUser() {
+	public User getCurrentUser() throws CCException {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-		System.out.println("logged in user name:: " + authentication.getPrincipal());
 
-		CC_User cc_User = userService.findOneByUsername(username);
+		CCUser ccUser = userService.findOneByUsername(username);
 		User tempUser = null;
-		if (cc_User != null) {
-			Configuration configuration = configRepository.findOneByCC_UserId(cc_User.getId());
-			tempUser = new User(cc_User, configuration);
+		if (ccUser != null) {
+			Configuration configuration = configRepository.findOneByUserId(ccUser.getId());
+			tempUser = new User(ccUser, configuration);
 		} else {
-			throw new CC_Exception(" Not Found");
+			throw new CCException(" Not Found");
 		}
 		return tempUser;
 	}

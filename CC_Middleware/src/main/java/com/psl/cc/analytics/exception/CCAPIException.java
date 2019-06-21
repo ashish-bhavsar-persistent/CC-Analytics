@@ -1,19 +1,19 @@
 package com.psl.cc.analytics.exception;
 
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 
-public class CC_APIException extends RuntimeException {
+public class CCAPIException extends RuntimeException {
 	private static final long serialVersionUID = 4146985475187421381L;
 
-	private String apiName;
-	private String endpointUrl;
-	private String errorDetails;
-	private String params;
-	private String status;
-	private CC_User ccUser;
+	private final String apiName;
+	private final String endpointUrl;
+	private final String errorDetails;
+	private final String params;
+	private final String status;
+	private final transient CCUser ccUser;
 
-	public CC_APIException(String apiName, String endpointUrl, String errorDetails, String params, String status,
-			CC_User ccUser) {
+	public CCAPIException(String apiName, String endpointUrl, String errorDetails, String params, String status,
+			CCUser ccUser) {
 		super(errorDetails);
 		this.apiName = apiName;
 		this.endpointUrl = endpointUrl;
@@ -43,11 +43,7 @@ public class CC_APIException extends RuntimeException {
 		return status;
 	}
 
-	public static long getSerialversionuid() {
-		return serialVersionUID;
-	}
-
-	public CC_User getCcUser() {
+	public CCUser getCcUser() {
 		return ccUser;
 	}
 

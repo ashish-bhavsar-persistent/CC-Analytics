@@ -10,14 +10,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.response.AccountAggregation;
 import com.psl.cc.analytics.service.AccountService;
 import com.psl.cc.analytics.service.UserService;
@@ -43,7 +41,7 @@ public class AccountsController {
 	public List<AccountDTO> getAccountNames() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
+		CCUser ccUser = userService.findOneByUsername(username);
 		return accountService.getAllAccountNames(ccUser.getId());
 	}
 
@@ -52,7 +50,7 @@ public class AccountsController {
 	public List<AccountAggregation> getRatePlanCount() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
+		CCUser ccUser = userService.findOneByUsername(username);
 		return accountService.getAccountRatePlanOrCommCountPlan(ccUser.getId(),
 				ControlCentreConstants.ACCOUNT_RATE_PLAN, ControlCentreConstants.DEVICE_RATE_PLAN);
 	}
@@ -62,7 +60,7 @@ public class AccountsController {
 	public List<AccountAggregation> getCommPlanCount() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
+		CCUser ccUser = userService.findOneByUsername(username);
 		return accountService.getAccountRatePlanOrCommCountPlan(ccUser.getId(),
 				ControlCentreConstants.ACCOUNT_COMM_PLAN, ControlCentreConstants.DEVICE_COMM_PLAN);
 	}
@@ -72,7 +70,7 @@ public class AccountsController {
 	public List<AccountAggregation> getDeviceStatust() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
+		CCUser ccUser = userService.findOneByUsername(username);
 		List<AccountAggregation> aggregations = accountService.getDeviceStatusCountByUserId(ccUser.getId(), "monthly");
 		if (aggregations != null && !aggregations.isEmpty()) {
 			List<AccountAggregation> yearlyAggregations = accountService.getDeviceStatusCountByUserId(ccUser.getId(),

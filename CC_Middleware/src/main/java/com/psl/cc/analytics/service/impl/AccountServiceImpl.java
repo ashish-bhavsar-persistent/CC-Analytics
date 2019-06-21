@@ -66,7 +66,7 @@ public class AccountServiceImpl implements AccountService {
 		c.set(c.get(Calendar.YEAR), 11, 31, 0, 0, 0);
 		final String endDate = format.format(c.getTime());
 
-		List<AggregationOperation> list = new ArrayList<AggregationOperation>();
+		List<AggregationOperation> list = new ArrayList<>();
 		list.add(Aggregation.unwind("deviceList"));
 		list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
 		list.add(Aggregation.match(Criteria.where("accountId").is(accountId)));
@@ -84,10 +84,10 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public List<AccountAggregation> getDeviceStatusCountByAccountId(String userId, String accountId,
 			String granularity) {
-		Configuration conf = configRepository.findOneByCC_UserId(userId);
+		Configuration conf = configRepository.findOneByUserId(userId);
 		if (conf != null) {
-			List<Pattern> regex = new ArrayList<Pattern>();
-			int i = 0;
+			List<Pattern> regex = new ArrayList<>();
+			
 			for (String status : conf.getDeviceStates()) {
 				regex.add(Pattern.compile(status, Pattern.CASE_INSENSITIVE));
 			}
@@ -107,7 +107,7 @@ public class AccountServiceImpl implements AccountService {
 				endDate = format.format(c.getTime());
 			}
 
-			List<AggregationOperation> list = new ArrayList<AggregationOperation>();
+			List<AggregationOperation> list = new ArrayList<>();
 			list.add(Aggregation.unwind("deviceList"));
 			list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
 			list.add(Aggregation.match(Criteria.where("accountId").is(accountId)));
@@ -121,7 +121,7 @@ public class AccountServiceImpl implements AccountService {
 			AggregationResults<AccountAggregation> account = mongoTemplate.aggregate(agg, AccountAggregation.class);
 			return account.getMappedResults();
 		} else {
-			return null;
+			return new ArrayList<>();
 		}
 	}
 
@@ -129,7 +129,7 @@ public class AccountServiceImpl implements AccountService {
 	public List<AccountAggregation> getAccountRatePlanOrCommCountPlan(String userId, String inputFieldName,
 			String outputFieldName) {
 
-		List<AggregationOperation> list = new ArrayList<AggregationOperation>();
+		List<AggregationOperation> list = new ArrayList<>();
 		list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
 		list.add(Aggregation.match(Criteria.where("status").regex("Active", "i")));
 
@@ -146,10 +146,10 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	public List<AccountAggregation> getDeviceStatusCountByUserId(String userId, String granularity) {
 
-		Configuration conf = configRepository.findOneByCC_UserId(userId);
+		Configuration conf = configRepository.findOneByUserId(userId);
 		if (conf != null) {
-			List<Pattern> regex = new ArrayList<Pattern>();
-			int i = 0;
+			List<Pattern> regex = new ArrayList<>();
+			
 			for (String status : conf.getDeviceStates()) {
 				regex.add(Pattern.compile(status, Pattern.CASE_INSENSITIVE));
 			}
@@ -169,7 +169,7 @@ public class AccountServiceImpl implements AccountService {
 				endDate = format.format(c.getTime());
 			}
 
-			List<AggregationOperation> list = new ArrayList<AggregationOperation>();
+			List<AggregationOperation> list = new ArrayList<>();
 			list.add(Aggregation.unwind("deviceList"));
 			list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
 			list.add(Aggregation.match(Criteria.where("deviceList.status").in(regex)));
@@ -182,7 +182,7 @@ public class AccountServiceImpl implements AccountService {
 			AggregationResults<AccountAggregation> account = mongoTemplate.aggregate(agg, AccountAggregation.class);
 			return account.getMappedResults();
 		} else {
-			return null;
+			return new ArrayList<>();
 		}
 	}
 

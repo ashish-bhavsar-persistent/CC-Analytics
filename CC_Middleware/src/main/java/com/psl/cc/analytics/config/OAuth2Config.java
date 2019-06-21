@@ -2,6 +2,7 @@ package com.psl.cc.analytics.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -25,7 +26,15 @@ import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 @EnableAuthorizationServer
 public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 
-	private static final int TEN_DAYS = 60 * 60 * 24 * 10;
+	@Value("${config.oauth2.clientId}")
+	private String clientId;
+	@Value("${config.oauth2.clientSecret}")
+	private String clientSecret;
+	@Value("${security.oauth2.client.grantType.password}")
+	private String password;
+	@Value("${security.oauth2.client.grantType.refresh_token}")
+	private String refresh_token;
+	
 	private static final int ONE_DAY = 60 * 60 * 24;
 	private static final int THIRTY_DAYS = 60 * 60 * 24 * 30;
 	private String privateKey = "-----BEGIN RSA PRIVATE KEY-----\r\n"
@@ -70,8 +79,8 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 	@Override
 	public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
 
-		clients.inMemory().withClient("ashish").secret(encoder.encode("secret"))
-				.authorizedGrantTypes("password", "refresh_token").authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
+		clients.inMemory().withClient(clientId).secret(encoder.encode(clientSecret))
+				.authorizedGrantTypes(password, refresh_token).authorities("ROLE_CLIENT", "ROLE_TRUSTED_CLIENT")
 				.scopes("read", "write", "trust").accessTokenValiditySeconds(ONE_DAY)
 				.refreshTokenValiditySeconds(THIRTY_DAYS);
 
@@ -94,7 +103,6 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 
 	@Bean
 	public TokenStore tokenStore() {
-//		return new InMemoryTokenStore();
 		return new JwtTokenStore(accessTokenConverter());
 	}
 
@@ -110,7 +118,7 @@ public class OAuth2Config extends AuthorizationServerConfigurerAdapter {
 
 	@Bean
 	@Autowired
-	public ApprovalStore approvalStore(TokenStore tokenStore) throws Exception {
+	public ApprovalStore approvalStore(TokenStore tokenStore){
 		TokenApprovalStore store = new TokenApprovalStore();
 		store.setTokenStore(tokenStore);
 		return store;

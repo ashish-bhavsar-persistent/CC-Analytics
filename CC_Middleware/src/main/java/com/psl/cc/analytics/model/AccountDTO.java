@@ -29,13 +29,13 @@ public class AccountDTO extends Audit {
 	private List<Device> deviceList;
 
 	@DBRef
-	private CC_User user;
+	private CCUser user;
 
-	public CC_User getUser() {
+	public CCUser getUser() {
 		return user;
 	}
 
-	public void setUser(CC_User user) {
+	public void setUser(CCUser user) {
 		this.user = user;
 	}
 

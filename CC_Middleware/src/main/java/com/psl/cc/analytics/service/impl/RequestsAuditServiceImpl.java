@@ -23,8 +23,8 @@ public class RequestsAuditServiceImpl implements RequestsAuditService {
 		Query query = new Query();
 		query.limit(1);
 		query.with(new Sort(Sort.Direction.DESC, "lastUpdatedOn"));
-		RequestsAudit audit = mongoTemplate.findOne(query, RequestsAudit.class);
-		return audit;
+		return mongoTemplate.findOne(query, RequestsAudit.class);
+		
 	}
 
 	@Override

@@ -9,13 +9,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.response.AccountAggregation;
 import com.psl.cc.analytics.service.AccountService;
 import com.psl.cc.analytics.service.UserService;
@@ -41,7 +40,7 @@ public class DeviceController {
 	public List<AccountAggregation> getRatePlanCount(@RequestParam(required = true) String accountId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
+		CCUser ccUser = userService.findOneByUsername(username);
 		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(ccUser.getId(), accountId,
 				ControlCentreConstants.DEVICE_RATE_PLAN);
 	}
@@ -51,7 +50,7 @@ public class DeviceController {
 	public List<AccountAggregation> getCommPlanCount(@RequestParam(required = true) String accountId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
+		CCUser ccUser = userService.findOneByUsername(username);
 		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(ccUser.getId(), accountId,
 				ControlCentreConstants.DEVICE_COMM_PLAN);
 	}
@@ -62,7 +61,7 @@ public class DeviceController {
 			@RequestParam(defaultValue = "monthly") String granularity) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-		CC_User ccUser = userService.findOneByUsername(username);
+		CCUser ccUser = userService.findOneByUsername(username);
 		return accountService.getDeviceStatusCountByAccountId(ccUser.getId(), accountId, granularity);
 	}
 }

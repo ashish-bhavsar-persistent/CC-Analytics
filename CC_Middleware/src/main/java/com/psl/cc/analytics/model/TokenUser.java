@@ -4,7 +4,7 @@ import org.springframework.security.core.userdetails.User;
 
 public class TokenUser extends User {
 
-	public TokenUser(CC_User user) {
+	public TokenUser(CCUser user) {
 		super(user.getUsername(), user.getPassword(), user.getUserAuthority());
 	}
 

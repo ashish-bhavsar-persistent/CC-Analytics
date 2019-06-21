@@ -4,9 +4,9 @@ import java.util.Optional;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 
-public interface UserRepository extends MongoRepository<CC_User, String> {
-	CC_User findOneByUsername(String username);
-	Optional<CC_User> findOneById(String id);
+public interface UserRepository extends MongoRepository<CCUser, String> {
+	CCUser findOneByUsername(String username);
+	Optional<CCUser> findOneById(String id);
 }

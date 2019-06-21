@@ -6,12 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -26,10 +22,10 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psl.cc.analytics.constants.ControlCentreConstants;
+import com.psl.cc.analytics.exception.CCException;
 import com.psl.cc.analytics.model.AccountDTO;
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Configuration;
-import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.service.AccountService;
 import com.psl.cc.analytics.service.RequestsAuditService;
 import com.psl.cc.analytics.utils.APIAudits;
@@ -37,13 +33,13 @@ import com.psl.cc.analytics.utils.APIAudits;
 class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 	private static final Logger logger = LogManager.getLogger(FetchAccountDetails.class);
 
-	private final CC_User ccUser;
+	private final CCUser ccUser;
 	private final Configuration configuration;
 	private final RequestsAuditService requestService;
 	private final AccountService accountsService;
 	private final APIAudits audit;
 
-	public FetchAccountDetails(CC_User ccUser, Configuration configuration, RequestsAuditService requestService,
+	public FetchAccountDetails(CCUser ccUser, Configuration configuration, RequestsAuditService requestService,
 			AccountService accountsService, APIAudits audit) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
@@ -57,9 +53,7 @@ class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 		final Map<String, AccountDTO> accountsMap = new HashMap<>();
 		List<AccountDTO> accountsList = accountsService.getAllByUserId(ccUser.getId());
 		if (accountsList != null) {
-			accountsList.forEach((accountDTO) -> {
-				accountsMap.put(accountDTO.getAccountId(), accountDTO);
-			});
+			accountsList.forEach(accountDTO -> accountsMap.put(accountDTO.getAccountId(), accountDTO));
 		}
 		String username = ccUser.getUsername();
 		String password = ccUser.getPassword();
@@ -68,8 +62,16 @@ class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 		}
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(username, password);
-		final HttpEntity<String> request = new HttpEntity<String>(headers);
+		final HttpEntity<String> request = new HttpEntity<>(headers);
 
+		extractDetails(accountsMap, request);
+
+		return accountsMap;
+
+	}
+
+	private void extractDetails(final Map<String, AccountDTO> accountsMap, final HttpEntity<String> request)
+			throws CCException {
 		boolean lastPage = false;
 		int pageNumber = 1;
 		RestTemplate restTemplate = new RestTemplate();
@@ -87,7 +89,7 @@ class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 				if (response.getStatusCode() == HttpStatus.OK) {
 					audit.doAudit("getAllAccounts", configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL,
 							null, params.toString(), ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
-					JSONObject accountsObject = new JSONObject(response.getBody().toString());
+					JSONObject accountsObject = new JSONObject(response.getBody());
 					lastPage = accountsObject.getBoolean("lastPage");
 					JSONArray accounts = accountsObject.getJSONArray("accounts");
 					for (Object Obj : accounts) {
@@ -115,10 +117,7 @@ class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 			logger.error(e);
 			audit.doAudit("getAllAccounts", configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL,
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
-			throw e;
+			throw new CCException(e.getMessage());
 		}
-
-		return accountsMap;
-
 	}
 }

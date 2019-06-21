@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
 import com.psl.cc.analytics.service.AccountService;
@@ -77,17 +77,17 @@ public class GetAllAccounts {
 	}
 
 	private void getAllAccounts(String modifiedSince) {
-		List<CC_User> ccUsers = userService.findAll();
+		List<CCUser> ccUsers = userService.findAll();
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors
 				.newFixedThreadPool(ControlCentreConstants.NUMBER_OF_THREADS);
-		List<Future<Map<String, AccountDTO>>> futureList = new ArrayList<Future<Map<String, AccountDTO>>>();
+		List<Future<Map<String, AccountDTO>>> futureList = new ArrayList<>();
 		APIAudits audit = new APIAudits();
-		final Map<String, AccountDTO> accountsMap = new HashMap<String, AccountDTO>();
-		final Map<String, Configuration> configMap = new HashMap<String, Configuration>();
+		final Map<String, AccountDTO> accountsMap = new HashMap<>();
+		final Map<String, Configuration> configMap = new HashMap<>();
 		logger.info("number of Users are {}", ccUsers.size());
 		// get All Account
-		for (CC_User ccUser : ccUsers) {
-			Configuration configuration = configRepository.findOneByCC_UserId(ccUser.getId());
+		for (CCUser ccUser : ccUsers) {
+			Configuration configuration = configRepository.findOneByUserId(ccUser.getId());
 			if (configuration != null) {
 				configMap.put(ccUser.getId(), configuration);
 				Future<Map<String, AccountDTO>> futureObj = executor
@@ -101,7 +101,7 @@ public class GetAllAccounts {
 				Map<String, AccountDTO> tempAccountsMap = futureObj.get();
 				accountsMap.putAll(tempAccountsMap);
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 		});
 		logger.info("{} accounts are retrieved from {} users", accountsMap.size(), ccUsers.size());
@@ -121,7 +121,7 @@ public class GetAllAccounts {
 			try {
 				futureObj.get();
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 		});
 		logger.debug("Execution of searchDevices API is Done.");
@@ -130,23 +130,23 @@ public class GetAllAccounts {
 		futureListOfDevices.clear();
 		accountsMap.forEach((accountId, accountDTO) -> {
 			Configuration configuration = configMap.get(accountDTO.getUser().getId());
-//			System.out.println("accountDTO " + accountDTO);
-			if (accountDTO != null) {
-				if (accountDTO.getDeviceList() != null) {
-					accountDTO.getDeviceList().forEach(device -> {
-						Future<Optional<String>> future = executor.submit(new GetDeviceDetails(accountDTO.getUser(),
-								configuration, accountId, device.getIccid(), accountDTO, audit, requestService));
-						futureListOfDevices.add(future);
-					});
-				}
+
+			if (accountDTO != null && accountDTO.getDeviceList() != null) {
+
+				accountDTO.getDeviceList().forEach(device -> {
+					Future<Optional<String>> future = executor.submit(new GetDeviceDetails(accountDTO.getUser(),
+							configuration, accountId, device.getIccid(), accountDTO, audit, requestService));
+					futureListOfDevices.add(future);
+				});
 			}
+
 		});
 
 		futureListOfDevices.forEach(futureObj -> {
 			try {
 				futureObj.get();
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.error(e);
 			}
 		});
 		logger.debug("Execution of getDeviceDetails API is Done.");

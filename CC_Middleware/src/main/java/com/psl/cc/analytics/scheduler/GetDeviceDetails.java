@@ -20,7 +20,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.service.RequestsAuditService;
@@ -28,7 +28,7 @@ import com.psl.cc.analytics.utils.APIAudits;
 
 public class GetDeviceDetails implements Callable<Optional<String>> {
 	private static final Logger logger = LogManager.getLogger(GetDeviceDetails.class);
-	private final CC_User ccUser;
+	private final CCUser ccUser;
 	private final Configuration configuration;
 	private final String accountId;
 	private final String deviceId;
@@ -36,7 +36,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 	private final APIAudits audit;
 	private final RequestsAuditService requestService;
 
-	public GetDeviceDetails(CC_User ccUser, Configuration configuration, String accountId, String deviceId,
+	public GetDeviceDetails(CCUser ccUser, Configuration configuration, String accountId, String deviceId,
 			AccountDTO account, APIAudits audit, RequestsAuditService requestService) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
@@ -57,7 +57,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 		}
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(username, password);
-		final HttpEntity<String> request = new HttpEntity<String>(headers);
+		final HttpEntity<String> request = new HttpEntity<>(headers);
 		RestTemplate restTemplate = new RestTemplate();
 		String url = configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/";
 		URI uri = UriComponentsBuilder.fromUriString(url).path(deviceId).build(true).toUri();
@@ -70,7 +70,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 				audit.doAudit("get Device Details",
 						configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/", null, params.toString(),
 						ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
-				JSONObject deviceObject = new JSONObject(response.getBody().toString());
+				JSONObject deviceObject = new JSONObject(response.getBody());
 				Device deviceJson = mapper.readValue(deviceObject.toString(), Device.class);
 				for (Device deviceFromAccount :account.getDeviceList()) {
 					if (deviceJson.getIccid().equals(deviceFromAccount.getIccid())) {
@@ -79,7 +79,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 						deviceFromAccount.setLastUpdatedOn(new Date());
 					}
 				}
-				return null;
+				return Optional.of(null);
 			}
 		} catch (Exception e) {
 			logger.error(e);
@@ -87,7 +87,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
 			throw e;
 		} 
-		return null;
+		return Optional.of(null);
 	}
 
 }

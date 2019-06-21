@@ -5,7 +5,6 @@ public class ControlCentreConstants {
 	public static final String ACCOUNTS_URL = "/api/v1/accounts";
 	public static final String DEVICES_URL = "/api/v1/devices";
 	public static final int NUMBER_OF_THREADS = 5;
-	public static final int numberOfThreadsForDevices = 5;
 	public static final String STATUS_SUCCESS = "Success";
 	public static final int PAGE_SIZE = 10000;
 	public static final String STATUS_FAIL = "Error";
@@ -17,4 +16,7 @@ public class ControlCentreConstants {
 	public static final String ACCOUNT_RATE_PLAN = "defaultRatePlan.defaultRatePlanName";
 	public static final String ACCOUNT_COMM_PLAN = "commPlanDetails.defaultCommPlan";
 
+	private ControlCentreConstants() {
+
+	}
 }

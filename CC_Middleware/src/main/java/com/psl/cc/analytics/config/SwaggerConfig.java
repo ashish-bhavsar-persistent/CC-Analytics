@@ -1,26 +1,35 @@
 package com.psl.cc.analytics.config;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
-import springfox.documentation.builders.ApiInfoBuilder;
-import springfox.documentation.builders.PathSelectors;
-import springfox.documentation.builders.RequestHandlerSelectors;
-import springfox.documentation.service.*;
-import springfox.documentation.spi.DocumentationType;
-import springfox.documentation.spi.service.contexts.SecurityContext;
-import springfox.documentation.spring.web.plugins.Docket;
-import springfox.documentation.swagger.web.ApiKeyVehicle;
-import springfox.documentation.swagger.web.SecurityConfiguration;
-import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import static org.hibernate.validator.internal.util.CollectionHelper.newArrayList;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hibernate.validator.internal.util.CollectionHelper.newArrayList;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+
+import springfox.documentation.builders.ApiInfoBuilder;
+import springfox.documentation.builders.PathSelectors;
+import springfox.documentation.builders.RequestHandlerSelectors;
+import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
+import springfox.documentation.service.Contact;
+import springfox.documentation.service.GrantType;
+import springfox.documentation.service.OAuth;
+import springfox.documentation.service.ResourceOwnerPasswordCredentialsGrant;
+import springfox.documentation.service.SecurityReference;
+import springfox.documentation.service.SecurityScheme;
+import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
+import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger.web.SecurityConfiguration;
+import springfox.documentation.swagger.web.SecurityConfigurationBuilder;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @Configuration
 @EnableSwagger2
@@ -29,10 +38,6 @@ public class SwaggerConfig {
 
 	@Value("${config.oauth2.accessTokenUri}")
 	private String accessTokenUri;
-
-	public static final String securitySchemaOAuth2 = "oauth2schema";
-	public static final String authorizationScopeGlobal = "global";
-	public static final String authorizationScopeGlobalDesc = "accessEverything";
 
 	/**
 	 *
@@ -43,7 +48,6 @@ public class SwaggerConfig {
 
 		return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.any())
 				.paths(PathSelectors.any()).build().securityContexts(Collections.singletonList(securityContext()))
-//                .securitySchemes(Arrays.asList(securitySchema(), apiKey(), apiCookieKey()))
 				.securitySchemes(Arrays.asList(securitySchema())).apiInfo(apiInfo());
 
 	}
@@ -87,8 +91,9 @@ public class SwaggerConfig {
 
 	@Bean
 	public SecurityConfiguration security() {
-		return new SecurityConfiguration("", "", "", "", "Bearer access token", ApiKeyVehicle.HEADER,
-				HttpHeaders.AUTHORIZATION, "");
+		return SecurityConfigurationBuilder.builder().clientId("").clientSecret("")
+				.useBasicAuthenticationWithAccessCodeGrant(true).build();
+
 	}
 
 	/**

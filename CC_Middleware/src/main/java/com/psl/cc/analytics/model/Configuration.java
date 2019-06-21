@@ -12,7 +12,7 @@ public class Configuration extends Audit {
 	@Id
 	private String id;
 	@DBRef
-	private CC_User user;
+	private CCUser user;
 	private String baseUrl;
 	private int billingCycleStartDay;
 	private int billingCyclePeriod;
@@ -37,11 +37,11 @@ public class Configuration extends Audit {
 		this.id = id;
 	}
 
-	public CC_User getUser() {
+	public CCUser getUser() {
 		return user;
 	}
 
-	public void setUser(CC_User user) {
+	public void setUser(CCUser user) {
 		this.user = user;
 	}
 

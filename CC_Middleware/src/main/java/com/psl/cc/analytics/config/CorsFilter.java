@@ -40,9 +40,13 @@ public class CorsFilter implements Filter {
 
 	@Override
 	public void destroy() {
+		// The method is an intentionally-blank override. In this case a nested comment
+		// should explain the reason for the blank override
 	}
 
 	@Override
 	public void init(FilterConfig config) throws ServletException {
+		// The method is an intentionally-blank override. In this case a nested comment
+		// should explain the reason for the blank override
 	}
 }

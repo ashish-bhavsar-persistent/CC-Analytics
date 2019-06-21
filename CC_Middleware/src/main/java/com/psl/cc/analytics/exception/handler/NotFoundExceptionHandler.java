@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.psl.cc.analytics.exception.CC_Exception;
+import com.psl.cc.analytics.exception.CCException;
 
 @ControllerAdvice
 @RestController
 public class NotFoundExceptionHandler extends ResponseEntityExceptionHandler {
 
-	@ExceptionHandler(CC_Exception.class)
-	public final ResponseEntity<ErrorDetails> handleUserNotFoundException(CC_Exception ex, WebRequest request) {
+	@ExceptionHandler(CCException.class)
+	public final ResponseEntity<ErrorDetails> handleUserNotFoundException(CCException ex, WebRequest request) {
 		ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(), request.getDescription(false));
 		return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
 	}

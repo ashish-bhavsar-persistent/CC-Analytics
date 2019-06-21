@@ -6,7 +6,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 
@@ -24,7 +23,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.service.RequestsAuditService;
@@ -33,7 +32,7 @@ import com.psl.cc.analytics.utils.APIAudits;
 public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 	private static final Logger logger = LogManager.getLogger(FetchDevicesOfAccount.class);
 	private final String accountId;
-	private final CC_User ccUser;
+	private final CCUser ccUser;
 	private final Configuration configuration;
 	private final RequestsAuditService requestService;
 	private final AccountDTO account;
@@ -60,14 +59,14 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 		}
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(username, password);
-		final HttpEntity<String> request = new HttpEntity<String>(headers);
+		final HttpEntity<String> request = new HttpEntity<>(headers);
 		RestTemplate restTemplate = new RestTemplate();
 		final String url = configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL;
 		boolean lastPage = false;
 		int pageNumber = 1;
 		URI uri = null;
 		ResponseEntity<String> response = null;
-		List<Device> deviceDTOList = new ArrayList<Device>();
+		List<Device> deviceDTOList = new ArrayList<>();
 		JSONObject params = new JSONObject();
 		try {
 			do {
@@ -86,7 +85,7 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 				if (response.getStatusCode() == HttpStatus.OK) {
 					audit.doAudit("search Devices", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL,
 							null, params.toString(), ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
-					JSONObject deviceObject = new JSONObject(response.getBody().toString());
+					JSONObject deviceObject = new JSONObject(response.getBody());
 					lastPage = deviceObject.getBoolean("lastPage");
 					JSONArray devicesArray = deviceObject.getJSONArray("devices");
 
@@ -125,7 +124,7 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 			});
 		}
 
-		return null;
+		  return Optional.ofNullable(null);
 	}
 
 }

@@ -22,8 +22,4 @@ public class Audit {
 		this.lastUpdatedOn = lastUpdatedOn;
 	}
 
-	public Audit() {
-
-	}
-
 }

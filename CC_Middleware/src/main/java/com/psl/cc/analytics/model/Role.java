@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Role {
 	@Id
 	private String id;
-	private String role;
+	private String name;
 
 	public String getId() {
 		return id;
@@ -17,16 +17,12 @@ public class Role {
 		this.id = id;
 	}
 
-	public String getRole() {
-		return role;
+	public String getName() {
+		return name;
 	}
 
-	public void setRole(String role) {
-		this.role = role;
-	}
-
-	public Role() {
-
+	public void setName(String name) {
+		this.name = name;
 	}
 
 }

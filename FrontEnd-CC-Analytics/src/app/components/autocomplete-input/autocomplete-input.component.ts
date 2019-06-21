@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
-import { AccountanalysisdataserviceService } from 'src/app/services/accountanalysisdataservice.service';
+import { AccountanalysisdataserviceService } from '../../services/accountanalysisdataservice.service';
 
 export interface User {
   accountName: string;
@@ -34,6 +34,7 @@ export class AutocompleteInputComponent implements OnInit {
     let accountId: string = accountDetails.accountId;
     this.accAnalysisService.setAccountId(accountId);
   }
+
 
   ngOnInit() {
     let headers = new HttpHeaders({
@@ -65,9 +66,11 @@ export class AutocompleteInputComponent implements OnInit {
   }
 
   private _filter(name: string): User[] {
-    // const filterValue = name.toLowerCase();
-    // return this.options.filter(option => option.accountName.toLowerCase().indexOf(filterValue) === 0);
-
+    if(name !== null && name !== '' && typeof name  !== "string"){
+      let userJSON :any = name; 
+      name = userJSON.accountName;
+    }
+    
     const filterValue = name.toLowerCase();
     return this.options.filter(option => option.accountName.toLowerCase().includes(filterValue));
   }

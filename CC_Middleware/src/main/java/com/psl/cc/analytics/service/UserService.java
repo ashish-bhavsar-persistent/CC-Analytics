@@ -3,17 +3,17 @@ package com.psl.cc.analytics.service;
 import java.util.List;
 import java.util.Optional;
 
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 
 public interface UserService {
-	CC_User findOneByUsername(String username);
+	CCUser findOneByUsername(String username);
 
-	CC_User save(CC_User user);
+	CCUser save(CCUser user);
 
-	void delete(CC_User user);
+	void delete(CCUser user);
 
-	Optional<CC_User> findOneById(String id);
+	Optional<CCUser> findOneById(String id);
 
-	List<CC_User> findAll();
+	List<CCUser> findAll();
 
 }

@@ -10,7 +10,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.psl.cc.analytics.model.CC_User;
+import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Configuration;
 
 @JsonInclude(JsonInclude.Include.NON_DEFAULT)
@@ -72,10 +72,6 @@ public class User implements Serializable {
 	public String getId() {
 		return id;
 	}
-
-//	public void setId(String id) {
-//		this.id = id;
-//	}
 
 	public String getName() {
 		return name;
@@ -157,26 +153,25 @@ public class User implements Serializable {
 		this.useAPIKey = useAPIKey;
 	}
 
-	public User(CC_User user, Configuration config) {
+	public User() {
+		super();
+	}
+
+	public User(CCUser user, Configuration config) {
 		id = user.getId();
 		username = user.getUsername();
-		password = null;
-		roles = new ArrayList<String>();
+		roles = new ArrayList<>();
 		name = user.getName();
-		user.getRoles().forEach(r -> roles.add(r.getRole()));
+		user.getRoles().forEach(role -> roles.add(role.getName()));
 		if (config != null) {
 			baseUrl = config.getBaseUrl();
 			billingCycleStartDay = config.getBillingCycleStartDay();
 			billingCyclePeriod = config.getBillingCyclePeriod();
-			deviceStates = new ArrayList<String>(config.getDeviceStates());
+			deviceStates = new ArrayList<>(config.getDeviceStates());
 			usePassword = config.isUsePassword();
 			useAPIKey = config.isUseAPIKey();
 			apiKey = config.getApiKey();
 		}
-	}
-
-	public User() {
-		super();
 	}
 
 }
