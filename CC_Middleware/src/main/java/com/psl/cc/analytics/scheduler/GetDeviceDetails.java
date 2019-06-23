@@ -79,7 +79,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 						deviceFromAccount.setLastUpdatedOn(new Date());
 					}
 				}
-				return Optional.of(null);
+				return Optional.empty();
 			}
 		} catch (Exception e) {
 			logger.error(e);
@@ -87,7 +87,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
 			throw e;
 		} 
-		return Optional.of(null);
+		return Optional.empty();
 	}
 
 }
