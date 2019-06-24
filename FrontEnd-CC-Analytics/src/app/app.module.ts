@@ -23,12 +23,12 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { ScrollDispatchModule } from '@angular/cdk/scrolling';
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { RolesMenuComponent } from './components/roles-menu/roles-menu.component';
-import { AutocompleteInputComponent } from './components/autocomplete-input/autocomplete-input.component';
 import { InformationCardsComponent } from './components/information-cards/information-cards.component';
 import { RatePlanDonutChartComponent } from './components/charts/rate-plan-donut-chart/rate-plan-donut-chart.component';
 import { CommPlanDonutChartComponent } from './components/charts/comm-plan-donut-chart/comm-plan-donut-chart.component';
 import { AccountAnalysisChartComponent } from './components/charts/account-analysis-chart/account-analysis-chart.component';
 import { AccountanalysisdataserviceService } from './services/accountanalysisdataservice.service';
+import { AcctAnalyticsPiechartComponent } from './components/charts/acct-analytics-piechart/acct-analytics-piechart.component';
 
 
 @NgModule({
@@ -39,11 +39,11 @@ import { AccountanalysisdataserviceService } from './services/accountanalysisdat
     MainDashboardComponent,
     NavBarComponent,
     RolesMenuComponent,
-    AutocompleteInputComponent,
     InformationCardsComponent,
     RatePlanDonutChartComponent,
     CommPlanDonutChartComponent,
-    AccountAnalysisChartComponent
+    AccountAnalysisChartComponent,
+    AcctAnalyticsPiechartComponent
   ],
   imports: [
     BrowserModule,

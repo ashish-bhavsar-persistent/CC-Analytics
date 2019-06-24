@@ -1,0 +1,43 @@
+
+
+<mat-card-header>
+    <mat-card-title>
+      Account Analysis
+    </mat-card-title>
+    <mat-card-subtitle>
+        <form class="example-form">
+        <mat-form-field class="example-full-width">
+            <input type="text" placeholder="{{placeholderData}}" aria-label="Accounts" matInput [formControl]="myControl" [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (optionSelected)="fetchAccountDetails($event)">
+              <mat-option *ngFor="let option of filteredOptions | async" [value]="option"
+                matTooltip="{{option.accountName}}"  matToolTipPosition="after"  matTooltipShowDelay="100"
+                 matTooltipHideDelay="100">
+                {{option.accountName}}
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </form>
+        </mat-card-subtitle>
+    <div>Communication Plan</div>
+<mat-slide-toggle [(ngModel)]="checked" name="ratePlan" (change)="toggleRateAndCommPlan()">Rate Plan</mat-slide-toggle>
+
+
+  </mat-card-header> 
+  <mat-card-content class="dashboard-card-content">
+      <div>
+          <div>
+            <div class="chart">
+              <canvas baseChart
+                [data]="pieChartData"
+                [labels]="pieChartLabels"
+                [chartType]="pieChartType"
+                [options]="pieChartOptions"
+                [colors]="pieChartColors"
+                [legend]="pieChartLegend"
+                height="80">
+              </canvas>
+            </div>
+        
+          </div>
+        </div>
+  </mat-card-content>
