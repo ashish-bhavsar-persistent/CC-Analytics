@@ -2,7 +2,6 @@
   <mat-toolbar-row>
     <span>Control Center Dashboard</span>
     <span class="spacer"></span>
-    <mat-slide-toggle [checked]="isDarkTheme | async" (change)="toggleDarkTheme($event.checked)"></mat-slide-toggle>
     <button mat-raised-button color="warn" (click)="logoutUser()" style="margin-left: 20px;">logout</button>
   </mat-toolbar-row>
 </mat-toolbar>
