@@ -1,0 +1,41 @@
+<div>
+  <mat-card-header>
+    <mat-card-title>
+      Account Analysis
+    </mat-card-title>
+    <mat-card-subtitle>
+      <form class="example-form">
+        <mat-form-field class="example-full-width">
+          <input type="text" placeholder="Accounts" aria-label="Accounts" matInput [formControl]="myControl" [matAutocomplete]="auto">
+          <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn"
+            (optionSelected)="fetchAccountDetails($event)">
+            <mat-option *ngFor="let option of filteredOptions | async" [value]="option"
+              matTooltip="{{option.accountName}}"  matToolTipPosition="after"  matTooltipShowDelay="100"
+               matTooltipHideDelay="100">
+              {{option.accountName}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
+        &nbsp;
+
+        <select (change)="onChange($event.target.value)">
+          <option value="" disabled selected >Select Granularity</option>
+          <option value="monthly">Monthly</option>
+          <option value="yearly">Yearly</option>
+        </select>
+
+      </form>
+    </mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content class="dashboard-card-content">
+    <div>
+      <div>
+        <div style="display: block" class="chart">
+          <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
+            [legend]="barChartLegend" [chartType]="barChartType" height="90">
+          </canvas>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+</div>

@@ -1,5 +1,5 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ChartsModule } from 'ng2-charts';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -29,7 +29,7 @@ import { CommPlanDonutChartComponent } from './components/charts/comm-plan-donut
 import { AccountAnalysisChartComponent } from './components/charts/account-analysis-chart/account-analysis-chart.component';
 import { AccountanalysisdataserviceService } from './services/accountanalysisdataservice.service';
 import { AcctAnalyticsPiechartComponent } from './components/charts/acct-analytics-piechart/acct-analytics-piechart.component';
-
+import { DeviceStatusComponent } from './components/charts/device-status/device-status.component';
 
 @NgModule({
   declarations: [
@@ -43,7 +43,8 @@ import { AcctAnalyticsPiechartComponent } from './components/charts/acct-analyti
     RatePlanDonutChartComponent,
     CommPlanDonutChartComponent,
     AccountAnalysisChartComponent,
-    AcctAnalyticsPiechartComponent
+    AcctAnalyticsPiechartComponent,
+    DeviceStatusComponent
   ],
   imports: [
     BrowserModule,
@@ -79,6 +80,7 @@ import { AcctAnalyticsPiechartComponent } from './components/charts/acct-analyti
        multi: true
       }
     ],
+  schemas:[CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

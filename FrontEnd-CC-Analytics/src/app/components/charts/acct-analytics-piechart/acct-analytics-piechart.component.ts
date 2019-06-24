@@ -22,9 +22,9 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
   myControl = new FormControl();
   options: User[] = [];
   filteredOptions: Observable<User[]>;
-  acctId : any;
+  acctId: any;
   checked: false;
-  rateOrCommPlanUrl : any;
+  rateOrCommPlanUrl: any;
   public pieChartData = [];
   public pieChartLabels = [];
   public pieChartOptions: ChartOptions = {
@@ -70,7 +70,7 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.rateOrCommPlanUrl=environment.ENV.baseURL + '/api/v1/devices/commPlan?accountId=';
+    this.rateOrCommPlanUrl = environment.ENV.baseURL + '/api/v1/devices/commPlan?accountId=';
     this.placeholderData = "Accounts";
     this.acctId = "";
 
@@ -95,9 +95,9 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
 
       })
   }
-  toggleRateAndCommPlan(){
-    console.log('toggleRateAndCommPlan ',this.checked);
-    if(this.checked){
+  toggleRateAndCommPlan() {
+    console.log('toggleRateAndCommPlan ', this.checked);
+    if (this.checked) {
       this.rateOrCommPlanUrl = environment.ENV.baseURL + '/api/v1/devices/ratePlan?accountId=';
       this.fetchPlanDetails(this.acctId);
     }
@@ -107,20 +107,26 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
     }
   }
 
-  fetchPlanDetails(accountIdValue){
-    console.log('in fetchPlanDetails ',accountIdValue);
+  fetchPlanDetails(accountIdValue) {
+    console.log('in fetchPlanDetails ', accountIdValue);
     let headers = new HttpHeaders({
       Authorization: 'Bearer ' + `${sessionStorage.getItem("token")}`
     });
-    this.http.get(this.rateOrCommPlanUrl+accountIdValue, { headers: headers })
-    .subscribe(res => {
-      this.pieChartData = [];
-      let temp: any = res;
-      for (let i of temp) {
-        this.pieChartData.push(i.total);
-        this.pieChartLabels.push(i.communicationPlan);
-      }
-    })
+    this.http.get(this.rateOrCommPlanUrl + accountIdValue, { headers: headers })
+      .subscribe(res => {
+        this.pieChartData = [];
+        this.pieChartLabels = [];
+        let temp: any = res;
+        for (let i of temp) {
+          this.pieChartData.push(i.total);
+          if (i.hasOwnProperty('communicationPlan')) {
+            this.pieChartLabels.push(i.communicationPlan);
+          } else {
+            this.pieChartLabels.push(i.ratePlan);
+          }
+
+        }
+      })
   }
 
   fetchAccountDetails(event) {
@@ -128,7 +134,7 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
     let accountId: string = accountDetails.accountId;
     this.accAnalysisService.setAccountId(accountId);
     this.acctId = accountDetails.accountId;
-    console.log('in fetchAccountDetails event ',this.acctId);
+    console.log('in fetchAccountDetails event ', this.acctId);
     this.fetchPlanDetails(this.acctId);
   }
 
