@@ -3,7 +3,6 @@ package com.psl.cc.analytics.scheduler;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 
 import org.json.JSONArray;
