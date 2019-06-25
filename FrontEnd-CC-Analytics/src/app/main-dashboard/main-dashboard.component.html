@@ -1,23 +1,23 @@
 <nav-bar></nav-bar>
 <div class="grid-container">
-    <div>
-      <mat-grid-list cols="5" rowHeight="150px" [style.background]="'#e3e3ed'">
-        <div>
-          <mat-grid-tile [colspan]="1" [rowspan]="1">
-            <div class="user-info">
-              <h5>SP Admin Analysis</h5>
-              <div class=user-info-roles>
-                <h4>Welcome, {{username}}</h4>
-                <!-- <roles-menu [roles]="roles" matTooltip="click to display roles"></roles-menu> -->
-              </div>
-              <h6>{{today | date:'medium'}}</h6>
-              <!-- <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input> -->
-              <!-- <autocomplete-input [placeholderData]="placeholderData2"></autocomplete-input> -->
+  <div>
+    <mat-grid-list cols="5" rowHeight="150px" [style.background]="'#e3e3ed'">
+      <div>
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
+          <div class="user-info">
+            <h5>SP Admin Analysis</h5>
+            <div class=user-info-roles>
+              <h4>Welcome, {{username}}</h4>
+              <!-- <roles-menu [roles]="roles" matTooltip="click to display roles"></roles-menu> -->
             </div>
-          </mat-grid-tile>
-        </div>
+            <h6>{{today | date:'medium'}}</h6>
+            <!-- <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input> -->
+            <!-- <autocomplete-input [placeholderData]="placeholderData2"></autocomplete-input> -->
+          </div>
+        </mat-grid-tile>
+      </div>
 
-    <div  *ngIf ="device0">
+      <div *ngIf="device0">
         <mat-grid-tile [colspan]="1" [rowspan]="1">
           <mat-card class="custom-card">
             <mat-card-header>
@@ -30,8 +30,8 @@
           </mat-card>
         </mat-grid-tile>
       </div>
-      <div *ngIf ="device1">
-        <mat-grid-tile [colspan]="1" [rowspan]="1" >
+      <div *ngIf="device1">
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
           <mat-card class="custom-card">
             <mat-card-header>
               <mat-card-title>{{secondDeviceStatus.status}}</mat-card-title>
@@ -43,8 +43,8 @@
           </mat-card>
         </mat-grid-tile>
       </div>
-      <div *ngIf ="device2">
-        <mat-grid-tile [colspan]="1" [rowspan]="1" >
+      <div *ngIf="device2">
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
           <mat-card class="custom-card">
             <mat-card-header>
               <mat-card-title>{{thirdDeviceStatus.status}}</mat-card-title>
@@ -56,8 +56,8 @@
           </mat-card>
         </mat-grid-tile>
       </div>
-      <div *ngIf ="device3">
-        <mat-grid-tile [colspan]="1" [rowspan]="1" >
+      <div *ngIf="device3">
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
           <mat-card class="custom-card">
             <mat-card-header>
               <mat-card-title>{{fourthDeviceStatus.status}}</mat-card-title>
@@ -69,62 +69,63 @@
           </mat-card>
         </mat-grid-tile>
       </div>
-  </mat-grid-list>
+    </mat-grid-list>
 
 
 
-  <!-- <h1 class="mat-h1">Dashboard</h1> -->
-  <mat-grid-list cols="5" rowHeight="1:1.11">
+    <!-- <h1 class="mat-h1">Dashboard</h1> -->
+    <mat-grid-list cols="5" rowHeight="1:1.11">
 
-    <mat-grid-tile [colspan]="1" [rowspan]="1" [style.background]="'#e3e3ed'">
-      <mat-card class="dashboard-card" [style.background]="'#c8c2d3'">
-        <mat-card-header class="chart-toggle-card-header">
-        </mat-card-header>
-        <mat-card-content class="dashboard-card-content">
+      <mat-grid-tile [colspan]="1" [rowspan]="1" [style.background]="'#e3e3ed'">
+        <mat-card class="dashboard-card" [style.background]="'#c8c2d3'">
+          <mat-card-header class="chart-toggle-card-header">
+
+            <mat-card-actions>
+              <div>Comm. Plan
+              <mat-slide-toggle [color]="color" [checked]="checked" [disabled]="disabled" (change)="donutChartToggle($event)" matTooltip="toggle between rate and comm plan"
+                color="primary">
+              </mat-slide-toggle>
+              Rate Plan</div>
+            </mat-card-actions>
+          </mat-card-header>
+          <mat-card-content class="dashboard-card-content">
+            
+            <div style="margin-top:10px;">
+              <rate-plan-donut-chart *ngIf="ratePlanDonutDisplay"></rate-plan-donut-chart>
+              <comm-plan-donut-chart *ngIf="commPlanDonutDisplay"></comm-plan-donut-chart>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </mat-grid-tile>
+
+      <mat-grid-tile [colspan]="2" [rowspan]="1">
+        <mat-card class="dashboard-card">
           <div>
-            <mat-tab-group style="margin-bottom: 30px;" #changeEvent (selectedIndexChange)="tabChanged($event)">
-              <mat-tab label="Rate">
-                <div style="height: 30px;"></div>
-                <rate-plan-donut-chart></rate-plan-donut-chart>
-              </mat-tab>
-              <mat-tab label="Comm.">
-                <div style="height: 30px;"></div>
-                <comm-plan-donut-chart></comm-plan-donut-chart>
-              </mat-tab>
-            </mat-tab-group>
+            <app-acct-analytics-piechart></app-acct-analytics-piechart>
           </div>
-        </mat-card-content>
-      </mat-card>
-    </mat-grid-tile>
+        </mat-card>
+      </mat-grid-tile>
 
-    <mat-grid-tile [colspan]="2" [rowspan]="1">
-      <mat-card class="dashboard-card">
-        <div>
-          <app-acct-analytics-piechart></app-acct-analytics-piechart>
-        </div>
-      </mat-card>
-    </mat-grid-tile>
+      <mat-grid-tile [colspan]="2" [rowspan]="1">
+        <mat-card class="dashboard-card">
+          <div>
+            <device-status></device-status>
+          </div>
+        </mat-card>
+      </mat-grid-tile>
 
-    <mat-grid-tile [colspan]="2" [rowspan]="1">
-      <mat-card class="dashboard-card">
-        <div>
-          <device-status></device-status>
-        </div>
-      </mat-card>
-    </mat-grid-tile>
-
-  </mat-grid-list>
+    </mat-grid-list>
 
 
 
-</div>
-
-
-<footer class="footer">
-  <div class="container" style="display: flex; justify-content: center; align-items: center;">
-
-    <span class="attribution">
-      &copy; Control Center 2019.
-    </span>
   </div>
-</footer>
+
+
+  <footer class="footer">
+    <div class="container" style="display: flex; justify-content: center; align-items: center;">
+
+      <span class="attribution">
+        &copy; Control Center 2019.
+      </span>
+    </div>
+  </footer>
