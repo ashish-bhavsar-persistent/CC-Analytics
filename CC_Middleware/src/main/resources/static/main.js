@@ -304,7 +304,7 @@ module.exports = "<div [ngClass]=\"{'dark-theme': isDarkTheme | async}\">\n<div 
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<mat-card-header>\r\n  <mat-card-title>\r\n    Account Analysis\r\n  </mat-card-title>\r\n  <mat-card-subtitle>\r\n    <form class=\"example-form\">\r\n      <mat-form-field class=\"example-full-width\">\r\n        <input type=\"text\"  placeholder=\"{{placeholderData}}\"  aria-label=\"Accounts\"  matInput [formControl]=\"myControl\"  [matAutocomplete]=\"auto\">\r\n        <mat-autocomplete #auto=\"matAutocomplete\"  [displayWith]=\"displayFn\" (optionSelected)=\"fetchAccountDetails($event)\">\r\n          <mat-option *ngFor=\"let option of filteredOptions | async\"  [value]=\"option\" matTooltip=\"{{option.accountName}}\"  matToolTipPosition=\"after\"\r\n             matTooltipShowDelay=\"100\"  matTooltipHideDelay=\"100\">\r\n            {{option.accountName}}\r\n          </mat-option>\r\n        </mat-autocomplete>\r\n      </mat-form-field>\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n      Comm. Plan\r\n          <mat-slide-toggle [(ngModel)]=\"checked\" name=\"ratePlan\" (change)=\"toggleRateAndCommPlan()\">Rate Plan</mat-slide-toggle>\r\n      \r\n    </form>\r\n  \r\n  </mat-card-subtitle>\r\n</mat-card-header>\r\n<mat-card-content class=\"dashboard-card-content\">\r\n  <div>\r\n    <div>\r\n      <div class=\"chart\">\r\n        <canvas baseChart [data]=\"pieChartData\" [labels]=\"pieChartLabels\" [chartType]=\"pieChartType\" [options]=\"pieChartOptions\"\r\n          [colors]=\"pieChartColors\" [legend]=\"pieChartLegend\" height=\"80\">\r\n        </canvas>\r\n      </div>\r\n\r\n    </div>\r\n  </div>\r\n</mat-card-content>"
+module.exports = "<mat-card-header>\r\n  <mat-card-title>\r\n    Account Analysis\r\n  </mat-card-title>\r\n  <mat-card-subtitle>\r\n    <form class=\"example-form\">\r\n      <mat-form-field>\r\n        <input type=\"text\"  placeholder=\"{{placeholderData}}\"  aria-label=\"Accounts\"  matInput [formControl]=\"myControl\"  [matAutocomplete]=\"auto\">\r\n        <mat-autocomplete #auto=\"matAutocomplete\"  [displayWith]=\"displayFn\" (optionSelected)=\"fetchAccountDetails($event)\">\r\n          <mat-option *ngFor=\"let option of filteredOptions | async\"  [value]=\"option\" matTooltip=\"{{option.accountName}}\"  matToolTipPosition=\"after\"\r\n             matTooltipShowDelay=\"100\"  matTooltipHideDelay=\"100\">\r\n            {{option.accountName}}\r\n          </mat-option>\r\n        </mat-autocomplete>\r\n      </mat-form-field>\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n&nbsp;\r\n      Comm. Plan\r\n          <mat-slide-toggle [(ngModel)]=\"checked\" name=\"ratePlan\" (change)=\"toggleRateAndCommPlan()\">Rate Plan</mat-slide-toggle>\r\n      \r\n    </form>\r\n  \r\n  </mat-card-subtitle>\r\n</mat-card-header>\r\n<mat-card-content class=\"dashboard-card-content\">\r\n  <div>\r\n    <div>\r\n      <div class=\"chart\">\r\n        <canvas baseChart [data]=\"pieChartData\" [labels]=\"pieChartLabels\" [chartType]=\"pieChartType\" [options]=\"pieChartOptions\"\r\n          [colors]=\"pieChartColors\" [legend]=\"pieChartLegend\" height=\"80\">\r\n        </canvas>\r\n      </div>\r\n\r\n    </div>\r\n  </div>\r\n</mat-card-content>"
 
 /***/ }),
 
@@ -326,7 +326,7 @@ module.exports = "<div>\n    <div>\n      <div class=\"chart\">\n        <canvas
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div>\n  <mat-card-header>\n    <mat-card-title>\n      Device Status\n    </mat-card-title>\n    <mat-card-subtitle>\n      <form class=\"example-form\">\n        <mat-form-field class=\"example-full-width\">\n          <input type=\"text\" placeholder=\"Accounts\" aria-label=\"Accounts\" matInput [formControl]=\"myControl\" [matAutocomplete]=\"auto\">\n          <mat-autocomplete #auto=\"matAutocomplete\" [displayWith]=\"displayFn\"\n            (optionSelected)=\"fetchAccountDetails($event)\">\n            <mat-option *ngFor=\"let option of filteredOptions | async\" [value]=\"option\"\n              matTooltip=\"{{option.accountName}}\"  matToolTipPosition=\"after\"  matTooltipShowDelay=\"100\"\n               matTooltipHideDelay=\"100\">\n              {{option.accountName}}\n            </mat-option>\n          </mat-autocomplete>\n        </mat-form-field>\n        &nbsp;\n\n        <select (change)=\"onChange($event.target.value)\">\n          <option value=\"\" disabled selected >Select Granularity</option>\n          <option value=\"monthly\">Monthly</option>\n          <option value=\"yearly\">Yearly</option>\n        </select>\n\n      </form>\n    </mat-card-subtitle>\n  </mat-card-header>\n  <mat-card-content class=\"dashboard-card-content\">\n    <div>\n      <div>\n        <div style=\"display: block\" class=\"chart\">\n          <canvas baseChart [datasets]=\"barChartData\" [labels]=\"barChartLabels\" [options]=\"barChartOptions\"\n            [legend]=\"barChartLegend\" [chartType]=\"barChartType\" height=\"90\">\n          </canvas>\n        </div>\n      </div>\n    </div>\n  </mat-card-content>\n</div>"
+module.exports = "<div>\r\n  <mat-card-header>\r\n    <mat-card-title>\r\n      Device Status\r\n    </mat-card-title>\r\n    <mat-card-subtitle>\r\n      <form class=\"example-form\">\r\n        <mat-form-field class=\"example-full-width\">\r\n          <input type=\"text\" placeholder=\"Select Account\" aria-label=\"Accounts\" matInput [formControl]=\"myControl\" [matAutocomplete]=\"auto\">\r\n          <mat-autocomplete #auto=\"matAutocomplete\" [displayWith]=\"displayFn\"\r\n            (optionSelected)=\"fetchAccountDetails($event)\">\r\n            <mat-option *ngFor=\"let option of filteredOptions | async\" [value]=\"option\"\r\n              matTooltip=\"{{option.accountName}}\"  matToolTipPosition=\"after\"  matTooltipShowDelay=\"100\"\r\n               matTooltipHideDelay=\"100\">\r\n              {{option.accountName}}\r\n            </mat-option>\r\n          </mat-autocomplete>\r\n        </mat-form-field>\r\n        &nbsp;\r\n\r\n        <select (change)=\"onChange($event.target.value)\">\r\n          <option value=\"\" disabled selected >Select Granularity</option>\r\n          <option value=\"monthly\">Monthly</option>\r\n          <option value=\"yearly\">Yearly</option>\r\n        </select>\r\n\r\n      </form>\r\n    </mat-card-subtitle>\r\n  </mat-card-header>\r\n  <mat-card-content class=\"dashboard-card-content\">\r\n    <div>\r\n      <div>\r\n        <div style=\"display: block\" class=\"chart\">\r\n          <canvas baseChart [datasets]=\"barChartData\" [labels]=\"barChartLabels\" [options]=\"barChartOptions\"\r\n            [legend]=\"barChartLegend\" [chartType]=\"barChartType\" height=\"90\">\r\n          </canvas>\r\n        </div>\r\n      </div>\r\n    </div>\r\n  </mat-card-content>\r\n</div>"
 
 /***/ }),
 
@@ -732,16 +732,10 @@ var AcctAnalyticsPiechartComponent = /** @class */ (function () {
             }
         ];
     }
-    AcctAnalyticsPiechartComponent.prototype.getRandomColor = function () {
-        var color = Math.floor(0x1000000 * Math.random()).toString(16);
-        return '#' + ('000000' + color).slice(-6);
-    };
-    AcctAnalyticsPiechartComponent.prototype.getRandomColorWithRedHue = function () {
-    };
     AcctAnalyticsPiechartComponent.prototype.ngOnInit = function () {
         var _this = this;
         this.rateOrCommPlanUrl = src_environments_environment__WEBPACK_IMPORTED_MODULE_3__["environment"].ENV.baseURL + '/api/v1/devices/commPlan?accountId=';
-        this.placeholderData = "Accounts";
+        this.placeholderData = "Select Account";
         this.acctId = "";
         console.log("value of placeholder data ", this.placeholderData);
         var headers = new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpHeaders"]({
@@ -1520,7 +1514,7 @@ var AuthGuard = /** @class */ (function () {
             return true;
         }
         else {
-            this.router.navigate(['login']);
+            this.router.navigate(['/login.html']);
             return false;
         }
     };
@@ -1789,6 +1783,7 @@ var AuthService = /** @class */ (function () {
         // private readonly JWT_TOKEN = 'JWT_TOKEN';
         // private readonly REFREH_TOKEN = 'REFREH_TOKEN';
         // private loggedUser: string;
+        this.redirectToUrl = '/dashboard.html';
         this.loginUrl = _environments_environment__WEBPACK_IMPORTED_MODULE_3__["environment"].ENV.baseURL + "/login";
         this.tokenUrl = _environments_environment__WEBPACK_IMPORTED_MODULE_3__["environment"].ENV.baseURL + "/oauth/token";
     }
@@ -1844,28 +1839,50 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var tslib__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! tslib */ "./node_modules/tslib/tslib.es6.js");
 /* harmony import */ var _angular_core__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @angular/core */ "./node_modules/@angular/core/fesm5/core.js");
 /* harmony import */ var _services_auth_service__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../services/auth.service */ "./src/app/services/auth.service.ts");
+/* harmony import */ var rxjs__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! rxjs */ "./node_modules/rxjs/_esm5/index.js");
+/* harmony import */ var _node_modules_rxjs_operators__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ../../../node_modules/rxjs/operators */ "./node_modules/rxjs/_esm5/operators/index.js");
+/* harmony import */ var _node_modules_angular_router__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ../../../node_modules/@angular/router */ "./node_modules/@angular/router/fesm5/router.js");
+
+
+
 
 
 
 var TokenInterceptorService = /** @class */ (function () {
-    function TokenInterceptorService(_injector) {
+    function TokenInterceptorService(_injector, auth, router) {
         this._injector = _injector;
+        this.auth = auth;
+        this.router = router;
     }
     TokenInterceptorService.prototype.intercept = function (req, next) {
+        var _this = this;
         var _authService = this._injector.get(_services_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"]);
         var idToken = sessionStorage.getItem("token");
+        var url = req.url;
         if (idToken) {
             var cloned = req.clone({
                 headers: req.headers.set("Authorization", "Bearer " + idToken)
             });
-            return next.handle(cloned);
+            return next.handle(cloned).pipe(Object(_node_modules_rxjs_operators__WEBPACK_IMPORTED_MODULE_4__["catchError"])(function (x) { return _this.handleErrors(x); }));
+            ;
+        }
+        else if (!url.includes("api")) {
+            console.log(url);
+            return next.handle(req);
         }
         else
-            return next.handle(req);
+            return null;
+    };
+    TokenInterceptorService.prototype.handleErrors = function (err) {
+        if (err.status === 401) {
+            this.auth.redirectToUrl = this.router.url;
+            this.router.navigate(['/login.html']);
+            return Object(rxjs__WEBPACK_IMPORTED_MODULE_3__["of"])("Not Authenticated");
+        }
     };
     TokenInterceptorService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])(),
-        tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:paramtypes", [_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injector"]])
+        tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:paramtypes", [_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injector"], _services_auth_service__WEBPACK_IMPORTED_MODULE_2__["AuthService"], _node_modules_angular_router__WEBPACK_IMPORTED_MODULE_5__["Router"]])
     ], TokenInterceptorService);
     return TokenInterceptorService;
 }());

@@ -11,6 +11,7 @@ export class AuthService {
   // private readonly REFREH_TOKEN = 'REFREH_TOKEN';
   // private loggedUser: string;
 
+  redirectToUrl: string = '/dashboard.html';
   private loginUrl = environment.ENV.baseURL + "/login";
   private tokenUrl = environment.ENV.baseURL + "/oauth/token";
 
