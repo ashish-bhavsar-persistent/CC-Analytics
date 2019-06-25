@@ -1,67 +1,74 @@
 <nav-bar></nav-bar>
 <div class="grid-container">
-  <mat-grid-list cols="5" rowHeight="150px" [style.background]="'#e3e3ed'">
-    <mat-grid-tile [colspan]="1" [rowspan]="1">
-      <div class="user-info">
-        <h5>SP Admin Analysis</h5>
-        <div class=user-info-roles>
-          <h4>Welcome, {{username}}</h4>
-          <!-- <roles-menu [roles]="roles" matTooltip="click to display roles"></roles-menu> -->
+    <div>
+      <mat-grid-list cols="5" rowHeight="150px" [style.background]="'#e3e3ed'">
+        <div>
+          <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <div class="user-info">
+              <h5>SP Admin Analysis</h5>
+              <div class=user-info-roles>
+                <h4>Welcome, {{username}}</h4>
+                <!-- <roles-menu [roles]="roles" matTooltip="click to display roles"></roles-menu> -->
+              </div>
+              <h6>{{today | date:'medium'}}</h6>
+              <!-- <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input> -->
+              <!-- <autocomplete-input [placeholderData]="placeholderData2"></autocomplete-input> -->
+            </div>
+          </mat-grid-tile>
         </div>
-        <h6>{{today | date:'medium'}}</h6>
-        <!-- <autocomplete-input [placeholderData]="placeholderData"></autocomplete-input> -->
-        <!-- <autocomplete-input [placeholderData]="placeholderData2"></autocomplete-input> -->
+
+    <div  *ngIf ="device0">
+        <mat-grid-tile [colspan]="1" [rowspan]="1">
+          <mat-card class="custom-card">
+            <mat-card-header>
+              <mat-card-title>{{firstDeviceStatus.status}}</mat-card-title>
+              <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <h2>{{firstDeviceStatus.monthlyTotal}} | {{firstDeviceStatus.yearlyTotal}}</h2>
+            </mat-card-content>
+          </mat-card>
+        </mat-grid-tile>
       </div>
-    </mat-grid-tile>
-
-    <mat-grid-tile [colspan]="1" [rowspan]="1">
-      <mat-card class="custom-card">
-        <mat-card-header>
-          <mat-card-title>Activated</mat-card-title>
-          <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <h2>24 | 454</h2>
-        </mat-card-content>
-      </mat-card>
-    </mat-grid-tile>
-
-    <mat-grid-tile [colspan]="1" [rowspan]="1">
-      <mat-card class="custom-card">
-        <mat-card-header>
-          <mat-card-title>Deactivated</mat-card-title>
-          <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <h2>11 | 238</h2>
-        </mat-card-content>
-      </mat-card>
-    </mat-grid-tile>
-
-    <mat-grid-tile [colspan]="1" [rowspan]="1">
-      <mat-card class="custom-card">
-        <mat-card-header>
-          <mat-card-title>Retired</mat-card-title>
-          <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <h2>19 | 342</h2>
-        </mat-card-content>
-      </mat-card>
-    </mat-grid-tile>
-
-    <mat-grid-tile [colspan]="1" [rowspan]="1">
-      <mat-card class="custom-card">
-        <mat-card-header>
-          <mat-card-title>Purged</mat-card-title>
-          <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <h2>34 | 134</h2>
-        </mat-card-content>
-      </mat-card>
-    </mat-grid-tile>
-
+      <div *ngIf ="device1">
+        <mat-grid-tile [colspan]="1" [rowspan]="1" >
+          <mat-card class="custom-card">
+            <mat-card-header>
+              <mat-card-title>{{secondDeviceStatus.status}}</mat-card-title>
+              <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <h2>{{secondDeviceStatus.monthlyTotal}} | {{secondDeviceStatus.yearlyTotal}}</h2>
+            </mat-card-content>
+          </mat-card>
+        </mat-grid-tile>
+      </div>
+      <div *ngIf ="device2">
+        <mat-grid-tile [colspan]="1" [rowspan]="1" >
+          <mat-card class="custom-card">
+            <mat-card-header>
+              <mat-card-title>{{thirdDeviceStatus.status}}</mat-card-title>
+              <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <h2>{{thirdDeviceStatus.monthlyTotal}} | {{thirdDeviceStatus.yearlyTotal}}</h2>
+            </mat-card-content>
+          </mat-card>
+        </mat-grid-tile>
+      </div>
+      <div *ngIf ="device3">
+        <mat-grid-tile [colspan]="1" [rowspan]="1" >
+          <mat-card class="custom-card">
+            <mat-card-header>
+              <mat-card-title>{{fourthDeviceStatus.status}}</mat-card-title>
+              <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <h2>{{fourthDeviceStatus.monthlyTotal}} | {{fourthDeviceStatus.yearlyTotal}}</h2>
+            </mat-card-content>
+          </mat-card>
+        </mat-grid-tile>
+      </div>
   </mat-grid-list>
 
 
@@ -69,18 +76,18 @@
   <!-- <h1 class="mat-h1">Dashboard</h1> -->
   <mat-grid-list cols="5" rowHeight="1:1.11">
 
-    <mat-grid-tile [colspan]="1" [rowspan]="1">
-      <mat-card class="dashboard-card">
+    <mat-grid-tile [colspan]="1" [rowspan]="1" [style.background]="'#e3e3ed'">
+      <mat-card class="dashboard-card" [style.background]="'#c8c2d3'">
         <mat-card-header class="chart-toggle-card-header">
         </mat-card-header>
         <mat-card-content class="dashboard-card-content">
           <div>
             <mat-tab-group style="margin-bottom: 30px;" #changeEvent (selectedIndexChange)="tabChanged($event)">
-              <mat-tab label="Rate Plan">
+              <mat-tab label="Rate">
                 <div style="height: 30px;"></div>
                 <rate-plan-donut-chart></rate-plan-donut-chart>
               </mat-tab>
-              <mat-tab label="Communication Plan">
+              <mat-tab label="Comm.">
                 <div style="height: 30px;"></div>
                 <comm-plan-donut-chart></comm-plan-donut-chart>
               </mat-tab>

@@ -36,11 +36,19 @@ export class MainDashboardComponent implements OnInit {
     })
   );
 
-  username : string = "";
+  username: string = "";
   roles: any;
   name: string;
   today = Date.now();
   placeholderData = "Accounts";
+  firstDeviceStatus: any;
+  secondDeviceStatus: any;
+  thirdDeviceStatus: any;
+  fourthDeviceStatus: any;
+  device0 : any;
+  device1 : any;
+  device2 : any;
+  device3 : any;
 
   planName: string = "Rate Plan"
   ratePlanDonutDisplay: boolean = true;
@@ -51,17 +59,17 @@ export class MainDashboardComponent implements OnInit {
     private _authService: AuthService,
     private http: HttpClient,
     private accAnalysisService: AccountanalysisdataserviceService
-  ) {}
+  ) { }
 
-  donutChartToggle(event){
-    if(event.checked) { this.commPlanDonutDisplay = true; this.ratePlanDonutDisplay = false; this.planName = "Comm Plan"}
-    else { this.commPlanDonutDisplay = false; this.ratePlanDonutDisplay = true; this.planName = "Rate Plan"}
+  donutChartToggle(event) {
+    if (event.checked) { this.commPlanDonutDisplay = true; this.ratePlanDonutDisplay = false; this.planName = "Comm Plan" }
+    else { this.commPlanDonutDisplay = false; this.ratePlanDonutDisplay = true; this.planName = "Rate Plan" }
   }
 
   ngOnInit() {
 
     Observable
-    timer(1,1000).subscribe(() => {
+    timer(1, 1000).subscribe(() => {
       this.today = Date.now();
     })
 
@@ -69,13 +77,33 @@ export class MainDashboardComponent implements OnInit {
       Authorization: 'Bearer ' + `${sessionStorage.getItem("token")}`
     });
 
-    this.http.get(environment.ENV.baseURL+'/api/v1/users/me', { headers:headers })
-    .subscribe(res => {
-      let userInfo:any = res;
-      this.username = userInfo.username;
-      this.roles = userInfo.roles;
-      this.name = userInfo.name;
-    })
+    this.http.get(environment.ENV.baseURL + '/api/v1/users/me', { headers: headers })
+      .subscribe(res => {
+        let userInfo: any = res;
+        this.username = userInfo.username;
+        this.roles = userInfo.roles;
+        this.name = userInfo.name;
+      })
+
+    this.http.get(environment.ENV.baseURL + '/api/v1/accounts/deviceStatus', { headers: headers })
+      .subscribe(res => {
+        let deviceStatuses: any = res;
+        if (deviceStatuses[0] !== undefined) {
+          this.firstDeviceStatus = deviceStatuses[0];
+          this.device0 = true;
+        } if (deviceStatuses[1] !== undefined) {
+          this.secondDeviceStatus = deviceStatuses[1];
+          this.device1 = true;
+        }
+        if (deviceStatuses[2] !== undefined) {
+          this.thirdDeviceStatus = deviceStatuses[2];
+          this.device2 = true;
+        }
+        if (deviceStatuses[3] !== undefined) {
+          this.fourthDeviceStatus = deviceStatuses[3];
+          this.device3 = true;
+        }
+      })
   }
 
   ngOnDestroy(): void {
