@@ -55,15 +55,6 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
       backgroundColor: []
     }
   ];
-
-  getRandomColor() {
-    let color = Math.floor(0x1000000 * Math.random()).toString(16);
-    return '#' + ('000000' + color).slice(-6);
-  }
-
-  getRandomColorWithRedHue(){
-    
-  }
   
   constructor(private http: HttpClient, private accAnalysisService: AccountanalysisdataserviceService) {
 
@@ -71,7 +62,7 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
 
   ngOnInit() {
     this.rateOrCommPlanUrl = environment.ENV.baseURL + '/api/v1/devices/commPlan?accountId=';
-    this.placeholderData = "Accounts";
+    this.placeholderData = "Select Account";
     this.acctId = "";
 
     console.log("value of placeholder data ", this.placeholderData);
@@ -95,9 +86,6 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
             startWith(''),
             map(value => this._filter(value))
           );
-
-
-
       })
   }
   toggleRateAndCommPlan() {
