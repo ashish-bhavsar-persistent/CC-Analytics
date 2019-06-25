@@ -26,7 +26,6 @@ import { RolesMenuComponent } from './components/roles-menu/roles-menu.component
 import { InformationCardsComponent } from './components/information-cards/information-cards.component';
 import { RatePlanDonutChartComponent } from './components/charts/rate-plan-donut-chart/rate-plan-donut-chart.component';
 import { CommPlanDonutChartComponent } from './components/charts/comm-plan-donut-chart/comm-plan-donut-chart.component';
-import { AccountAnalysisChartComponent } from './components/charts/account-analysis-chart/account-analysis-chart.component';
 import { AccountanalysisdataserviceService } from './services/accountanalysisdataservice.service';
 import { AcctAnalyticsPiechartComponent } from './components/charts/acct-analytics-piechart/acct-analytics-piechart.component';
 import { DeviceStatusComponent } from './components/charts/device-status/device-status.component';
@@ -42,7 +41,6 @@ import { DeviceStatusComponent } from './components/charts/device-status/device-
     InformationCardsComponent,
     RatePlanDonutChartComponent,
     CommPlanDonutChartComponent,
-    AccountAnalysisChartComponent,
     AcctAnalyticsPiechartComponent,
     DeviceStatusComponent
   ],

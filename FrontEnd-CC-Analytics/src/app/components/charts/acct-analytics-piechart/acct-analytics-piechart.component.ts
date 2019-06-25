@@ -6,6 +6,7 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { AccountanalysisdataserviceService } from '../../../services/accountanalysisdataservice.service';
+import {randomColor} from "randomcolor";
 
 export interface User {
   accountName: string;
@@ -51,20 +52,19 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
   public pieChartLegend = false;
   public pieChartColors = [
     {
-      backgroundColor: [
-        "#9d70c2",
-        "#c46aba",
-        "#e564aa",
-        "#ff6294",
-        "#ff6978",
-        "#ff7859",
-        "#ff8e37",
-        "#ffa600",
-        "#ffa765"
-      ]
+      backgroundColor: []
     }
   ];
 
+  getRandomColor() {
+    let color = Math.floor(0x1000000 * Math.random()).toString(16);
+    return '#' + ('000000' + color).slice(-6);
+  }
+
+  getRandomColorWithRedHue(){
+    
+  }
+  
   constructor(private http: HttpClient, private accAnalysisService: AccountanalysisdataserviceService) {
 
   }
@@ -81,10 +81,15 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
 
     this.http.get(environment.ENV.baseURL + '/api/v1/accounts/name', { headers: headers })
       .subscribe(res => {
+        this.pieChartColors[0].backgroundColor = [];
         let temp: any = res;
         for (let i of temp) {
           this.options.push(i);
         }
+        this.pieChartColors[0].backgroundColor = randomColor({
+          count: this.options.length,
+          hue: 'pink'
+       });
         this.filteredOptions = this.myControl.valueChanges
           .pipe(
             startWith(''),
@@ -114,6 +119,7 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
     });
     this.http.get(this.rateOrCommPlanUrl + accountIdValue, { headers: headers })
       .subscribe(res => {
+        this.pieChartColors[0].backgroundColor = [];
         this.pieChartData = [];
         this.pieChartLabels = [];
         let temp: any = res;
@@ -124,6 +130,11 @@ export class AcctAnalyticsPiechartComponent implements OnInit {
           } else {
             this.pieChartLabels.push(i.ratePlan);
           }
+
+          this.pieChartColors[0].backgroundColor = randomColor({
+            count: this.pieChartLabels.length,
+            hue: 'pink'
+         });
 
         }
       })
