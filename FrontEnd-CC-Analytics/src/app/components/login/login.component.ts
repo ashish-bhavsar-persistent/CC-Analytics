@@ -34,7 +34,7 @@ export class LoginComponent implements OnInit {
     private authService: AuthService
   ) {}
 
-  email = new FormControl("", [Validators.required, Validators.email]);
+  email = new FormControl("");
 
   password = new FormControl("", [Validators.required]);
 
