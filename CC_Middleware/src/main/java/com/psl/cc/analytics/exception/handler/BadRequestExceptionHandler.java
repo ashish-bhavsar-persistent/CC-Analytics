@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.psl.cc.analytics.exception.InAppropriateDataException;
+import com.psl.cc.analytics.exception.ValidationException;
 
 @ControllerAdvice
 @RestController
@@ -25,8 +25,8 @@ public class BadRequestExceptionHandler extends ResponseEntityExceptionHandler {
 		return new ResponseEntity(errorDetails, HttpStatus.BAD_REQUEST);
 	}
 	
-	@ExceptionHandler(InAppropriateDataException.class)
-	public final ResponseEntity<ErrorDetails> handleUserNotFoundException(InAppropriateDataException ex, WebRequest request) {
+	@ExceptionHandler(ValidationException.class)
+	public final ResponseEntity<ErrorDetails> handleUserNotFoundException(ValidationException ex, WebRequest request) {
 		ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(), request.getDescription(false));
 		return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
 	}

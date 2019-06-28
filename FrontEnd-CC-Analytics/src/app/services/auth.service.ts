@@ -1,9 +1,10 @@
 import { HttpClient, HttpHeaders, HttpParams } from "@angular/common/http";
 import { map } from "rxjs/operators";
-import { environment } from "../../environments/environment";
+
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import { Router } from '@angular/router';
+import { environment } from '../../environments/environment.prod';
 
 @Injectable()
 export class AuthService {

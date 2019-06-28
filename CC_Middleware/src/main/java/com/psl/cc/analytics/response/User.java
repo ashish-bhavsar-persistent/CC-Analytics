@@ -152,7 +152,7 @@ public class User implements Serializable {
 	public void setUseAPIKey(boolean useAPIKey) {
 		this.useAPIKey = useAPIKey;
 	}
-
+	
 	public User() {
 		super();
 	}

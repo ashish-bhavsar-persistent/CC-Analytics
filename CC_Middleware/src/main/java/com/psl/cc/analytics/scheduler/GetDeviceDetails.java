@@ -50,6 +50,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 
 	@Override
 	public Optional<String> call() throws Exception {
+		logger.debug("Fetching device details of {} for an account {}", deviceId, accountId);
 		String username = ccUser.getUsername();
 		String password = ccUser.getPassword();
 		if (configuration.isUseAPIKey()) {
@@ -72,13 +73,14 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 						ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
 				JSONObject deviceObject = new JSONObject(response.getBody());
 				Device deviceJson = mapper.readValue(deviceObject.toString(), Device.class);
-				for (Device deviceFromAccount :account.getDeviceList()) {
+				for (Device deviceFromAccount : account.getDeviceList()) {
 					if (deviceJson.getIccid().equals(deviceFromAccount.getIccid())) {
 						deviceJson.setCreatedOn(deviceFromAccount.getCreatedOn());
 						BeanUtils.copyProperties(deviceFromAccount, deviceJson);
 						deviceFromAccount.setLastUpdatedOn(new Date());
 					}
 				}
+				logger.info("Fetched device details of {} for an account {} successfully", deviceId, accountId);
 				return Optional.empty();
 			}
 		} catch (Exception e) {
@@ -86,7 +88,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 			audit.doAudit("get Device Details", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/",
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
 			throw e;
-		} 
+		}
 		return Optional.empty();
 	}
 

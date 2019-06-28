@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.psl.cc.analytics.exception.CCException;
-import com.psl.cc.analytics.exception.InAppropriateDataException;
+import com.psl.cc.analytics.exception.ValidationException;
 import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.model.Role;
@@ -153,9 +153,9 @@ public class UserController {
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
 	public ResponseEntity<String> updateUser(@PathVariable String id, @Valid @RequestBody User user) {
 		if (user.isUseAPIKey() && user.isUsePassword()) {
-			throw new InAppropriateDataException("Both useAPIKey and usePassword can not be true");
+			throw new ValidationException("Both useAPIKey and usePassword can not be true");
 		} else if (!user.isUseAPIKey() && !user.isUsePassword()) {
-			throw new InAppropriateDataException("Both useAPIKey and usePassword can not be false");
+			throw new ValidationException("Both useAPIKey and usePassword can not be false");
 		}
 		Optional<CCUser> optionalUser = userService.findOneById(id);
 		if (optionalUser.isPresent()) {

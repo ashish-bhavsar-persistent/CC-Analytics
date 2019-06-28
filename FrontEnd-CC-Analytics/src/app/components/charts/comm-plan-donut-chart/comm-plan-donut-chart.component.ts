@@ -1,7 +1,7 @@
 import { Component, OnInit } from "@angular/core";
 import { ChartType, ChartOptions } from "chart.js";
 import { HttpHeaders, HttpClient } from '@angular/common/http';
-import { environment } from 'src/environments/environment';
+import { environment } from 'src/environments/environment.prod';
 
 @Component({
   selector: "comm-plan-donut-chart",

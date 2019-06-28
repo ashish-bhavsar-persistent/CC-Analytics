@@ -4,7 +4,7 @@ import { Breakpoints, BreakpointObserver } from "@angular/cdk/layout";
 import { NavBarComponent } from "../components/nav-bar/nav-bar.component";
 import { AuthService } from "../services/auth.service";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
-import { environment } from "../../environments/environment";
+import { environment } from "../../environments/environment.prod";
 import { Observable } from 'rxjs';
 import { timer } from 'rxjs';
 import { AccountanalysisdataserviceService } from '../services/accountanalysisdataservice.service';

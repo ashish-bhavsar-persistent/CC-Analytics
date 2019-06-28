@@ -93,4 +93,22 @@ public class Configuration extends Audit {
 		this.useAPIKey = useAPIKey;
 	}
 
+	public Configuration(String id, CCUser user, String baseUrl, int billingCycleStartDay, int billingCyclePeriod,
+			List<String> deviceStates, boolean usePassword, boolean useAPIKey, String apiKey) {
+		super();
+		this.id = id;
+		this.user = user;
+		this.baseUrl = baseUrl;
+		this.billingCycleStartDay = billingCycleStartDay;
+		this.billingCyclePeriod = billingCyclePeriod;
+		this.deviceStates = deviceStates;
+		this.usePassword = usePassword;
+		this.useAPIKey = useAPIKey;
+		this.apiKey = apiKey;
+	}
+
+	public Configuration() {
+		super();
+	}
+
 }

@@ -47,7 +47,7 @@ public class GetAllAccounts {
 	final DateFormat dateFormat = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICESURL);
 
 	// It shoud be run at 12:00:00 am everyday
-	@Scheduled(cron = "0 0 0 * * * ?")
+	@Scheduled(cron = "0 0 0 * * *", zone = "Indian/Maldives")
 	public void cronJob() {
 		logger.debug("Cron Job Started {}", new Date());
 		String modifiedSince = null;
