@@ -22,7 +22,7 @@ public class BadRequestExceptionHandler extends ResponseEntityExceptionHandler {
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
 			HttpHeaders headers, HttpStatus status, WebRequest request) {
 		ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getBindingResult().getFieldError().getDefaultMessage(), request.getDescription(false));
-		return new ResponseEntity(errorDetails, HttpStatus.BAD_REQUEST);
+		return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
 	}
 	
 	@ExceptionHandler(ValidationException.class)

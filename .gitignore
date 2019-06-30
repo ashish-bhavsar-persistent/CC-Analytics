@@ -28,3 +28,4 @@ logs/
 
 ### VS Code ###
 .vscode/
+/package-lock.json

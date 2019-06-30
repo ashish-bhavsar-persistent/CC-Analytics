@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.exception.CCException;
 import com.psl.cc.analytics.exception.ValidationException;
 import com.psl.cc.analytics.model.CCUser;
@@ -69,12 +70,12 @@ public class UserController {
 		logger.debug("getAllUsers() invoked");
 		List<CCUser> ccUsers = userService.findAll();
 		List<User> users = new ArrayList<>();
-		if (ccUsers != null)
-			for (CCUser cc_user : ccUsers) {
-				Configuration configuration = configRepository.findOneByUserId(cc_user.getId());
-				User tempUser = new User(cc_user, configuration);
-				users.add(tempUser);
-			}
+
+		for (CCUser cc_user : ccUsers) {
+			Configuration configuration = configRepository.findOneByUserId(cc_user.getId());
+			User tempUser = new User(cc_user, configuration);
+			users.add(tempUser);
+		}
 		return users;
 	}
 
@@ -88,7 +89,7 @@ public class UserController {
 			Configuration configuration = configRepository.findOneByUserId(ccUser.get().getId());
 			tempUser = new User(ccUser.get(), configuration);
 		} else {
-			throw new CCException(id + ": Not Found");
+			throw new CCException(id + ControlCentreConstants.NOT_FOUND_MESSAGE);
 		}
 		return tempUser;
 	}
@@ -96,13 +97,18 @@ public class UserController {
 	@PostMapping("/users")
 	@ApiOperation(value = "Add a user")
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
-	public ResponseEntity<String> createUser(@RequestBody @Valid User user) {
+	public ResponseEntity<String> createUser(@RequestBody @Valid User user) throws CCException {
+		if (user.isUseAPIKey() && user.isUsePassword()) {
+			throw new ValidationException("Both useAPIKey and usePassword can not be true");
+		} else if (!user.isUseAPIKey() && !user.isUsePassword()) {
+			throw new ValidationException("Both useAPIKey and usePassword can not be false");
+		}
 		CCUser ccUser = new CCUser();
 		List<Role> roles = new ArrayList<>();
 		for (String role : user.getRoles()) {
 			Role tempRole = roleRepository.findOneByName(role);
 			if (tempRole == null) {
-				return new ResponseEntity<>(role + ": Not Found", HttpStatus.NOT_FOUND);
+				throw new CCException(role + ControlCentreConstants.NOT_FOUND_MESSAGE);
 			}
 			roles.add(tempRole);
 		}
@@ -143,7 +149,7 @@ public class UserController {
 			configRepository.delete(configuration);
 			userService.delete(ccUser.get());
 		} else {
-			throw new CCException(id + ": Not Found");
+			throw new CCException(id + ControlCentreConstants.NOT_FOUND_MESSAGE);
 		}
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
@@ -151,7 +157,8 @@ public class UserController {
 	@PutMapping("/users/{id}")
 	@ApiOperation(value = "Update a user by Id")
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
-	public ResponseEntity<String> updateUser(@PathVariable String id, @Valid @RequestBody User user) {
+	public ResponseEntity<String> updateUser(@PathVariable String id, @Valid @RequestBody User user)
+			throws CCException {
 		if (user.isUseAPIKey() && user.isUsePassword()) {
 			throw new ValidationException("Both useAPIKey and usePassword can not be true");
 		} else if (!user.isUseAPIKey() && !user.isUsePassword()) {
@@ -164,7 +171,7 @@ public class UserController {
 			for (String role : user.getRoles()) {
 				Role tempRole = roleRepository.findOneByName(role);
 				if (tempRole == null) {
-					return new ResponseEntity<>(role + ": Not Found", HttpStatus.NOT_FOUND);
+					throw new CCException(role + ControlCentreConstants.NOT_FOUND_MESSAGE);
 				}
 				roles.add(tempRole);
 			}
@@ -193,24 +200,18 @@ public class UserController {
 			URI location = ServletUriComponentsBuilder.fromCurrentRequest().buildAndExpand(ccUser.getId()).toUri();
 			return ResponseEntity.created(location).build();
 		} else {
-			return new ResponseEntity<>(id + " Not Found", HttpStatus.NOT_FOUND);
+			throw new CCException(id + ControlCentreConstants.NOT_FOUND_MESSAGE);
 		}
 	}
 
 	@GetMapping("/users/me")
 	@ApiOperation(value = "Get current user details")
-	public User getCurrentUser() throws CCException {
+	public User getCurrentUser() {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-
 		CCUser ccUser = userService.findOneByUsername(username);
-		User tempUser = null;
-		if (ccUser != null) {
-			Configuration configuration = configRepository.findOneByUserId(ccUser.getId());
-			tempUser = new User(ccUser, configuration);
-		} else {
-			throw new CCException(" Not Found");
-		}
-		return tempUser;
+		Configuration configuration = configRepository.findOneByUserId(ccUser.getId());
+		return new User(ccUser, configuration);
+
 	}
 }
