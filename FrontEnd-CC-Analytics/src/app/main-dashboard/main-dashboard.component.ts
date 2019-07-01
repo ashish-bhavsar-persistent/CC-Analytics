@@ -41,14 +41,8 @@ export class MainDashboardComponent implements OnInit {
   name: string;
   today = Date.now();
   placeholderData = "Accounts";
-  firstDeviceStatus: any;
-  secondDeviceStatus: any;
-  thirdDeviceStatus: any;
-  fourthDeviceStatus: any;
-  device0 : any;
-  device1 : any;
-  device2 : any;
-  device3 : any;
+  deviceStatus:any = []
+  dataLoading:boolean = true;
 
   planName: string = "Rate Plan"
   ratePlanDonutDisplay: boolean = true;
@@ -85,25 +79,12 @@ export class MainDashboardComponent implements OnInit {
         this.name = userInfo.name;
       })
 
-    this.http.get(environment.ENV.baseURL + '/api/v1/accounts/deviceStatus', { headers: headers })
+      this.http.get(environment.ENV.baseURL + '/api/v1/accounts/deviceStatus', { headers: headers })
       .subscribe(res => {
-        let deviceStatuses: any = res;
-        if (deviceStatuses[0] !== undefined) {
-          this.firstDeviceStatus = deviceStatuses[0];
-          this.device0 = true;
-        } if (deviceStatuses[1] !== undefined) {
-          this.secondDeviceStatus = deviceStatuses[1];
-          this.device1 = true;
-        }
-        if (deviceStatuses[2] !== undefined) {
-          this.thirdDeviceStatus = deviceStatuses[2];
-          this.device2 = true;
-        }
-        if (deviceStatuses[3] !== undefined) {
-          this.fourthDeviceStatus = deviceStatuses[3];
-          this.device3 = true;
-        }
+        this.deviceStatus = res;
+        this.dataLoading = false;
       })
+    
   }
 
   ngOnDestroy(): void {

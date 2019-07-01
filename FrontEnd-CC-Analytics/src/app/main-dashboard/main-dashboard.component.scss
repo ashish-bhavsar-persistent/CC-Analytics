@@ -20,45 +20,51 @@
   text-align: center;
 }
 
-.user-info{
+.user-info {
   display: flex;
   flex-direction: column;
   width: 100%;
   margin: 20px;
-  h2{
+
+  h2 {
     float: left;
   }
 
-  h5{
+  h4 {
+    font-size: 1vw;
+  }
+
+  h5 {
     padding: 8px;
     background: rgb(100, 100, 100);
     border-radius: 8px;
     display: block;
     color: white;
     width: fit-content;
+    font-size: 1vw;
   }
 
-  .user-info-roles{
-    *{
+  .user-info-roles {
+    * {
       display: inline-block;
     }
   }
 }
 
-.custom-card{
+.custom-card {
   width: 18vw;
   margin-inline-end: 0.5vw;
   padding: 5px;
   background-color: rgb(200, 194, 211);
 
-  mat-card-content{
-    h2{
+  mat-card-content {
+    h2 {
       text-align: center;
     }
   }
 }
 
-.chart-toggle-card-header{
+.chart-toggle-card-header {
   justify-content: space-between;
   display: inline;
 }
@@ -70,4 +76,56 @@
   /* Set the fixed height of the footer here */
   height: 60px;
   line-height: 60px;
+}
+
+.information-card {
+  width: 20vw;
+  height: 9vw;
+  margin: 10px 20px 20px 20px;
+  background: rgb(255, 255, 255);
+  box-shadow: 0px 1px 20px rgba(61, 61, 61, 0.199);
+  border-radius: 15px;
+  position: relative;
+
+  p{
+    padding: 20px 0px 0px 20px;
+    margin: 0px;
+    font-weight: 800;
+    font-size: 1.2vw;
+  }
+
+  h6{
+    padding: 0px 0px 0px 20px;
+    margin: 0;
+    font-size: 0.8vw;
+  }
+
+  h4{
+    padding-top: 0.8vw;
+    text-align: center;
+    font-size: 2vw;
+  }
+}
+
+.scroll-container {
+  display: flex;
+  align-items: center;
+  overflow: auto;
+}
+
+.pie-chart-container{
+  width: 100%;
+  height: fit-content;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  background: white;
+  border-radius: 15px;
+}
+
+#chart-tags{
+  padding: 10px;
+  background: #2196f3;
+  color: white;
+  border-radius: 8px;
 }

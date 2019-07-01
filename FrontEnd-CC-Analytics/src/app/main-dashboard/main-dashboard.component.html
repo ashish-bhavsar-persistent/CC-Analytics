@@ -5,7 +5,7 @@
 <nav-bar></nav-bar>
 <div class="grid-container">
   <div>
-    <mat-grid-list cols="5" rowHeight="150px" [style.background]="'#e3e3ed'">
+    <mat-grid-list cols="5" rowHeight="2:1.2">
       <div>
         <mat-grid-tile [colspan]="1" [rowspan]="1">
           <div class="user-info">
@@ -19,117 +19,114 @@
             <!-- <autocomplete-input [placeholderData]="placeholderData2"></autocomplete-input> -->
           </div>
         </mat-grid-tile>
-      </div>
 
-      <div *ngIf="device0">
-        <mat-grid-tile [colspan]="1" [rowspan]="1">
-          <mat-card class="custom-card">
-            <mat-card-header>
-              <mat-card-title>{{firstDeviceStatus.status}}</mat-card-title>
-              <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <h2>{{firstDeviceStatus.monthlyTotal}} | {{firstDeviceStatus.yearlyTotal}}</h2>
-            </mat-card-content>
-          </mat-card>
-        </mat-grid-tile>
-      </div>
-      <div *ngIf="device1">
-        <mat-grid-tile [colspan]="1" [rowspan]="1">
-          <mat-card class="custom-card">
-            <mat-card-header>
-              <mat-card-title>{{secondDeviceStatus.status}}</mat-card-title>
-              <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <h2>{{secondDeviceStatus.monthlyTotal}} | {{secondDeviceStatus.yearlyTotal}}</h2>
-            </mat-card-content>
-          </mat-card>
-        </mat-grid-tile>
-      </div>
-      <div *ngIf="device2">
-        <mat-grid-tile [colspan]="1" [rowspan]="1">
-          <mat-card class="custom-card">
-            <mat-card-header>
-              <mat-card-title>{{thirdDeviceStatus.status}}</mat-card-title>
-              <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <h2>{{thirdDeviceStatus.monthlyTotal}} | {{thirdDeviceStatus.yearlyTotal}}</h2>
-            </mat-card-content>
-          </mat-card>
-        </mat-grid-tile>
-      </div>
-      <div *ngIf="device3">
-        <mat-grid-tile [colspan]="1" [rowspan]="1">
-          <mat-card class="custom-card">
-            <mat-card-header>
-              <mat-card-title>{{fourthDeviceStatus.status}}</mat-card-title>
-              <mat-card-subtitle>Monthly | Yearly</mat-card-subtitle>
-            </mat-card-header>
-            <mat-card-content>
-              <h2>{{fourthDeviceStatus.monthlyTotal}} | {{fourthDeviceStatus.yearlyTotal}}</h2>
-            </mat-card-content>
-          </mat-card>
+        <mat-grid-tile [colspan]="4" [rowspan]="1">
+
+          <div *ngIf="dataLoading">
+            <span>Data Loading. Please Wait...<loader></loader></span>
+          </div>
+
+              <div class="scroll-container" style="overflow: auto">
+                  <div *ngFor="let status of deviceStatus">
+                    <div class="information-card col-lg-12 col-md-10 col-sm-2">
+                        <p>{{status.status}}</p>
+                        <h6>Monthly | Yearly</h6>
+                        <h4>{{status.monthlyTotal || 0}} | {{status.yearlyTotal || 0}}</h4>
+                    </div>
+                </div>
+              </div>
+
+          
         </mat-grid-tile>
       </div>
     </mat-grid-list>
 
-
-
-    <!-- <h1 class="mat-h1">Dashboard</h1> -->
-    <mat-grid-list cols="5" rowHeight="1:1.11">
-
-      <mat-grid-tile [colspan]="1" [rowspan]="1" [style.background]="'#e3e3ed'">
-        <mat-card class="dashboard-card" [style.background]="'#c8c2d3'">
-          <mat-card-header class="chart-toggle-card-header">
-
-            <mat-card-actions>
-              <div>Rate Plan
-              <mat-slide-toggle [color]="color" [checked]="checked" [disabled]="disabled" (change)="donutChartToggle($event)" matTooltip="toggle between rate and comm plan"
-                color="primary">
-              </mat-slide-toggle>
-              Comm. Plan</div>
-            </mat-card-actions>
-          </mat-card-header>
-          <mat-card-content class="dashboard-card-content">
-            
-            <div style="margin-top:10px;">
-              <rate-plan-donut-chart *ngIf="ratePlanDonutDisplay"></rate-plan-donut-chart>
-              <comm-plan-donut-chart *ngIf="commPlanDonutDisplay"></comm-plan-donut-chart>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </mat-grid-tile>
-
-      <mat-grid-tile [colspan]="2" [rowspan]="1">
-        <mat-card class="dashboard-card">
-          <div>
-            <app-acct-analytics-piechart></app-acct-analytics-piechart>
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-lg-6">
+          <h6 id="chart-tags">Rate Plan Analysis</h6>
+          <div class="pie-chart-container">
+            <rate-plan-donut-chart></rate-plan-donut-chart>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Handle</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>@mdo</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td>Larry</td>
+                    <td>the Bird</td>
+                    <td>@twitter</td>
+                  </tr>
+                </tbody>
+              </table>
           </div>
-        </mat-card>
-      </mat-grid-tile>
+        </div>
 
-      <mat-grid-tile [colspan]="2" [rowspan]="1">
-        <mat-card class="dashboard-card">
-          <div>
-            <device-status></device-status>
+        <div class="col-lg-6">
+            <h6 id="chart-tags">Communication Plan Analysis</h6>
+            <div class="pie-chart-container">
+            <comm-plan-donut-chart></comm-plan-donut-chart>
+            <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">First</th>
+                    <th scope="col">Last</th>
+                    <th scope="col">Handle</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">1</th>
+                    <td>Mark</td>
+                    <td>Otto</td>
+                    <td>@mdo</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">2</th>
+                    <td>Jacob</td>
+                    <td>Thornton</td>
+                    <td>@fat</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">3</th>
+                    <td>Larry</td>
+                    <td>the Bird</td>
+                    <td>@twitter</td>
+                  </tr>
+                </tbody>
+              </table>
           </div>
-        </mat-card>
-      </mat-grid-tile>
-
-    </mat-grid-list>
-
-
+          </div>
+      </div>
+    </div>
 
   </div>
 
 
-  <footer class="footer">
+  <!-- <footer class="footer">
     <div class="container" style="display: flex; justify-content: center; align-items: center;">
 
       <span class="attribution">
         &copy; Control Center 2019.
       </span>
     </div>
-  </footer>
+  </footer> -->
