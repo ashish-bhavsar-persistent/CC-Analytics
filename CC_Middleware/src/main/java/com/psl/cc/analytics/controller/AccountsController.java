@@ -71,19 +71,27 @@ public class AccountsController {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CCUser ccUser = userService.findOneByUsername(username);
-		List<AccountAggregation> aggregations = accountService.getDeviceStatusCountByUserId(ccUser.getId(), "monthly");
+		List<AccountAggregation> aggregations = accountService.getDeviceStatusCountByUserId(ccUser.getId(), "yearly");
 		if (aggregations != null && !aggregations.isEmpty()) {
-			List<AccountAggregation> yearlyAggregations = accountService.getDeviceStatusCountByUserId(ccUser.getId(),
-					"yearly");
-			aggregations.forEach(monthlyAggregation -> {
-				Optional<AccountAggregation> agg = yearlyAggregations.stream()
-						.filter(yearlyAgg -> yearlyAgg.getStatus().equals(monthlyAggregation.getStatus())).findFirst();
-				if (agg.isPresent()) {
-					monthlyAggregation.setMonthlyTotal(monthlyAggregation.getTotal());
-					monthlyAggregation.setYearlyTotal(agg.get().getTotal());
-					monthlyAggregation.setTotal(0l);
-				}
-			});
+			List<AccountAggregation> monthlyAggregations = accountService.getDeviceStatusCountByUserId(ccUser.getId(),
+					"monthly");
+			if (monthlyAggregations.isEmpty()) {
+				aggregations.forEach(agg -> {
+					agg.setYearlyTotal(agg.getTotal());
+					agg.setTotal(0l);
+				});
+			} else {
+				aggregations.forEach(monthlyAggregation -> {
+					Optional<AccountAggregation> agg = monthlyAggregations.stream()
+							.filter(yearlyAgg -> yearlyAgg.getStatus().equals(monthlyAggregation.getStatus()))
+							.findFirst();
+					if (agg.isPresent()) {
+						monthlyAggregation.setMonthlyTotal(monthlyAggregation.getTotal());
+						monthlyAggregation.setYearlyTotal(agg.get().getTotal());
+						monthlyAggregation.setTotal(0l);
+					}
+				});
+			}
 		}
 		return aggregations;
 	}
