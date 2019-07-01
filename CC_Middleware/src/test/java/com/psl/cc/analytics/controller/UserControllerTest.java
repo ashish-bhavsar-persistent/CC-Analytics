@@ -29,7 +29,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.psl.cc.analytics.util.Utils;
+import com.psl.cc.analytics.util.UserDetailsUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -44,7 +44,7 @@ public class UserControllerTest {
 	private WebApplicationContext context;
 
 	@Autowired
-	private Utils utils;
+	private UserDetailsUtil utils;
 
 	@Autowired
 	private MockMvc mockMvc;
@@ -210,6 +210,12 @@ public class UserControllerTest {
 	public void deleteUserById() throws Exception {
 		String accessToken = getAccessToken("cc_sysadmin", "password");
 		mockMvc.perform(delete(BASE_URL + "/users/" + utils.getData().getString("deleteUser")).header("Authorization",
+				"Bearer " + accessToken)).andExpect(status().isOk());
+	}
+	@Test
+	public void deleteUserByIdWithConfig() throws Exception {
+		String accessToken = getAccessToken("cc_sysadmin", "password");
+		mockMvc.perform(delete(BASE_URL + "/users/" + utils.getData().getString("deleteUser2")).header("Authorization",
 				"Bearer " + accessToken)).andExpect(status().isOk());
 	}
 

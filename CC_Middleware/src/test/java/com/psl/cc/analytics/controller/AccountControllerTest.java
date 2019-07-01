@@ -1,10 +1,10 @@
-package com.psl.cc.analytics;
+package com.psl.cc.analytics.controller;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -12,59 +12,78 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.bouncycastle.util.encoders.Base64;
 import org.json.JSONObject;
-import org.junit.After;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.psl.cc.analytics.service.UserService;
-import com.psl.cc.analytics.util.Utils;
+import com.psl.cc.analytics.util.AccountDetailsUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-@Order(Ordered.HIGHEST_PRECEDENCE)
-public class ContraintVoilationTest {
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
+public class AccountControllerTest {
 
-	private static final String BASE_URL = "/api/v1";
+	private final String BASE_URL = "/api/v1";
 
 	@Autowired
-	WebApplicationContext context;
+	private WebApplicationContext context;
+
+	@Autowired
+	private AccountDetailsUtil utils;
 
 	@Autowired
 	private MockMvc mockMvc;
-	
-	@Autowired
-	private Utils utils;
 
 	@Test
-	public void createUser_DuplicateUsernameError() throws Exception {
-//		utils.setup();
-		String accessToken = getAccessToken("cc_sysadmin", "password");
-		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"cc_sysadmin\",\"roles\":[\"USER\",\"ADMIN\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"useAPIKey\":true,\"password\":\"password\"}";
-		mockMvc.perform(post(BASE_URL + "/users").content(userDeatils)
-				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
-				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isInternalServerError())
-				.andExpect(jsonPath("$.message", is(containsString("username dup key: { : \"cc_sysadmin\" }"))));
-//		utils.tearDown();
+	public void getAccountNames() throws Exception {
+		utils.setup();
+		String accessToken = getAccessToken("VivoSpAdmin", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/name").header("Authorization", "Bearer " + accessToken)
+				.param("accountId", "100007512")).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].accountId", is("100007512")))
+				.andExpect(jsonPath("$[0].accountName", is("SIM Replacement Test")));
+	}
+
+	@Test
+	public void getRatePlanCount() throws Exception {
+
+		String accessToken = getAccessToken("VivoSpAdmin", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/ratePlan").header("Authorization", "Bearer " + accessToken))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].total", is(1)))
+				.andExpect(jsonPath("$[0].ratePlan", is("Vivo Default RP")));
+	}
+
+	@Test
+	public void getCommPlanCount() throws Exception {
+
+		String accessToken = getAccessToken("VivoSpAdmin", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/commPlan").header("Authorization", "Bearer " + accessToken))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].total", is(1)))
+				.andExpect(jsonPath("$[0].communicationPlan", is("Vivo Default CP")));
+	}
+
+	@Test
+	public void getDeviceStatust() throws Exception {
+
+		String accessToken = getAccessToken("VivoSpAdmin", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/deviceStatus").header("Authorization", "Bearer " + accessToken));
 	}
 
 	private String getAccessToken(String username, String password) throws Exception {
 		String authorization = "Basic " + new String(Base64.encode("ashish:secret".getBytes()));
 		String contentType = MediaType.APPLICATION_JSON + ";charset=UTF-8";
 
-		// @formatter:off
 		String content = mockMvc
 				.perform(post("/oauth/token").header("Authorization", authorization)
 						.contentType(MediaType.APPLICATION_FORM_URLENCODED).param("username", username)
@@ -76,10 +95,6 @@ public class ContraintVoilationTest {
 				.andExpect(jsonPath("$.expires_in", is(greaterThan(4000))))
 				.andExpect(jsonPath("$.scope", is(equalTo("read write")))).andReturn().getResponse()
 				.getContentAsString();
-
-		// @formatter:on
-
 		return new JSONObject(content).getString("access_token");
 	}
-
 }
