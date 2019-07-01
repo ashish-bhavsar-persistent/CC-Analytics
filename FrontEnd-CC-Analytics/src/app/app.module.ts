@@ -29,6 +29,7 @@ import { CommPlanDonutChartComponent } from './components/charts/comm-plan-donut
 import { AccountanalysisdataserviceService } from './services/accountanalysisdataservice.service';
 import { AcctAnalyticsPiechartComponent } from './components/charts/acct-analytics-piechart/acct-analytics-piechart.component';
 import { DeviceStatusComponent } from './components/charts/device-status/device-status.component';
+import { LoaderComponent } from './components/loader/loader.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +43,8 @@ import { DeviceStatusComponent } from './components/charts/device-status/device-
     RatePlanDonutChartComponent,
     CommPlanDonutChartComponent,
     AcctAnalyticsPiechartComponent,
-    DeviceStatusComponent
+    DeviceStatusComponent,
+    LoaderComponent
   ],
   imports: [
     BrowserModule,

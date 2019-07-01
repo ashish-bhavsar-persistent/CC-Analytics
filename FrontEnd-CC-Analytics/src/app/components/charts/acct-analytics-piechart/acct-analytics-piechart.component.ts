@@ -6,7 +6,7 @@ import { FormControl } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { map, startWith } from 'rxjs/operators';
 import { AccountanalysisdataserviceService } from '../../../services/accountanalysisdataservice.service';
-import {randomColor} from "randomcolor";
+import { randomColor } from "randomcolor";
 
 export interface User {
   accountName: string;
