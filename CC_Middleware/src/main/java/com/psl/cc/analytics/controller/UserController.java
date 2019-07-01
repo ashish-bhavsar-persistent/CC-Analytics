@@ -146,7 +146,8 @@ public class UserController {
 		Optional<CCUser> ccUser = userService.findOneById(id);
 		if (ccUser.isPresent()) {
 			Configuration configuration = configRepository.findOneByUserId(ccUser.get().getId());
-			configRepository.delete(configuration);
+			if (configuration != null)
+				configRepository.delete(configuration);
 			userService.delete(ccUser.get());
 		} else {
 			throw new CCException(id + ControlCentreConstants.NOT_FOUND_MESSAGE);

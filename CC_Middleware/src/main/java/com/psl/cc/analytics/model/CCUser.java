@@ -75,9 +75,9 @@ public class CCUser extends Audit {
 		return grantedAuthorities;
 	}
 
-	public CCUser(String id, String name, String username, String password, List<Role> roles, boolean active) {
+	public CCUser(String name, String username, String password, List<Role> roles, boolean active) {
 		super();
-		this.id = id;
+
 		this.name = name;
 		this.username = username;
 		this.password = password;
