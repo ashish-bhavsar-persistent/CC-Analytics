@@ -1,5 +1,6 @@
 package com.psl.cc.analytics.controller;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -7,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
+import com.psl.cc.analytics.exception.ValidationException;
 import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.response.AccountAggregation;
 import com.psl.cc.analytics.service.AccountService;
@@ -40,19 +43,40 @@ public class DeviceController {
 	public List<AccountAggregation> getRatePlanCount(@RequestParam(required = true) String accountId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
+
+		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
+		
+		if (roles.size() == 1) {
+			for (GrantedAuthority authority : roles) {
+				if (authority.getAuthority().equals("ROLE_USER") && !username.equals(accountId)) {
+					throw new ValidationException(accountId + ": is not belongs to current user.");
+				}
+			}
+		}
 		CCUser ccUser = userService.findOneByUsername(username);
 		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(ccUser.getId(), accountId,
-				ControlCentreConstants.DEVICE_RATE_PLAN);
+				ControlCentreConstants.DEVICE_RATE_PLAN, roles);
 	}
 
 	@GetMapping("/devices/commPlan")
 	@ApiOperation(value = "Get yearly communication plan count for perticular account", response = List.class)
 	public List<AccountAggregation> getCommPlanCount(@RequestParam(required = true) String accountId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 		String username = (String) authentication.getPrincipal();
+
+		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
+		if (roles.size() == 1) {
+			for (GrantedAuthority authority : roles) {
+				if (authority.getAuthority().equals("ROLE_USER") && !username.equals(accountId)) {
+					throw new ValidationException(accountId + " is not belongs to current user.");
+				}
+			}
+		}
 		CCUser ccUser = userService.findOneByUsername(username);
+
 		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(ccUser.getId(), accountId,
-				ControlCentreConstants.DEVICE_COMM_PLAN);
+				ControlCentreConstants.DEVICE_COMM_PLAN, roles);
 	}
 
 	@GetMapping("/devices/status")
@@ -61,7 +85,16 @@ public class DeviceController {
 			@RequestParam(defaultValue = "monthly") String granularity) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
+
+		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
+		if (roles.size() == 1) {
+			for (GrantedAuthority authority : roles) {
+				if (authority.getAuthority().equals("ROLE_USER") && !username.equals(accountId)) {
+					throw new ValidationException(accountId + " is not belongs to current user.");
+				}
+			}
+		}
 		CCUser ccUser = userService.findOneByUsername(username);
-		return accountService.getDeviceStatusCountByAccountId(ccUser.getId(), accountId, granularity);
+		return accountService.getDeviceStatusCountByAccountId(ccUser.getId(), accountId, granularity, roles);
 	}
 }

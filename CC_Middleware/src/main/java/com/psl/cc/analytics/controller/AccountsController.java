@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +37,7 @@ public class AccountsController {
 	@Autowired
 	private AccountService accountService;
 
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/name")
 	@ApiOperation(value = "List of Account Names Associated with Current User", response = List.class)
 	public List<AccountDTO> getAccountNames() {
@@ -45,6 +47,7 @@ public class AccountsController {
 		return accountService.getAllAccountNames(ccUser.getId());
 	}
 
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/ratePlan")
 	@ApiOperation(value = "Get yearly rate plan count for logged in service Provider", response = List.class)
 	public List<AccountAggregation> getRatePlanCount() {
@@ -55,6 +58,7 @@ public class AccountsController {
 				ControlCentreConstants.ACCOUNT_RATE_PLAN, ControlCentreConstants.DEVICE_RATE_PLAN);
 	}
 
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/commPlan")
 	@ApiOperation(value = "Get yearly communication plan count for logged in service Provider", response = List.class)
 	public List<AccountAggregation> getCommPlanCount() {
@@ -65,6 +69,7 @@ public class AccountsController {
 				ControlCentreConstants.ACCOUNT_COMM_PLAN, ControlCentreConstants.DEVICE_COMM_PLAN);
 	}
 
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/deviceStatus")
 	@ApiOperation(value = "Get yearly/monthly device status count for perticular account by passing granularity = MONTHLY/YEARLY", response = List.class)
 	public List<AccountAggregation> getDeviceStatust() {

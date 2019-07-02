@@ -370,22 +370,4 @@ public class Device extends Audit {
 		this.simNotes = simNotes;
 	}
 
-	@Override
-	public String toString() {
-		return "Device [ratePlan=" + ratePlan + ", euiccid=" + euiccid + ", imsi=" + imsi + ", dateAdded=" + dateAdded
-				+ ", operatorCustom2=" + operatorCustom2 + ", operatorCustom1=" + operatorCustom1 + ", iccid=" + iccid
-				+ ", operatorCustom4=" + operatorCustom4 + ", operatorCustom3=" + operatorCustom3 + ", customerCustom1="
-				+ customerCustom1 + ", dateShipped=" + dateShipped + ", customerCustom2=" + customerCustom2
-				+ ", globalSimType=" + globalSimType + ", msisdn=" + msisdn + ", customerCustom5=" + customerCustom5
-				+ ", customerCustom3=" + customerCustom3 + ", customerCustom4=" + customerCustom4 + ", modemID="
-				+ modemID + ", communicationPlan=" + communicationPlan + ", fixedIPAddress=" + fixedIPAddress
-				+ ", endConsumerId=" + endConsumerId + ", operatorCustom5=" + operatorCustom5 + ", deviceID=" + deviceID
-				+ ", dateUpdated=" + dateUpdated + ", accountCustom3=" + accountCustom3 + ", accountId=" + accountId
-				+ ", accountCustom2=" + accountCustom2 + ", accountCustom10=" + accountCustom10 + ", accountCustom5="
-				+ accountCustom5 + ", accountCustom4=" + accountCustom4 + ", accountCustom1=" + accountCustom1
-				+ ", imei=" + imei + ", dateActivated=" + dateActivated + ", accountCustom7=" + accountCustom7
-				+ ", accountCustom6=" + accountCustom6 + ", accountCustom9=" + accountCustom9 + ", status=" + status
-				+ ", customer=" + customer + ", accountCustom8=" + accountCustom8 + ", simNotes=" + simNotes + "]";
-	}
-
 }

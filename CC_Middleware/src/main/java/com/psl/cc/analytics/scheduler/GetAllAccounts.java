@@ -16,14 +16,19 @@ import java.util.concurrent.ThreadPoolExecutor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Configuration;
+import com.psl.cc.analytics.model.Role;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
+import com.psl.cc.analytics.repository.RoleRepository;
 import com.psl.cc.analytics.service.AccountService;
 import com.psl.cc.analytics.service.RequestsAuditService;
 import com.psl.cc.analytics.service.UserService;
@@ -32,6 +37,10 @@ import com.psl.cc.analytics.utils.APIAudits;
 @Component
 public class GetAllAccounts {
 	private static final Logger logger = LogManager.getLogger(GetAllAccounts.class);
+
+	@Value("${defaultPassword}")
+	private String defaultPassword;
+
 	@Autowired
 	private ConfigurationRepository configRepository;
 
@@ -42,7 +51,14 @@ public class GetAllAccounts {
 	private UserService userService;
 
 	@Autowired
+	private RoleRepository roleRepository;
+
+	@Autowired
 	private AccountService accountsService;
+
+	@Autowired
+	@Qualifier("passwordEncoder")
+	private PasswordEncoder passwordEncoder;
 
 	final DateFormat dateFormat = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICESURL);
 
@@ -54,7 +70,7 @@ public class GetAllAccounts {
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
 		if (requestService.getLatestRecord() == null) {
-			c.set(c.get(Calendar.YEAR), 0, 1, 0, 0, 0);
+			c.set(ControlCentreConstants.FETCH_DETAILS_FROM_YEAR, 0, 1, 0, 0, 0);
 			modifiedSince = dateFormat.format(c.getTime());
 		} else {
 			c.add(Calendar.DATE, -1);
@@ -66,17 +82,25 @@ public class GetAllAccounts {
 	}
 
 	public void initializeFirstTime() {
-		if (requestService.getLatestRecord() == null) {
+		Calendar twoDaysBeforeDate = Calendar.getInstance();
+		twoDaysBeforeDate.add(Calendar.DATE, -2);
+		Calendar c = Calendar.getInstance();
+		c.set(ControlCentreConstants.FETCH_DETAILS_FROM_YEAR, 0, 1, 0, 0, 0);
+		String modifiedSince = dateFormat.format(c.getTime());
+		if (requestService.getLatestRecord() == null
+				|| requestService.getLatestRecord().getLastUpdatedOn().before(twoDaysBeforeDate.getTime())) {
 			logger.debug("initializeFirstTime method invoked at {}", new Date());
-			Calendar c = Calendar.getInstance();
-			c.set(c.get(Calendar.YEAR), 0, 1, 0, 0, 0);
-			String modifiedSince = dateFormat.format(c.getTime());
 			logger.info("value of modifiedSince is {}", modifiedSince);
 			getAllAccounts(modifiedSince);
 		}
 	}
 
 	private void getAllAccounts(String modifiedSince) {
+
+		Role userRole = roleRepository.findOneByName("USER");
+		List<Role> roles = new ArrayList<>();
+		roles.add(userRole);
+
 		List<CCUser> ccUsers = userService.findAll();
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors
 				.newFixedThreadPool(ControlCentreConstants.NUMBER_OF_THREADS);
@@ -106,6 +130,18 @@ public class GetAllAccounts {
 		});
 		logger.info("{} accounts are retrieved from {} users", accountsMap.size(), ccUsers.size());
 		logger.debug("Execution of getAllAccounts API is Done.");
+
+		accountsMap.keySet().forEach(key -> {
+			CCUser user = userService.findOneByUsername(key);
+			if (user == null) {
+				AccountDTO dto = accountsMap.get(key);
+
+				user = new CCUser(dto.getAccountName(), key, passwordEncoder.encode(defaultPassword), roles, true);
+				userService.save(user);
+			}
+			user = null;
+		});
+
 		// Search Device
 		final List<Future<Optional<String>>> futureListOfDevices = new ArrayList<>();
 
