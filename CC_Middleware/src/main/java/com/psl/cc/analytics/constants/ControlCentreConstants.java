@@ -16,7 +16,7 @@ public class ControlCentreConstants {
 	public static final String ACCOUNT_RATE_PLAN = "defaultRatePlan.defaultRatePlanName";
 	public static final String ACCOUNT_COMM_PLAN = "commPlanDetails.defaultCommPlan";
 	public static final String NOT_FOUND_MESSAGE = ": Not Found";
-	public static final int FETCH_DETAILS_FROM_YEAR = 1970;
+	public static final int FETCH_DETAILS_FROM_YEAR = 2017;
 
 	private ControlCentreConstants() {
 

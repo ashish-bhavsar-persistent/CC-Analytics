@@ -183,7 +183,8 @@ public class GetAllAccounts {
 				});
 				logger.debug("Execution of getDeviceDetails API is Done for {}", accountId);
 				accountsService.save(accountDTO);
-				logger.info("Records are stored into database for {}", accountId);
+				logger.info("{} Records are stored into database for {}", futureListOfDevices.size(), accountId);
+				futureListOfDevices.clear();
 			}
 
 		});
