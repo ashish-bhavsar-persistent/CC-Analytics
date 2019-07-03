@@ -10,7 +10,7 @@ import com.psl.cc.analytics.response.AccountAggregation;
 
 public interface AccountService {
 
-	public List<AccountDTO> saveAll(Iterable<AccountDTO> accounts);
+	public AccountDTO save(AccountDTO account);
 
 	public List<AccountDTO> getAllByUserId(String userId);
 

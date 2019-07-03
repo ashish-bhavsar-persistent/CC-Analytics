@@ -174,20 +174,20 @@ public class GetAllAccounts {
 							configuration, accountId, device.getIccid(), accountDTO, audit, requestService));
 					futureListOfDevices.add(future);
 				});
+				futureListOfDevices.forEach(futureObj -> {
+					try {
+						futureObj.get();
+					} catch (Exception e) {
+						logger.error(e);
+					}
+				});
+				logger.debug("Execution of getDeviceDetails API is Done for {}", accountId);
+				accountsService.save(accountDTO);
+				logger.info("Records are stored into database for {}", accountId);
 			}
 
 		});
-
-		futureListOfDevices.forEach(futureObj -> {
-			try {
-				futureObj.get();
-			} catch (Exception e) {
-				logger.error(e);
-			}
-		});
-		logger.debug("Execution of getDeviceDetails API is Done.");
-		accountsService.saveAll(accountsMap.values());
-		logger.info("{} records are stored into database", accountsMap.size());
+		accountsMap.clear();
 		logger.debug("Terminating thread pool");
 		executor.shutdownNow();
 	}

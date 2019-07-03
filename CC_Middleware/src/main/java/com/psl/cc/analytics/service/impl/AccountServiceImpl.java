@@ -41,8 +41,8 @@ public class AccountServiceImpl implements AccountService {
 	private ConfigurationRepository configRepository;
 
 	@Override
-	public List<AccountDTO> saveAll(Iterable<AccountDTO> accounts) {
-		return repository.saveAll(accounts);
+	public AccountDTO save(AccountDTO account) {
+		return repository.save(account);
 
 	}
 

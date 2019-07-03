@@ -81,10 +81,7 @@ public class AccountDetailsUtil {
 		account.setDeviceList(devices);
 		account.setCreatedOn(new Date());
 		account.setLastUpdatedOn(new Date());
-		List<AccountDTO> accounts = new ArrayList<>();
-
-		accounts.add(account);
-		accountService.saveAll(accounts);
+		accountService.save(account);
 
 	}
 	
