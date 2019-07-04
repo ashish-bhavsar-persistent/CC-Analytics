@@ -14,7 +14,7 @@ export interface User {
 }
 
 @Component({
-  selector: 'app-acct-analytics-piechart',
+  selector: 'acct-analytics-piechart',
   templateUrl: './acct-analytics-piechart.component.html',
   styleUrls: ['./acct-analytics-piechart.component.scss']
 })

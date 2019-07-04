@@ -21,6 +21,13 @@ import { AuthGuard } from './guards/auth.guard';
 import { TokenInterceptorService } from './services/token-interceptor.service';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { ScrollDispatchModule } from '@angular/cdk/scrolling';
+import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectModule } from '@angular/material/select';
+import { AlertModule } from 'ngx-bootstrap';
+import { TypeaheadModule } from 'ngx-bootstrap';
+
+
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
 import { RolesMenuComponent } from './components/roles-menu/roles-menu.component';
 import { InformationCardsComponent } from './components/information-cards/information-cards.component';
@@ -28,8 +35,10 @@ import { RatePlanDonutChartComponent } from './components/charts/rate-plan-donut
 import { CommPlanDonutChartComponent } from './components/charts/comm-plan-donut-chart/comm-plan-donut-chart.component';
 import { AccountanalysisdataserviceService } from './services/accountanalysisdataservice.service';
 import { AcctAnalyticsPiechartComponent } from './components/charts/acct-analytics-piechart/acct-analytics-piechart.component';
-import { DeviceStatusComponent } from './components/charts/device-status/device-status.component';
 import { LoaderComponent } from './components/loader/loader.component';
+import { AccountBarChartComponent } from './components/charts/account-bar-chart/account-bar-chart.component';
+import { BottomSheetComponent } from './components/bottom-sheet/bottom-sheet.component';
+import { MainDashboardSysadminComponent } from './components/main-dashboard-sysadmin/main-dashboard-sysadmin.component';
 
 @NgModule({
   declarations: [
@@ -43,8 +52,10 @@ import { LoaderComponent } from './components/loader/loader.component';
     RatePlanDonutChartComponent,
     CommPlanDonutChartComponent,
     AcctAnalyticsPiechartComponent,
-    DeviceStatusComponent,
-    LoaderComponent
+    LoaderComponent,
+    AccountBarChartComponent,
+    BottomSheetComponent,
+    MainDashboardSysadminComponent
   ],
   imports: [
     BrowserModule,
@@ -71,7 +82,13 @@ import { LoaderComponent } from './components/loader/loader.component';
     ChartsModule,
     ScrollDispatchModule,
     MatButtonToggleModule,
-    MatTabsModule
+    MatTabsModule,
+    MatBottomSheetModule,
+    MatDividerModule,
+    MatSelectModule,
+    MatMenuModule,
+    AlertModule.forRoot(),
+    TypeaheadModule.forRoot()
   ],
   providers: [ApiService, AuthService, AuthGuard, AccountanalysisdataserviceService,
      { 
@@ -80,6 +97,7 @@ import { LoaderComponent } from './components/loader/loader.component';
        multi: true
       }
     ],
+    entryComponents: [BottomSheetComponent],
   schemas:[CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]
 })
