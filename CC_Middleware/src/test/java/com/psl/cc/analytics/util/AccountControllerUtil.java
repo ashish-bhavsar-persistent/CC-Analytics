@@ -20,6 +20,7 @@ import com.psl.cc.analytics.model.Role;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
 import com.psl.cc.analytics.repository.RoleRepository;
 import com.psl.cc.analytics.service.AccountService;
+import com.psl.cc.analytics.service.DeviceService;
 import com.psl.cc.analytics.service.UserService;
 
 @Service
@@ -42,49 +43,66 @@ public class AccountControllerUtil {
 
 	@Autowired
 	private UserService userService;
-	
+
+	@Autowired
+	private DeviceService deviceService;
+
 	@Autowired
 	private ConfigurationRepository configurationRepository;
 
 	@Autowired
 	org.springframework.data.mongodb.core.MongoTemplate mongoTemplate;
-	
+
 	public void setup() throws JsonParseException, JsonMappingException, IOException {
 		tearDown();
 		Role adminRole = new Role("ADMIN");
 		roleRepository.save(adminRole);
+		
+		Role sysRole = new Role("SYSADMIN");
+		roleRepository.save(sysRole);
+		
+		Role userRole = new Role("USER");
+		roleRepository.save(userRole);
 
 		List<Role> rolesTest = new ArrayList<>();
 		rolesTest.add(adminRole);
 		CCUser test = new CCUser("Vivo Test", "Test", passwordEncoder.encode("password"), rolesTest, true);
 		userService.save(test);
+
+		rolesTest.add(sysRole);
+		CCUser test1 = new CCUser("Vivo Test", "Test1", passwordEncoder.encode("password"), rolesTest, true);
+		userService.save(test1);
+		
+		rolesTest.clear();
+		rolesTest.add(userRole);
+		CCUser user1 = new CCUser("Vivo Test", "100007512", passwordEncoder.encode("password"), rolesTest, true);
+		userService.save(user1);
 		
 		List<Role> roles = new ArrayList<>();
 		roles.add(adminRole);
 		CCUser user = new CCUser("Vivo Sp Admin", "VivoSpAdmin", passwordEncoder.encode("password"), roles, true);
 		userService.save(user);
-		
+
 		List<String> status = new ArrayList<>();
 		status.add("Activated");
-		Configuration config = new Configuration(user, "https://rws-jpotest.jasperwireless.com/rws", 1, 31, status, false, true, "1edddb0c-06f6-41d4-9bad-2e2d38f26ae1");
+		Configuration config = new Configuration(user, "https://rws-jpotest.jasperwireless.com/rws", 1, 31, status,
+				false, true, "1edddb0c-06f6-41d4-9bad-2e2d38f26ae1");
 		configurationRepository.save(config);
-		
+
 		AccountDTO account = objectMapper.readValue(accountInfo, AccountDTO.class);
 		Device device1 = objectMapper.readValue(deviceInfo1, Device.class);
 		Device device2 = objectMapper.readValue(deviceInfo2, Device.class);
 
-		List<Device> devices = new ArrayList<Device>();
-		devices.add(device1);
-		devices.add(device2);
+		deviceService.save(device1);
+		deviceService.save(device2);
 
 		account.setUser(user);
-		account.setDeviceList(devices);
 		account.setCreatedOn(new Date());
 		account.setLastUpdatedOn(new Date());
 		accountService.save(account);
 
 	}
-	
+
 	public void tearDown() {
 		mongoTemplate.getDb().drop();
 	}

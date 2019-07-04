@@ -24,13 +24,16 @@ public class RootControllerUtil {
 	@Autowired
 	private UserService userService;
 
+	@Autowired
+	org.springframework.data.mongodb.core.MongoTemplate mongoTemplate;
+	
 	public void setup() {
 		tearDown();
 
 		Role adminRole = new Role("ADMIN");
 		roleRepository.save(adminRole);
 
-		Role sysadminRole = new Role("SYDADMIN");
+		Role sysadminRole = new Role("SYSADMIN");
 		roleRepository.save(sysadminRole);
 
 		List<Role> rolesSysadmin = new ArrayList<>();
@@ -46,6 +49,6 @@ public class RootControllerUtil {
 	}
 
 	public void tearDown() {
-
+		mongoTemplate.getDb().drop();
 	}
 }

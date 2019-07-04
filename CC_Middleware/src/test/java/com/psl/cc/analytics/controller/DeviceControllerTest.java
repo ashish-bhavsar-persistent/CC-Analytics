@@ -37,9 +37,6 @@ public class DeviceControllerTest {
 	private final String BASE_URL = "/api/v1";
 
 	@Autowired
-	private WebApplicationContext context;
-
-	@Autowired
 	private AccountControllerUtil utils;
 
 	@Autowired
@@ -50,6 +47,30 @@ public class DeviceControllerTest {
 		String accessToken = getAccessToken("VivoSpAdmin", "password");
 		mockMvc.perform(get(BASE_URL + "/devices/ratePlan").header("Authorization", "Bearer " + accessToken)
 				.param("accountId", "100007512")).andExpect(status().isOk()).andExpect(jsonPath("$[0].total", is(2)))
+				.andExpect(jsonPath("$[0].ratePlan", is("Vivo Default RP")));
+	}
+
+	@Test
+	public void getRatePlanCount_Role_Sysadmin_Error() throws Exception {
+		String accessToken = getAccessToken("Test1", "password");
+		mockMvc.perform(get(BASE_URL + "/devices/ratePlan").header("Authorization", "Bearer " + accessToken)
+				.param("accountId", "100007512")).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message", is("Admin Id And Account Id is Mandetory for SYSADMIN Role")));
+	}
+
+	@Test
+	public void getRatePlanCount_Role_Admin_Error() throws Exception {
+		String accessToken = getAccessToken("Test", "password");
+		mockMvc.perform(get(BASE_URL + "/devices/ratePlan").header("Authorization", "Bearer " + accessToken))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message", is("Account Id is Mandetory for ADMIN Role")));
+	}
+	
+	@Test
+	public void getRatePlanCount_Role_User() throws Exception {
+		String accessToken = getAccessToken("100007512", "password");
+		mockMvc.perform(get(BASE_URL + "/devices/ratePlan").header("Authorization", "Bearer " + accessToken))
+				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].ratePlan", is("Vivo Default RP")));
 	}
 
@@ -69,7 +90,7 @@ public class DeviceControllerTest {
 		mockMvc.perform(get(BASE_URL + "/devices/status").header("Authorization", "Bearer " + accessToken)
 				.param("accountId", "100007512").param("granularity", "monthly")).andExpect(status().isOk());
 	}
-	
+
 	@Test
 	public void getStatusCount_Monthly() throws Exception {
 

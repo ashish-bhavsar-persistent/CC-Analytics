@@ -22,21 +22,21 @@ public class AccountAggregation {
 		return monthlyTotal;
 	}
 
-	public void setMonthlyTotal(long monthlyTotal) {
-		this.monthlyTotal = monthlyTotal;
-	}
+//	public void setMonthlyTotal(long monthlyTotal) {
+//		this.monthlyTotal = monthlyTotal;
+//	}
 
 	public long getYearlyTotal() {
 		return yearlyTotal;
 	}
 
-	public void setYearlyTotal(long yearlyTotal) {
-		this.yearlyTotal = yearlyTotal;
-	}
+//	public void setYearlyTotal(long yearlyTotal) {
+//		this.yearlyTotal = yearlyTotal;
+//	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
+//	public void setId(String id) {
+//		this.id = id;
+//	}
 
 	public long getTotal() {
 		return total;
@@ -46,28 +46,28 @@ public class AccountAggregation {
 		return status;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+//	public void setStatus(String status) {
+//		this.status = status;
+//	}
 
-	public void setTotal(long total) {
-		this.total = total;
-	}
+//	public void setTotal(long total) {
+//		this.total = total;
+//	}
 
 	public String getRatePlan() {
 		return ratePlan;
 	}
 
-	public void setRatePlan(String ratePlan) {
-		this.ratePlan = ratePlan;
-	}
+//	public void setRatePlan(String ratePlan) {
+//		this.ratePlan = ratePlan;
+//	}
 
 	public String getCommunicationPlan() {
 		return communicationPlan;
 	}
 
-	public void setCommunicationPlan(String communicationPlan) {
-		this.communicationPlan = communicationPlan;
-	}
+//	public void setCommunicationPlan(String communicationPlan) {
+//		this.communicationPlan = communicationPlan;
+//	}
 
 }

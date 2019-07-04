@@ -5,9 +5,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -19,11 +19,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Service;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
-import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.repository.DeviceRepository;
-import com.psl.cc.analytics.response.AccountAggregation;
 import com.psl.cc.analytics.service.DeviceService;
 
 @Service
@@ -48,6 +46,10 @@ public class DeviceServiceImpl implements DeviceService {
 	@Override
 	public long getCount() {
 		return repository.count();
+	}
+
+	public Optional<Device> findOneByIccid(String iccid) {
+		return repository.findOneByIccid(iccid);
 	}
 
 	@Override
@@ -89,7 +91,7 @@ public class DeviceServiceImpl implements DeviceService {
 		final String endDate = format.format(c.getTime());
 
 		List<AggregationOperation> list = new ArrayList<>();
-		
+
 		list.add(Aggregation.match(Criteria.where("accountId").is(accountId)));
 		list.add(Aggregation.match(Criteria.where("dateUpdated").gte(startDate).lte(endDate)));
 		list.add(Aggregation.group(fieldName).count().as("total"));
@@ -141,5 +143,10 @@ public class DeviceServiceImpl implements DeviceService {
 		AggregationResults<Device> account = mongoTemplate.aggregate(agg, Device.class);
 		return account.getMappedResults();
 
+	}
+
+	@Override
+	public Device save(Device device) {
+		return repository.save(device);
 	}
 }

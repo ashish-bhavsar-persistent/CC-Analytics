@@ -19,16 +19,16 @@ import com.psl.cc.analytics.service.UserService;
 
 @Service
 public class UserControllerUtil {
-	
+
 	@Autowired
 	private PasswordEncoder passwordEncoder;
-	
+
 	@Autowired
 	private RoleRepository roleRepository;
-	
+
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private ConfigurationRepository configurationRepository;
 
@@ -54,6 +54,10 @@ public class UserControllerUtil {
 
 		List<Role> sysRoles = new ArrayList<>();
 		sysRoles.add(sysRole);
+
+		List<Role> adminRoles = new ArrayList<>();
+		adminRoles.add(adminRole);
+
 		CCUser cc_sysadmin = new CCUser("cc_sysadmin", "cc_sysadmin", passwordEncoder.encode("password"), sysRoles,
 				true);
 		userService.save(cc_sysadmin);
@@ -61,14 +65,18 @@ public class UserControllerUtil {
 		CCUser deleteUser = new CCUser("cc_sysadmin1", "cc_sysadmin1", passwordEncoder.encode("password"), sysRoles,
 				true);
 		userService.save(deleteUser);
+
 		CCUser deleteUser2 = new CCUser("cc_sysadmin2", "cc_sysadmin2", passwordEncoder.encode("password"), sysRoles,
 				true);
 		userService.save(deleteUser2);
-		
+
 		List<String> status = new ArrayList<>();
 		status.add("Activated");
-		Configuration config = new Configuration(deleteUser2, "https://rws-jpotest.jasperwireless.com/rws", 1, 31, status, false, true, "1edddb0c-06f6-41d4-9bad-2e2d38f26ae1");
-		configurationRepository.save(config);
+
+		Configuration config1 = new Configuration(deleteUser2, "https://rws-jpotest.jasperwireless.com/rws", 1, 31,
+				status, false, true, "1edddb0c-06f6-41d4-9bad-2e2d38f26ae1");
+		configurationRepository.save(config1);
+
 		data.put("deleteUser", deleteUser.getId());
 		data.put("deleteUser2", deleteUser2.getId());
 

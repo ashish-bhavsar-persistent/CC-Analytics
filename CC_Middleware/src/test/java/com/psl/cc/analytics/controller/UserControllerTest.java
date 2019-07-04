@@ -6,6 +6,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -27,7 +28,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.psl.cc.analytics.util.UserControllerUtil;
 
@@ -41,9 +41,6 @@ public class UserControllerTest {
 	private final String BASE_URL = "/api/v1";
 
 	@Autowired
-	private WebApplicationContext context;
-
-	@Autowired
 	private UserControllerUtil utils;
 
 	@Autowired
@@ -52,6 +49,11 @@ public class UserControllerTest {
 	@Test
 	public void getLoginPage() throws Exception {
 		mockMvc.perform(get(BASE_URL + "/index.html").accept(MediaType.TEXT_HTML)).andExpect(status().isOk());
+	}
+	
+	@Test
+	public void getLoginPage_OPtions() throws Exception {
+		mockMvc.perform(options(BASE_URL + "/index.html").accept(MediaType.TEXT_HTML)).andExpect(status().isOk());
 	}
 
 	@Test
@@ -112,8 +114,6 @@ public class UserControllerTest {
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isCreated());
 	}
-
-	
 
 	@Test
 	public void createUser_MissingField() throws Exception {
@@ -212,6 +212,7 @@ public class UserControllerTest {
 		mockMvc.perform(delete(BASE_URL + "/users/" + utils.getData().getString("deleteUser")).header("Authorization",
 				"Bearer " + accessToken)).andExpect(status().isOk());
 	}
+
 	@Test
 	public void deleteUserByIdWithConfig() throws Exception {
 		String accessToken = getAccessToken("cc_sysadmin", "password");

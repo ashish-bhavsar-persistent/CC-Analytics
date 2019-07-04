@@ -72,7 +72,7 @@ public class CcMiddlewareApplication {
 				userService.save(user);
 			}
 
-			getAccounts.initializeFirstTime();
+//			getAccounts.initializeFirstTime();
 		};
 	}
 

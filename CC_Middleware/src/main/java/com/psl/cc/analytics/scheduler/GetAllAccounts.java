@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.Configuration;
+import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.model.Role;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
 import com.psl.cc.analytics.repository.RoleRepository;
@@ -82,7 +84,7 @@ public class GetAllAccounts {
 			modifiedSince = dateFormat.format(c.getTime());
 		}
 		logger.info("value of modifiedSince is {}", modifiedSince);
-		getAllAccounts(modifiedSince);
+		getAllAccounts(modifiedSince, false);
 	}
 
 	public void initializeFirstTime() {
@@ -95,11 +97,11 @@ public class GetAllAccounts {
 				|| requestService.getLatestRecord().getLastUpdatedOn().before(twoDaysBeforeDate.getTime())) {
 			logger.debug("initializeFirstTime method invoked at {}", new Date());
 			logger.info("value of modifiedSince is {}", modifiedSince);
-			getAllAccounts(modifiedSince);
+			getAllAccounts(modifiedSince, true);
 		}
 	}
 
-	private void getAllAccounts(String modifiedSince) {
+	private void getAllAccounts(String modifiedSince, boolean firstTime) {
 		Role userRole = roleRepository.findOneByName("USER");
 		List<Role> roles = new ArrayList<>();
 		roles.add(userRole);
@@ -180,7 +182,21 @@ public class GetAllAccounts {
 					}
 				});
 				logger.debug("Execution of getDeviceDetails API is Done for {}", accountId);
-				deviceService.saveAll(accountDTO.getDeviceList());
+				if (firstTime)
+					deviceService.saveAll(accountDTO.getDeviceList());
+				else {
+					accountDTO.getDeviceList().forEach(device -> {
+						Optional<Device> optional = deviceService.findOneByIccid(device.getIccid());
+						if (optional.isPresent()) {
+							Device tempDevice = optional.get();
+							device.setId(tempDevice.getId());
+							device.setLastUpdatedOn(new Date());
+							device.setCreatedOn(tempDevice.getCreatedOn());
+							tempDevice = null;
+						}
+						deviceService.save(device);
+					});
+				}
 				accountDTO.setDeviceList(null);
 				accountsService.save(accountDTO);
 				logger.info("{} Records are stored into database for {}", futureListOfDevices.size(), accountId);
@@ -192,4 +208,5 @@ public class GetAllAccounts {
 		logger.debug("Terminating thread pool");
 		executor.shutdownNow();
 	}
+
 }
