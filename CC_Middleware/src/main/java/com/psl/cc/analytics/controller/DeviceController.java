@@ -40,61 +40,90 @@ public class DeviceController {
 
 	@GetMapping("/devices/ratePlan")
 	@ApiOperation(value = "Get yearly rate plan count for perticular account", response = List.class)
-	public List<AccountAggregation> getRatePlanCount(@RequestParam(required = true) String accountId) {
+	public List<AccountAggregation> getRatePlanCount(@RequestParam(required = false) String adminId,
+			@RequestParam(required = false) String accountId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
-
 		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
-		
-		if (roles.size() == 1) {
-			for (GrantedAuthority authority : roles) {
-				if (authority.getAuthority().equals("ROLE_USER") && !username.equals(accountId)) {
-					throw new ValidationException(accountId + ": is not belongs to current user.");
-				}
-			}
-		}
 		CCUser ccUser = userService.findOneByUsername(username);
-		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(ccUser.getId(), accountId,
-				ControlCentreConstants.DEVICE_RATE_PLAN, roles);
+		boolean isSysadmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
+		boolean isAdmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.ADMIN_AUTHORITY));
+		if (isSysadmin && (adminId == null || adminId.isEmpty() || accountId == null || accountId.isEmpty())) {
+			throw new ValidationException("Admin Id And Account Id is Mandetory for SYSADMIN Role");
+		} else if (isAdmin) {
+			if (accountId == null || accountId.isEmpty()) {
+				throw new ValidationException("Account Id is Mandetory for ADMIN Role");
+			} else {
+				adminId = ccUser.getId();
+			}
+		} else if (!isSysadmin) {
+			adminId = null;
+			accountId = ccUser.getUsername();
+		}
+
+		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(adminId, accountId,
+				ControlCentreConstants.DEVICE_RATE_PLAN);
 	}
 
 	@GetMapping("/devices/commPlan")
 	@ApiOperation(value = "Get yearly communication plan count for perticular account", response = List.class)
-	public List<AccountAggregation> getCommPlanCount(@RequestParam(required = true) String accountId) {
+	public List<AccountAggregation> getCommPlanCount(@RequestParam(required = false) String adminId,
+			@RequestParam(required = false) String accountId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
 		String username = (String) authentication.getPrincipal();
 
 		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
-		if (roles.size() == 1) {
-			for (GrantedAuthority authority : roles) {
-				if (authority.getAuthority().equals("ROLE_USER") && !username.equals(accountId)) {
-					throw new ValidationException(accountId + " is not belongs to current user.");
-				}
-			}
-		}
 		CCUser ccUser = userService.findOneByUsername(username);
+		boolean isSysadmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
+		boolean isAdmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.ADMIN_AUTHORITY));
+		if (isSysadmin && (adminId == null || adminId.isEmpty() || accountId == null || accountId.isEmpty())) {
+			throw new ValidationException("Admin Id And Account Id is Mandetory for SYSADMIN Role");
+		} else if (isAdmin) {
+			if (accountId == null || accountId.isEmpty()) {
+				throw new ValidationException("Account Id is Mandetory for ADMIN Role");
+			} else {
+				adminId = ccUser.getId();
+			}
+		} else if (!isSysadmin) {
+			adminId = null;
+			accountId = ccUser.getUsername();
+		}
 
-		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(ccUser.getId(), accountId,
-				ControlCentreConstants.DEVICE_COMM_PLAN, roles);
+		return accountService.getDeviceRatePlanOrCommCountPlanByAccountId(adminId, accountId,
+				ControlCentreConstants.DEVICE_COMM_PLAN);
 	}
 
 	@GetMapping("/devices/status")
 	@ApiOperation(value = "Get yearly/monthly device status count for perticular account by passing granularity = MONTHLY/YEARLY", response = List.class)
-	public List<AccountAggregation> getStatusCount(@RequestParam(required = true) String accountId,
+	public List<AccountAggregation> getStatusCount(@RequestParam(required = false) String adminId,
+			@RequestParam(required = false) String accountId,
 			@RequestParam(defaultValue = "monthly") String granularity) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 
 		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
-		if (roles.size() == 1) {
-			for (GrantedAuthority authority : roles) {
-				if (authority.getAuthority().equals("ROLE_USER") && !username.equals(accountId)) {
-					throw new ValidationException(accountId + " is not belongs to current user.");
-				}
-			}
-		}
 		CCUser ccUser = userService.findOneByUsername(username);
-		return accountService.getDeviceStatusCountByAccountId(ccUser.getId(), accountId, granularity, roles);
+		boolean isSysadmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
+		boolean isAdmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.ADMIN_AUTHORITY));
+		if (isSysadmin && (adminId == null || adminId.isEmpty() || accountId == null || accountId.isEmpty())) {
+			throw new ValidationException("Admin Id And Account Id is Mandetory for SYSADMIN Role");
+		} else if (isAdmin) {
+			if (accountId == null || accountId.isEmpty()) {
+				throw new ValidationException("Account Id is Mandetory for ADMIN Role");
+			} else {
+				adminId = ccUser.getId();
+			}
+		} else if (!isSysadmin) {
+			adminId = null;
+			accountId = ccUser.getUsername();
+		}
+		return accountService.getDeviceStatusCountByAccountId(adminId, accountId, granularity);
 	}
 }

@@ -41,4 +41,14 @@ public class UserServiceImpl implements UserService {
 		return repository.findAll();
 	}
 
+	@Override
+	public List<CCUser> getAllByRoleName(String roleName) {
+		return repository.getAllByRoleName(roleName);
+	}
+
+	@Override
+	public long getAllUsersCountByRoleName(String roleName) {
+		return repository.getAllUsersCountByRoleName(roleName);
+	}
+
 }

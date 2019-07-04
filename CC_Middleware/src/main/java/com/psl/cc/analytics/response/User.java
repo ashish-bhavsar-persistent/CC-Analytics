@@ -22,6 +22,10 @@ public class User implements Serializable {
 
 	private String id;
 
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	@NotNull(message = "Please provide Name")
 	@NotEmpty(message = "Please provide Name")
 	private String name;

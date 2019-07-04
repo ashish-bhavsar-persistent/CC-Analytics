@@ -8,6 +8,7 @@ public class ControlCentreConstants {
 	public static final String STATUS_SUCCESS = "Success";
 	public static final int PAGE_SIZE = 10000;
 	public static final String STATUS_FAIL = "Error";
+	public static final int FETCH_DETAILS_FROM_YEAR = 2017;
 
 	public static final String DATEFORMAT_DEVICESURL = "yyyy-MM-dd'T'HH:mm:ssXXX";
 	public static final String DATEFORMAT_DEVICES = "yyyy-MM-dd HH:mm:ss.SSSZ";
@@ -16,7 +17,11 @@ public class ControlCentreConstants {
 	public static final String ACCOUNT_RATE_PLAN = "defaultRatePlan.defaultRatePlanName";
 	public static final String ACCOUNT_COMM_PLAN = "commPlanDetails.defaultCommPlan";
 	public static final String NOT_FOUND_MESSAGE = ": Not Found";
-	public static final int FETCH_DETAILS_FROM_YEAR = 2017;
+	public static final String SP_ADMIN_ROLE = "ADMIN";
+
+	public static final String ADMIN_AUTHORITY = "ROLE_ADMIN";
+	public static final String USER_AUTHORITY = "ROLE_USER";
+	public static final String SYSADMIN_AUTHORITY = "ROLE_SYSADMIN";
 
 	private ControlCentreConstants() {
 

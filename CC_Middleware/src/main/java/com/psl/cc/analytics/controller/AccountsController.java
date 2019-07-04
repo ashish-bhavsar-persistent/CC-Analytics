@@ -1,5 +1,6 @@
 package com.psl.cc.analytics.controller;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,12 +10,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
+import com.psl.cc.analytics.exception.ValidationException;
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.response.AccountAggregation;
@@ -39,65 +43,75 @@ public class AccountsController {
 
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/name")
-	@ApiOperation(value = "List of Account Names Associated with Current User", response = List.class)
-	public List<AccountDTO> getAccountNames() {
+	@ApiOperation(value = "List of Account Names Associated with Admin Id", response = List.class)
+	public List<AccountDTO> getAccountNames(@RequestParam(required = false) String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
+		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
 		CCUser ccUser = userService.findOneByUsername(username);
-		return accountService.getAllAccountNames(ccUser.getId());
+		boolean isSysadmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
+		if (isSysadmin && (adminId == null || adminId.isEmpty())) {
+			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
+		} else if (!isSysadmin) {
+			adminId = ccUser.getId();
+		}
+		return accountService.getAllAccountNames(adminId);
 	}
 
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/ratePlan")
-	@ApiOperation(value = "Get yearly rate plan count for logged in service Provider", response = List.class)
-	public List<AccountAggregation> getRatePlanCount() {
+	@ApiOperation(value = "Get Rate Plan Count for Service Provider", response = List.class)
+	public List<AccountAggregation> getRatePlanCount(@RequestParam(required = false) String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CCUser ccUser = userService.findOneByUsername(username);
-		return accountService.getAccountRatePlanOrCommCountPlan(ccUser.getId(),
+		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
+		boolean isSysadmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
+		if (isSysadmin && (adminId == null || adminId.isEmpty())) {
+			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
+		} else if (!isSysadmin) {
+			adminId = ccUser.getId();
+		}
+		return accountService.getAccountRatePlanOrCommCountPlan(adminId,
 				ControlCentreConstants.ACCOUNT_RATE_PLAN, ControlCentreConstants.DEVICE_RATE_PLAN);
 	}
 
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/commPlan")
-	@ApiOperation(value = "Get yearly communication plan count for logged in service Provider", response = List.class)
-	public List<AccountAggregation> getCommPlanCount() {
+	@ApiOperation(value = "Get Communication Plan Count for Service Provider", response = List.class)
+	public List<AccountAggregation> getCommPlanCount(@RequestParam(required = false) String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CCUser ccUser = userService.findOneByUsername(username);
-		return accountService.getAccountRatePlanOrCommCountPlan(ccUser.getId(),
+		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
+		boolean isSysadmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
+		if (isSysadmin && (adminId == null || adminId.isEmpty())) {
+			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
+		} else if (!isSysadmin) {
+			adminId = ccUser.getId();
+		}
+		return accountService.getAccountRatePlanOrCommCountPlan(adminId,
 				ControlCentreConstants.ACCOUNT_COMM_PLAN, ControlCentreConstants.DEVICE_COMM_PLAN);
 	}
 
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/deviceStatus")
-	@ApiOperation(value = "Get yearly/monthly device status count for perticular account by passing granularity = MONTHLY/YEARLY", response = List.class)
-	public List<AccountAggregation> getDeviceStatust() {
+	@ApiOperation(value = "Get Device Status Count for Service Provider", response = List.class)
+	public List<AccountAggregation> getDeviceStatust(@RequestParam(required = false) String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CCUser ccUser = userService.findOneByUsername(username);
-		List<AccountAggregation> aggregations = accountService.getDeviceStatusCountByUserId(ccUser.getId(), "yearly");
-		if (aggregations != null && !aggregations.isEmpty()) {
-			List<AccountAggregation> monthlyAggregations = accountService.getDeviceStatusCountByUserId(ccUser.getId(),
-					"monthly");
-			if (monthlyAggregations.isEmpty()) {
-				aggregations.forEach(agg -> {
-					agg.setYearlyTotal(agg.getTotal());
-					agg.setTotal(0l);
-				});
-			} else {
-				aggregations.forEach(monthlyAggregation -> {
-					Optional<AccountAggregation> agg = monthlyAggregations.stream()
-							.filter(yearlyAgg -> yearlyAgg.getStatus().equals(monthlyAggregation.getStatus()))
-							.findFirst();
-					if (agg.isPresent()) {
-						monthlyAggregation.setMonthlyTotal(monthlyAggregation.getTotal());
-						monthlyAggregation.setYearlyTotal(agg.get().getTotal());
-						monthlyAggregation.setTotal(0l);
-					}
-				});
-			}
+		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
+		boolean isSysadmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
+		if (isSysadmin && (adminId == null || adminId.isEmpty())) {
+			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
+		} else if (!isSysadmin) {
+			adminId = ccUser.getId();
 		}
-		return aggregations;
+		return accountService.getDeviceStatusCountByUserId(adminId);
 	}
 }

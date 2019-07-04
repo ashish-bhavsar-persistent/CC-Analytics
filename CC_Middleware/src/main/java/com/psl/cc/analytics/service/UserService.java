@@ -6,14 +6,18 @@ import java.util.Optional;
 import com.psl.cc.analytics.model.CCUser;
 
 public interface UserService {
-	CCUser findOneByUsername(String username);
+	public CCUser findOneByUsername(String username);
 
-	CCUser save(CCUser user);
+	public CCUser save(CCUser user);
 
-	void delete(CCUser user);
+	public void delete(CCUser user);
 
-	Optional<CCUser> findOneById(String id);
+	public Optional<CCUser> findOneById(String id);
 
-	List<CCUser> findAll();
+	public List<CCUser> findAll();
+
+	public List<CCUser> getAllByRoleName(String roleName);
+	
+	public long getAllUsersCountByRoleName(String roleName);
 
 }

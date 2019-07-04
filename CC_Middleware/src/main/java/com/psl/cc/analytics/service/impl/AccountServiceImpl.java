@@ -17,6 +17,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,7 @@ import com.psl.cc.analytics.model.Configuration;
 import com.psl.cc.analytics.repository.AccountsRepository;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
 import com.psl.cc.analytics.response.AccountAggregation;
+import com.psl.cc.analytics.response.User;
 import com.psl.cc.analytics.service.AccountService;
 
 @Service
@@ -59,16 +61,10 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	public List<AccountAggregation> getDeviceRatePlanOrCommCountPlanByAccountId(String userId, String accountId,
-			String fieldName, Collection<? extends GrantedAuthority> roles) {
+			String fieldName) {
+
 		DateFormat format = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICES);
-		boolean userRole = false;
-		if (roles.size() == 1) {
-			for (GrantedAuthority authority : roles) {
-				if (authority.getAuthority().equals("ROLE_USER")) {
-					userRole = true;
-				}
-			}
-		}
+
 		Calendar c = Calendar.getInstance();
 		c.set(c.get(Calendar.YEAR), 0, 1, 0, 0, 0);
 
@@ -78,7 +74,7 @@ public class AccountServiceImpl implements AccountService {
 
 		List<AggregationOperation> list = new ArrayList<>();
 		list.add(Aggregation.unwind("deviceList"));
-		if (!userRole) {
+		if (userId != null) {
 			list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
 		}
 		list.add(Aggregation.match(Criteria.where("accountId").is(accountId)));
@@ -94,18 +90,10 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public List<AccountAggregation> getDeviceStatusCountByAccountId(String userId, String accountId, String granularity,
-			Collection<? extends GrantedAuthority> roles) {
+	public List<AccountAggregation> getDeviceStatusCountByAccountId(String userId, String accountId,
+			String granularity) {
 		Configuration conf = configRepository.findOneByUserId(userId);
 
-		boolean userRole = false;
-		if (roles.size() == 1) {
-			for (GrantedAuthority authority : roles) {
-				if (authority.getAuthority().equals("ROLE_USER")) {
-					userRole = true;
-				}
-			}
-		}
 		List<Pattern> regex = null;
 		if (conf != null) {
 			regex = new ArrayList<>();
@@ -131,7 +119,7 @@ public class AccountServiceImpl implements AccountService {
 
 		List<AggregationOperation> list = new ArrayList<>();
 		list.add(Aggregation.unwind("deviceList"));
-		if (!userRole) {
+		if (userId != null) {
 			list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
 		}
 		list.add(Aggregation.match(Criteria.where("accountId").is(accountId)));
@@ -168,7 +156,7 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public List<AccountAggregation> getDeviceStatusCountByUserId(String userId, String granularity) {
+	public List<AccountAggregation> getDeviceStatusCountByUserId(String userId) {
 
 		Configuration conf = configRepository.findOneByUserId(userId);
 		if (conf != null) {
@@ -177,27 +165,12 @@ public class AccountServiceImpl implements AccountService {
 			for (String status : conf.getDeviceStates()) {
 				regex.add(Pattern.compile(status, Pattern.CASE_INSENSITIVE));
 			}
-			DateFormat format = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICES);
-			Calendar c = Calendar.getInstance();
-			final String startDate;
-			final String endDate;
-			if (!granularity.equalsIgnoreCase("monthly")) {
-				c.set(c.get(Calendar.YEAR), 0, 1, 0, 0, 0);
-				startDate = format.format(c.getTime());
-				c.set(c.get(Calendar.YEAR), 11, 31, 0, 0, 0);
-				endDate = format.format(c.getTime());
-			} else {
-				c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 1, 0, 0, 0);
-				startDate = format.format(c.getTime());
-				c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.getActualMaximum(Calendar.DAY_OF_MONTH), 0, 0, 0);
-				endDate = format.format(c.getTime());
-			}
 
 			List<AggregationOperation> list = new ArrayList<>();
 			list.add(Aggregation.unwind("deviceList"));
 			list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
 			list.add(Aggregation.match(Criteria.where("deviceList.status").in(regex)));
-			list.add(Aggregation.match(Criteria.where("deviceList.dateUpdated").gte(startDate).lte(endDate)));
+
 			list.add(Aggregation.group("deviceList.status").count().as("total"));
 			list.add(Aggregation.project("total").and("status").previousOperation());
 			list.add(Aggregation.sort(Sort.Direction.ASC, "total"));
@@ -208,6 +181,23 @@ public class AccountServiceImpl implements AccountService {
 		} else {
 			return new ArrayList<>();
 		}
+	}
+
+	@Override
+	public long getAllAccountsCount() {
+		return repository.count();
+	}
+
+	@Override
+	public long getAllDevicesCount() {
+		List<AggregationOperation> list = new ArrayList<>();
+		list.add(Aggregation.unwind("deviceList"));
+		list.add(Aggregation.count().as("total"));
+		TypedAggregation<AccountDTO> agg = Aggregation.newAggregation(AccountDTO.class, list);
+		AggregationResults<AccountAggregation> account = mongoTemplate.aggregate(agg, AccountAggregation.class);
+		AccountAggregation accountAggregation = account.getUniqueMappedResult();
+		return accountAggregation.getTotal();
+
 	}
 
 }
