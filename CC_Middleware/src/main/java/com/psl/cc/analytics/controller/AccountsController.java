@@ -2,7 +2,6 @@ package com.psl.cc.analytics.controller;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +20,7 @@ import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.exception.ValidationException;
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.CCUser;
+import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.response.AccountAggregation;
 import com.psl.cc.analytics.service.AccountService;
 import com.psl.cc.analytics.service.UserService;
@@ -100,7 +100,7 @@ public class AccountsController {
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/deviceStatus")
 	@ApiOperation(value = "Get Device Status Count for Service Provider", response = List.class)
-	public List<AccountAggregation> getDeviceStatust(@RequestParam(required = false) String adminId) {
+	public List<Device> getDeviceStatus(@RequestParam(required = false) String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CCUser ccUser = userService.findOneByUsername(username);

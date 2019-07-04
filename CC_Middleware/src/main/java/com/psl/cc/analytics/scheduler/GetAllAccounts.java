@@ -30,6 +30,7 @@ import com.psl.cc.analytics.model.Role;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
 import com.psl.cc.analytics.repository.RoleRepository;
 import com.psl.cc.analytics.service.AccountService;
+import com.psl.cc.analytics.service.DeviceService;
 import com.psl.cc.analytics.service.RequestsAuditService;
 import com.psl.cc.analytics.service.UserService;
 import com.psl.cc.analytics.utils.APIAudits;
@@ -49,6 +50,9 @@ public class GetAllAccounts {
 
 	@Autowired
 	private UserService userService;
+
+	@Autowired
+	private DeviceService deviceService;
 
 	@Autowired
 	private RoleRepository roleRepository;
@@ -96,11 +100,9 @@ public class GetAllAccounts {
 	}
 
 	private void getAllAccounts(String modifiedSince) {
-
 		Role userRole = roleRepository.findOneByName("USER");
 		List<Role> roles = new ArrayList<>();
 		roles.add(userRole);
-
 		List<CCUser> ccUsers = userService.findAll();
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors
 				.newFixedThreadPool(ControlCentreConstants.NUMBER_OF_THREADS);
@@ -109,7 +111,6 @@ public class GetAllAccounts {
 		final Map<String, AccountDTO> accountsMap = new HashMap<>();
 		final Map<String, Configuration> configMap = new HashMap<>();
 		logger.info("number of Users are {}", ccUsers.size());
-		// get All Account
 		for (CCUser ccUser : ccUsers) {
 			Configuration configuration = configRepository.findOneByUserId(ccUser.getId());
 			if (configuration != null) {
@@ -119,7 +120,6 @@ public class GetAllAccounts {
 				futureList.add(futureObj);
 			}
 		}
-
 		futureList.forEach(futureObj -> {
 			try {
 				Map<String, AccountDTO> tempAccountsMap = futureObj.get();
@@ -142,9 +142,7 @@ public class GetAllAccounts {
 			user = null;
 		});
 
-		// Search Device
 		final List<Future<Optional<String>>> futureListOfDevices = new ArrayList<>();
-
 		accountsMap.forEach((accountId, accountDTO) -> {
 			Configuration configuration = configMap.get(accountDTO.getUser().getId());
 			Future<Optional<String>> future = executor.submit(new FetchDevicesOfAccount(configuration, requestService,
@@ -182,6 +180,8 @@ public class GetAllAccounts {
 					}
 				});
 				logger.debug("Execution of getDeviceDetails API is Done for {}", accountId);
+				deviceService.saveAll(accountDTO.getDeviceList());
+				accountDTO.setDeviceList(null);
 				accountsService.save(accountDTO);
 				logger.info("{} Records are stored into database for {}", futureListOfDevices.size(), accountId);
 				futureListOfDevices.clear();

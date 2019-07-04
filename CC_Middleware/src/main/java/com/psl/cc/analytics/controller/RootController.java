@@ -17,6 +17,7 @@ import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.response.AdminsInfo;
 import com.psl.cc.analytics.response.User;
 import com.psl.cc.analytics.service.AccountService;
+import com.psl.cc.analytics.service.DeviceService;
 import com.psl.cc.analytics.service.UserService;
 
 import io.swagger.annotations.Api;
@@ -31,9 +32,12 @@ public class RootController {
 
 	@Autowired
 	private UserService userService;
-	
+
 	@Autowired
 	private AccountService accountService;
+
+	@Autowired
+	private DeviceService deviceService;
 
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
 	@GetMapping("/admins/name")
@@ -56,14 +60,19 @@ public class RootController {
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN')")
 	@GetMapping("/admins/stats")
 	@ApiOperation(value = "It will provide count of Service Providers, Accounts and Devices", response = List.class)
-	public AdminsInfo getAdminStats() {
+	public List<AdminsInfo> getAdminStats() {
 		long userCount = userService.getAllUsersCountByRoleName(ControlCentreConstants.SP_ADMIN_ROLE);
-		long accountCount = accountService.getAllAccountsCount();
-		long devicesCount = accountService.getAllDevicesCount();
-		AdminsInfo info = new AdminsInfo();
-		info.setTotalSp(userCount);
-		info.setTotalAccounts(accountCount);
-		info.setTotalDevices(devicesCount);
-		return info;
+		long accountCount = accountService.getCount();
+		long devicesCount = deviceService.getCount();
+
+		List<AdminsInfo> infos = new ArrayList<>();
+		AdminsInfo spInfo = new AdminsInfo("Service Provider", userCount);
+		AdminsInfo accountInfo = new AdminsInfo("Accounts", accountCount);
+		AdminsInfo deviceInfo = new AdminsInfo("Devices", devicesCount);
+		
+		infos.add(spInfo);
+		infos.add(accountInfo);
+		infos.add(deviceInfo);
+		return infos;
 	}
 }

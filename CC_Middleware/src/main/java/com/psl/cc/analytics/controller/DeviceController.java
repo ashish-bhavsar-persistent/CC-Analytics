@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.exception.ValidationException;
 import com.psl.cc.analytics.model.CCUser;
+import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.response.AccountAggregation;
 import com.psl.cc.analytics.service.AccountService;
 import com.psl.cc.analytics.service.UserService;
@@ -40,7 +41,7 @@ public class DeviceController {
 
 	@GetMapping("/devices/ratePlan")
 	@ApiOperation(value = "Get yearly rate plan count for perticular account", response = List.class)
-	public List<AccountAggregation> getRatePlanCount(@RequestParam(required = false) String adminId,
+	public List<Device> getRatePlanCount(@RequestParam(required = false) String adminId,
 			@RequestParam(required = false) String accountId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
@@ -69,7 +70,7 @@ public class DeviceController {
 
 	@GetMapping("/devices/commPlan")
 	@ApiOperation(value = "Get yearly communication plan count for perticular account", response = List.class)
-	public List<AccountAggregation> getCommPlanCount(@RequestParam(required = false) String adminId,
+	public List<Device> getCommPlanCount(@RequestParam(required = false) String adminId,
 			@RequestParam(required = false) String accountId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
@@ -100,7 +101,7 @@ public class DeviceController {
 
 	@GetMapping("/devices/status")
 	@ApiOperation(value = "Get yearly/monthly device status count for perticular account by passing granularity = MONTHLY/YEARLY", response = List.class)
-	public List<AccountAggregation> getStatusCount(@RequestParam(required = false) String adminId,
+	public List<Device> getStatusCount(@RequestParam(required = false) String adminId,
 			@RequestParam(required = false) String accountId,
 			@RequestParam(defaultValue = "monthly") String granularity) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

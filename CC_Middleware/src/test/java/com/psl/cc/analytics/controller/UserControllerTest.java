@@ -29,7 +29,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.psl.cc.analytics.util.UserDetailsUtil;
+import com.psl.cc.analytics.util.UserControllerUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -44,7 +44,7 @@ public class UserControllerTest {
 	private WebApplicationContext context;
 
 	@Autowired
-	private UserDetailsUtil utils;
+	private UserControllerUtil utils;
 
 	@Autowired
 	private MockMvc mockMvc;

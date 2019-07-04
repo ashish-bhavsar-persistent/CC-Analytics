@@ -18,7 +18,7 @@ import com.psl.cc.analytics.repository.RoleRepository;
 import com.psl.cc.analytics.service.UserService;
 
 @Service
-public class UserDetailsUtil {
+public class UserControllerUtil {
 	
 	@Autowired
 	private PasswordEncoder passwordEncoder;

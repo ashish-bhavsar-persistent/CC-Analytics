@@ -2,13 +2,19 @@ package com.psl.cc.analytics.model;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @XmlRootElement
 @JsonInclude(Include.NON_EMPTY)
-
+@Document(collection = "device")
 public class Device extends Audit {
+
+	@Id
+	private String id;
 	private String ratePlan;
 	private String euiccid;
 	private String imsi;
@@ -49,6 +55,15 @@ public class Device extends Audit {
 	private String customer;
 	private String accountCustom8;
 	private String simNotes;
+	private long total;
+
+	public long getTotal() {
+		return total;
+	}
+
+	public void setTotal(long total) {
+		this.total = total;
+	}
 
 	public String getRatePlan() {
 		return ratePlan;
@@ -68,6 +83,14 @@ public class Device extends Audit {
 
 	public String getImsi() {
 		return imsi;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
 	}
 
 	public void setImsi(String imsi) {

@@ -4,8 +4,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Pattern;
 
 import org.bson.types.ObjectId;
@@ -17,24 +17,26 @@ import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.AggregationResults;
 import org.springframework.data.mongodb.core.aggregation.TypedAggregation;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.Configuration;
+import com.psl.cc.analytics.model.Device;
 import com.psl.cc.analytics.repository.AccountsRepository;
 import com.psl.cc.analytics.repository.ConfigurationRepository;
 import com.psl.cc.analytics.response.AccountAggregation;
-import com.psl.cc.analytics.response.User;
 import com.psl.cc.analytics.service.AccountService;
+import com.psl.cc.analytics.service.DeviceService;
 
 @Service
 public class AccountServiceImpl implements AccountService {
 
 	@Autowired
 	private MongoTemplate mongoTemplate;
+
+	@Autowired
+	private DeviceService deviceService;
 
 	@Autowired
 	private AccountsRepository repository;
@@ -60,81 +62,26 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public List<AccountAggregation> getDeviceRatePlanOrCommCountPlanByAccountId(String userId, String accountId,
-			String fieldName) {
+	public List<Device> getDeviceRatePlanOrCommCountPlanByAccountId(String userId, String accountId, String fieldName) {
 
-		DateFormat format = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICES);
-
-		Calendar c = Calendar.getInstance();
-		c.set(c.get(Calendar.YEAR), 0, 1, 0, 0, 0);
-
-		final String startDate = format.format(c.getTime());
-		c.set(c.get(Calendar.YEAR), 11, 31, 0, 0, 0);
-		final String endDate = format.format(c.getTime());
-
-		List<AggregationOperation> list = new ArrayList<>();
-		list.add(Aggregation.unwind("deviceList"));
-		if (userId != null) {
-			list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
+		Optional<AccountDTO> optional = repository.findById(accountId);
+		if (optional.isPresent() && (userId == null || userId.equals(optional.get().getUser().getId()))) {
+			return deviceService.getDeviceRatePlanOrCommCountPlanByAccountId(accountId, fieldName);
+		} else {
+			return new ArrayList<>();
 		}
-		list.add(Aggregation.match(Criteria.where("accountId").is(accountId)));
-		list.add(Aggregation.match(Criteria.where("deviceList.dateUpdated").gte(startDate).lte(endDate)));
-		list.add(Aggregation.group("deviceList." + fieldName).count().as("total"));
-		list.add(Aggregation.project("total").and(fieldName).previousOperation());
-		list.add(Aggregation.sort(Sort.Direction.ASC, "total"));
-
-		TypedAggregation<AccountDTO> agg = Aggregation.newAggregation(AccountDTO.class, list);
-		AggregationResults<AccountAggregation> account = mongoTemplate.aggregate(agg, AccountAggregation.class);
-		return account.getMappedResults();
 
 	}
 
 	@Override
-	public List<AccountAggregation> getDeviceStatusCountByAccountId(String userId, String accountId,
-			String granularity) {
+	public List<Device> getDeviceStatusCountByAccountId(String userId, String accountId, String granularity) {
+		Optional<AccountDTO> optional = repository.findById(accountId);
 		Configuration conf = configRepository.findOneByUserId(userId);
-
-		List<Pattern> regex = null;
-		if (conf != null) {
-			regex = new ArrayList<>();
-			for (String status : conf.getDeviceStates()) {
-				regex.add(Pattern.compile(status, Pattern.CASE_INSENSITIVE));
-			}
-		}
-		DateFormat format = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICES);
-		Calendar c = Calendar.getInstance();
-		final String startDate;
-		final String endDate;
-		if (!granularity.equalsIgnoreCase("monthly")) {
-			c.set(c.get(Calendar.YEAR), 0, 1, 0, 0, 0);
-			startDate = format.format(c.getTime());
-			c.set(c.get(Calendar.YEAR), 11, 31, 0, 0, 0);
-			endDate = format.format(c.getTime());
+		if (optional.isPresent() && (userId == null || userId.equals(optional.get().getUser().getId()))) {
+			return deviceService.getDeviceStatusCountByAccountId(conf, accountId, granularity);
 		} else {
-			c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), 1, 0, 0, 0);
-			startDate = format.format(c.getTime());
-			c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.getActualMaximum(Calendar.DAY_OF_MONTH), 0, 0, 0);
-			endDate = format.format(c.getTime());
+			return new ArrayList<>();
 		}
-
-		List<AggregationOperation> list = new ArrayList<>();
-		list.add(Aggregation.unwind("deviceList"));
-		if (userId != null) {
-			list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
-		}
-		list.add(Aggregation.match(Criteria.where("accountId").is(accountId)));
-		if (regex != null) {
-			list.add(Aggregation.match(Criteria.where("deviceList.status").in(regex)));
-		}
-		list.add(Aggregation.match(Criteria.where("deviceList.dateUpdated").gte(startDate).lte(endDate)));
-		list.add(Aggregation.group("deviceList.status").count().as("total"));
-		list.add(Aggregation.project("total").and("status").previousOperation());
-		list.add(Aggregation.sort(Sort.Direction.ASC, "total"));
-
-		TypedAggregation<AccountDTO> agg = Aggregation.newAggregation(AccountDTO.class, list);
-		AggregationResults<AccountAggregation> account = mongoTemplate.aggregate(agg, AccountAggregation.class);
-		return account.getMappedResults();
-
 	}
 
 	@Override
@@ -156,48 +103,53 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public List<AccountAggregation> getDeviceStatusCountByUserId(String userId) {
+	public List<Device> getDeviceStatusCountByUserId(String userId) {
 
+		List<AccountDTO> accountDTOs = repository.getAllAccountNames(userId);
+		List<String> accountIds = new ArrayList<>();
+		accountDTOs.forEach(accountDTO -> accountIds.add(accountDTO.getAccountId()));
 		Configuration conf = configRepository.findOneByUserId(userId);
-		if (conf != null) {
-			List<Pattern> regex = new ArrayList<>();
-
-			for (String status : conf.getDeviceStates()) {
-				regex.add(Pattern.compile(status, Pattern.CASE_INSENSITIVE));
-			}
-
-			List<AggregationOperation> list = new ArrayList<>();
-			list.add(Aggregation.unwind("deviceList"));
-			list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
-			list.add(Aggregation.match(Criteria.where("deviceList.status").in(regex)));
-
-			list.add(Aggregation.group("deviceList.status").count().as("total"));
-			list.add(Aggregation.project("total").and("status").previousOperation());
-			list.add(Aggregation.sort(Sort.Direction.ASC, "total"));
-
-			TypedAggregation<AccountDTO> agg = Aggregation.newAggregation(AccountDTO.class, list);
-			AggregationResults<AccountAggregation> account = mongoTemplate.aggregate(agg, AccountAggregation.class);
-			return account.getMappedResults();
-		} else {
-			return new ArrayList<>();
-		}
+		return deviceService.getDeviceStatusCountByUserId(conf, accountIds);
+//		Configuration conf = configRepository.findOneByUserId(userId);
+//		if (conf != null) {
+//			List<Pattern> regex = new ArrayList<>();
+//
+//			for (String status : conf.getDeviceStates()) {
+//				regex.add(Pattern.compile(status, Pattern.CASE_INSENSITIVE));
+//			}
+//
+//			List<AggregationOperation> list = new ArrayList<>();
+//			list.add(Aggregation.unwind("deviceList"));
+//			list.add(Aggregation.match(Criteria.where("user.$id").is(new ObjectId(userId))));
+//			list.add(Aggregation.match(Criteria.where("deviceList.status").in(regex)));
+//
+//			list.add(Aggregation.group("deviceList.status").count().as("total"));
+//			list.add(Aggregation.project("total").and("status").previousOperation());
+//			list.add(Aggregation.sort(Sort.Direction.ASC, "total"));
+//
+//			TypedAggregation<AccountDTO> agg = Aggregation.newAggregation(AccountDTO.class, list);
+//			AggregationResults<AccountAggregation> account = mongoTemplate.aggregate(agg, AccountAggregation.class);
+//			return account.getMappedResults();
+//		} else {
+//			return new ArrayList<>();
+//		}
 	}
 
 	@Override
-	public long getAllAccountsCount() {
+	public long getCount() {
 		return repository.count();
 	}
 
-	@Override
-	public long getAllDevicesCount() {
-		List<AggregationOperation> list = new ArrayList<>();
-		list.add(Aggregation.unwind("deviceList"));
-		list.add(Aggregation.count().as("total"));
-		TypedAggregation<AccountDTO> agg = Aggregation.newAggregation(AccountDTO.class, list);
-		AggregationResults<AccountAggregation> account = mongoTemplate.aggregate(agg, AccountAggregation.class);
-		AccountAggregation accountAggregation = account.getUniqueMappedResult();
-		return accountAggregation.getTotal();
-
-	}
+	/*
+	 * @Override public long getAllDevicesCount() { List<AggregationOperation> list
+	 * = new ArrayList<>(); list.add(Aggregation.unwind("deviceList"));
+	 * list.add(Aggregation.count().as("total")); TypedAggregation<AccountDTO> agg =
+	 * Aggregation.newAggregation(AccountDTO.class, list);
+	 * AggregationResults<AccountAggregation> account = mongoTemplate.aggregate(agg,
+	 * AccountAggregation.class); AccountAggregation accountAggregation =
+	 * account.getUniqueMappedResult(); return accountAggregation.getTotal();
+	 * 
+	 * }
+	 */
 
 }

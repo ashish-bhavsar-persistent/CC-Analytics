@@ -4,7 +4,6 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -26,7 +25,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.psl.cc.analytics.util.AccountDetailsUtil;
+import com.psl.cc.analytics.util.AccountControllerUtil;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -41,7 +40,7 @@ public class DeviceControllerTest {
 	private WebApplicationContext context;
 
 	@Autowired
-	private AccountDetailsUtil utils;
+	private AccountControllerUtil utils;
 
 	@Autowired
 	private MockMvc mockMvc;
