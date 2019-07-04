@@ -50,7 +50,7 @@ public class UserControllerTest {
 	public void getLoginPage() throws Exception {
 		mockMvc.perform(get(BASE_URL + "/index.html").accept(MediaType.TEXT_HTML)).andExpect(status().isOk());
 	}
-	
+
 	@Test
 	public void getLoginPage_OPtions() throws Exception {
 		mockMvc.perform(options(BASE_URL + "/index.html").accept(MediaType.TEXT_HTML)).andExpect(status().isOk());
@@ -114,6 +114,16 @@ public class UserControllerTest {
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isCreated());
 	}
+	
+	@Test
+	public void createUser_Duplicate() throws Exception {
+		String accessToken = getAccessToken("cc_sysadmin", "password");
+		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"VivoSpAdmin\",\"roles\":[\"USER\",\"ADMIN\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"useAPIKey\":true,\"password\":\"password\"}";
+		mockMvc.perform(post(BASE_URL + "/users").content(userDeatils)
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isBadRequest())
+		.andExpect(jsonPath("$.message", is("VivoSpAdmin Already Exist")));
+	}
 
 	@Test
 	public void createUser_MissingField() throws Exception {
@@ -149,7 +159,7 @@ public class UserControllerTest {
 	@Test
 	public void createUser_RoleNotFound() throws Exception {
 		String accessToken = getAccessToken("cc_sysadmin", "password");
-		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"VivoSpAdmin\",\"roles\":[\"USER\",\"ADMIN\",\"MYROLE\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"useAPIKey\":true,\"password\":\"password\"}";
+		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"Vivo\",\"roles\":[\"USER\",\"ADMIN\",\"MYROLE\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"useAPIKey\":true,\"password\":\"password\"}";
 		mockMvc.perform(post(BASE_URL + "/users").content(userDeatils)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isNotFound())
@@ -179,7 +189,7 @@ public class UserControllerTest {
 	@Test
 	public void updateUser_ValidationError_AllFalse() throws Exception {
 		String accessToken = getAccessToken("cc_sysadmin", "password");
-		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"VivoSpAdmin\",\"roles\":[\"USER\",\"ADMIN\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"useAPIKey\":false,\"usePassword\":false,\"password\":\"password\"}";
+		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"VivoSpAdmin\",\"roles\":[\"USER\",\"ADMIN\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"password\":\"password\"}";
 		mockMvc.perform(put(BASE_URL + "/users/2").content(userDeatils)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isBadRequest())

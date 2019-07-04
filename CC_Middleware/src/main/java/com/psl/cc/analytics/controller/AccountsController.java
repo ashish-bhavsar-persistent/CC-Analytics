@@ -44,14 +44,14 @@ public class AccountsController {
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/name")
 	@ApiOperation(value = "List of Account Names Associated with Admin Id", response = List.class)
-	public List<AccountDTO> getAccountNames(@RequestParam(required = false) String adminId) {
+	public List<AccountDTO> getAccountNames(@RequestParam(required = false, defaultValue = "") String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
 		CCUser ccUser = userService.findOneByUsername(username);
 		boolean isSysadmin = roles.stream()
 				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
-		if (isSysadmin && (adminId == null || adminId.isEmpty())) {
+		if (isSysadmin && (adminId.isEmpty())) {
 			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
 		} else if (!isSysadmin) {
 			adminId = ccUser.getId();
@@ -62,39 +62,41 @@ public class AccountsController {
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/ratePlan")
 	@ApiOperation(value = "Get Rate Plan Count for Service Provider", response = List.class)
-	public List<AccountAggregation> getRatePlanCount(@RequestParam(required = false) String adminId) {
+	public List<AccountAggregation> getRatePlanCount(
+			@RequestParam(required = false, defaultValue = "") String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CCUser ccUser = userService.findOneByUsername(username);
 		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
 		boolean isSysadmin = roles.stream()
 				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
-		if (isSysadmin && (adminId == null || adminId.isEmpty())) {
+		if (isSysadmin && (adminId.isEmpty())) {
 			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
 		} else if (!isSysadmin) {
 			adminId = ccUser.getId();
 		}
-		return accountService.getAccountRatePlanOrCommCountPlan(adminId,
-				ControlCentreConstants.ACCOUNT_RATE_PLAN, ControlCentreConstants.DEVICE_RATE_PLAN);
+		return accountService.getAccountRatePlanOrCommCountPlan(adminId, ControlCentreConstants.ACCOUNT_RATE_PLAN,
+				ControlCentreConstants.DEVICE_RATE_PLAN);
 	}
 
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/commPlan")
 	@ApiOperation(value = "Get Communication Plan Count for Service Provider", response = List.class)
-	public List<AccountAggregation> getCommPlanCount(@RequestParam(required = false) String adminId) {
+	public List<AccountAggregation> getCommPlanCount(
+			@RequestParam(required = false, defaultValue = "") String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CCUser ccUser = userService.findOneByUsername(username);
 		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
 		boolean isSysadmin = roles.stream()
 				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
-		if (isSysadmin && (adminId == null || adminId.isEmpty())) {
+		if (isSysadmin && (adminId.isEmpty())) {
 			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
 		} else if (!isSysadmin) {
 			adminId = ccUser.getId();
 		}
-		return accountService.getAccountRatePlanOrCommCountPlan(adminId,
-				ControlCentreConstants.ACCOUNT_COMM_PLAN, ControlCentreConstants.DEVICE_COMM_PLAN);
+		return accountService.getAccountRatePlanOrCommCountPlan(adminId, ControlCentreConstants.ACCOUNT_COMM_PLAN,
+				ControlCentreConstants.DEVICE_COMM_PLAN);
 	}
 
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")

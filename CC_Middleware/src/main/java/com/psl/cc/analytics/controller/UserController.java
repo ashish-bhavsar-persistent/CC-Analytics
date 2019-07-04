@@ -103,7 +103,11 @@ public class UserController {
 		} else if (!user.isUseAPIKey() && !user.isUsePassword()) {
 			throw new ValidationException("Both useAPIKey and usePassword can not be false");
 		}
-		CCUser ccUser = new CCUser();
+		CCUser ccUser = userService.findOneByUsername(user.getUsername());
+		if (ccUser != null) {
+			throw new ValidationException(user.getUsername() + " Already Exist");
+		}
+		ccUser = new CCUser();
 		List<Role> roles = new ArrayList<>();
 		for (String role : user.getRoles()) {
 			Role tempRole = roleRepository.findOneByName(role);

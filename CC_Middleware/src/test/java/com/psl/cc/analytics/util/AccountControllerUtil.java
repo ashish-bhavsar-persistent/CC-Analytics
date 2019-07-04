@@ -8,6 +8,7 @@ import java.util.List;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -53,14 +54,16 @@ public class AccountControllerUtil {
 	@Autowired
 	org.springframework.data.mongodb.core.MongoTemplate mongoTemplate;
 
+	JSONObject data = new JSONObject();
+
 	public void setup() throws JsonParseException, JsonMappingException, IOException {
 		tearDown();
 		Role adminRole = new Role("ADMIN");
 		roleRepository.save(adminRole);
-		
+
 		Role sysRole = new Role("SYSADMIN");
 		roleRepository.save(sysRole);
-		
+
 		Role userRole = new Role("USER");
 		roleRepository.save(userRole);
 
@@ -72,12 +75,12 @@ public class AccountControllerUtil {
 		rolesTest.add(sysRole);
 		CCUser test1 = new CCUser("Vivo Test", "Test1", passwordEncoder.encode("password"), rolesTest, true);
 		userService.save(test1);
-		
+
 		rolesTest.clear();
 		rolesTest.add(userRole);
 		CCUser user1 = new CCUser("Vivo Test", "100007512", passwordEncoder.encode("password"), rolesTest, true);
 		userService.save(user1);
-		
+
 		List<Role> roles = new ArrayList<>();
 		roles.add(adminRole);
 		CCUser user = new CCUser("Vivo Sp Admin", "VivoSpAdmin", passwordEncoder.encode("password"), roles, true);
@@ -101,6 +104,11 @@ public class AccountControllerUtil {
 		account.setLastUpdatedOn(new Date());
 		accountService.save(account);
 
+		data.put("adminId", user.getId());
+	}
+
+	public JSONObject getData() {
+		return data;
 	}
 
 	public void tearDown() {

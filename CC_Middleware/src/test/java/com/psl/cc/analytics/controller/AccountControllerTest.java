@@ -59,6 +59,7 @@ public class AccountControllerTest {
 		mockMvc.perform(get(BASE_URL + "/accounts/ratePlan").header("Authorization", "Bearer " + accessToken))
 				.andExpect(status().isOk()).andExpect(jsonPath("$[0].total", is(1)))
 				.andExpect(jsonPath("$[0].ratePlan", is("Vivo Default RP")));
+
 	}
 
 	@Test
@@ -74,7 +75,47 @@ public class AccountControllerTest {
 	public void getDeviceStatust() throws Exception {
 
 		String accessToken = getAccessToken("VivoSpAdmin", "password");
-		mockMvc.perform(get(BASE_URL + "/accounts/deviceStatus").header("Authorization", "Bearer " + accessToken));
+		mockMvc.perform(get(BASE_URL + "/accounts/deviceStatus").header("Authorization", "Bearer " + accessToken))
+				.andExpect(status().isOk());
+	}
+
+	@Test
+	public void getAccountNames_Error() throws Exception {
+
+		String accessToken = getAccessToken("Test1", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/name").header("Authorization", "Bearer " + accessToken)
+				.param("accountId", "100007512")).andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message", is("Admin Id is Mandetory for SYSADMIN Role")));
+	}
+
+	@Test
+	public void getRatePlanCount_Error() throws Exception {
+
+		String accessToken = getAccessToken("Test1", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/ratePlan").header("Authorization", "Bearer " + accessToken))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message", is("Admin Id is Mandetory for SYSADMIN Role")));
+		;
+		utils.tearDown();
+	}
+
+	@Test
+	public void getCommPlanCount_Error() throws Exception {
+
+		String accessToken = getAccessToken("Test1", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/commPlan").header("Authorization", "Bearer " + accessToken))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message", is("Admin Id is Mandetory for SYSADMIN Role")));
+
+	}
+
+	@Test
+	public void getDeviceStatus_Error() throws Exception {
+
+		String accessToken = getAccessToken("Test1", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/deviceStatus").header("Authorization", "Bearer " + accessToken))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.message", is("Admin Id is Mandetory for SYSADMIN Role")));
 	}
 
 	private String getAccessToken(String username, String password) throws Exception {
