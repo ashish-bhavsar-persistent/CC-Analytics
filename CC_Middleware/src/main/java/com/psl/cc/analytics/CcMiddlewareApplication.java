@@ -30,9 +30,6 @@ public class CcMiddlewareApplication {
 	@Qualifier("passwordEncoder")
 	private PasswordEncoder passwordEncoder;
 
-	@Autowired
-	private GetAllAccounts getAccounts;
-
 	@Bean
 	CommandLineRunner init(RoleRepository roleRepository, UserService userService) {
 		return args -> {
@@ -71,8 +68,6 @@ public class CcMiddlewareApplication {
 				user.setRoles(roles);
 				userService.save(user);
 			}
-
-//			getAccounts.initializeFirstTime();
 		};
 	}
 

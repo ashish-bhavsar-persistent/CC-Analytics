@@ -102,14 +102,14 @@ public class AccountsController {
 	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
 	@GetMapping("/accounts/deviceStatus")
 	@ApiOperation(value = "Get Device Status Count for Service Provider", response = List.class)
-	public List<Device> getDeviceStatus(@RequestParam(required = false) String adminId) {
+	public List<Device> getDeviceStatus(@RequestParam(required = false, defaultValue = "") String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 		CCUser ccUser = userService.findOneByUsername(username);
 		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
 		boolean isSysadmin = roles.stream()
 				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
-		if (isSysadmin && (adminId == null || adminId.isEmpty())) {
+		if (isSysadmin && (adminId.isEmpty())) {
 			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
 		} else if (!isSysadmin) {
 			adminId = ccUser.getId();

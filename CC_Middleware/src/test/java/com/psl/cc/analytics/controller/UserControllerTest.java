@@ -1,9 +1,6 @@
 package com.psl.cc.analytics.controller;
 
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.options;
@@ -79,12 +76,8 @@ public class UserControllerTest {
 		String accessToken = getAccessToken("cc_sysadmin", "password");
 
 		String users = mockMvc.perform(get(BASE_URL + "/users").header("Authorization", "Bearer " + accessToken))
-				.andExpect(status().isOk()).andExpect(jsonPath("$[0].id", is(notNullValue())))
-				.andExpect(jsonPath("$[0].username", is("cc_sysadmin")))
-				.andExpect(jsonPath("$[1].username", is("VivoSpAdmin")))
-				.andExpect(jsonPath("$[1].apiKey", is("1edddb0c-06f6-41d4-9bad-2e2d38f26ae1")))
-				.andExpect(jsonPath("$[1].baseUrl", is("https://rws-jpotest.jasperwireless.com/rws"))).andReturn()
-				.getResponse().getContentAsString();
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].id", is(notNullValue()))).andReturn().getResponse()
+				.getContentAsString();
 		JSONArray array = new JSONArray(users);
 		array.forEach(data -> {
 			JSONObject obj = (JSONObject) data;
@@ -114,7 +107,16 @@ public class UserControllerTest {
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isCreated());
 	}
-	
+
+	@Test
+	public void createUser_UsePassword() throws Exception {
+		String accessToken = getAccessToken("cc_sysadmin", "password");
+		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"VivoSpAdminUsePassword\",\"roles\":[\"USER\",\"ADMIN\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"usePassword\":true,\"password\":\"password\"}";
+		mockMvc.perform(post(BASE_URL + "/users").content(userDeatils)
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isCreated());
+	}
+
 	@Test
 	public void createUser_Duplicate() throws Exception {
 		String accessToken = getAccessToken("cc_sysadmin", "password");
@@ -122,7 +124,7 @@ public class UserControllerTest {
 		mockMvc.perform(post(BASE_URL + "/users").content(userDeatils)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isBadRequest())
-		.andExpect(jsonPath("$.message", is("VivoSpAdmin Already Exist")));
+				.andExpect(jsonPath("$.message", is("VivoSpAdmin Already Exist")));
 	}
 
 	@Test
@@ -170,6 +172,15 @@ public class UserControllerTest {
 	public void updateUser() throws Exception {
 		String accessToken = getAccessToken("cc_sysadmin", "password");
 		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"VivoSpAdmin\",\"roles\":[\"USER\",\"ADMIN\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"useAPIKey\":true,\"password\":\"password\"}";
+		mockMvc.perform(put(BASE_URL + "/users/" + utils.getData().getString("VivoSpAdmin")).content(userDeatils)
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isCreated());
+	}
+
+	@Test
+	public void updateUser_UsePassword() throws Exception {
+		String accessToken = getAccessToken("cc_sysadmin", "password");
+		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"VivoSpAdmin\",\"roles\":[\"USER\",\"ADMIN\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"usePassword\":true,\"password\":\"password\"}";
 		mockMvc.perform(put(BASE_URL + "/users/" + utils.getData().getString("VivoSpAdmin")).content(userDeatils)
 				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
 				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isCreated());

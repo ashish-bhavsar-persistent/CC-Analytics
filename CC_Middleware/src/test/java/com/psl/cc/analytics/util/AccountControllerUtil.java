@@ -87,7 +87,8 @@ public class AccountControllerUtil {
 		userService.save(user);
 
 		List<String> status = new ArrayList<>();
-		status.add("Activated");
+		status.add("REPLACED");
+		status.add("Inventory");
 		Configuration config = new Configuration(user, "https://rws-jpotest.jasperwireless.com/rws", 1, 31, status,
 				false, true, "1edddb0c-06f6-41d4-9bad-2e2d38f26ae1");
 		configurationRepository.save(config);

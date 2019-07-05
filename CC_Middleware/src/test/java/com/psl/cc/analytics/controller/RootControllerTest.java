@@ -19,11 +19,11 @@ import org.junit.runners.MethodSorters;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.psl.cc.analytics.util.RootControllerUtil;
 
@@ -43,8 +43,26 @@ public class RootControllerTest {
 	private RootControllerUtil utils;
 
 	@Test
-	public void getAdminNames() throws Exception {
+	public void createUser() throws Exception {
+		String accessToken = getAccessToken("cc_sysadmin", "password");
+		String userDeatils = "{\"name\":\"Vivo SP Admin\",\"apiKey\":\"1edddb0c-06f6-41d4-9bad-2e2d38f26ae1\",\"username\":\"VivoSpAdmin\",\"roles\":[\"ADMIN\"],\"baseUrl\":\"https://rws-jpotest.jasperwireless.com/rws\",\"billingCycleStartDay\":1,\"billingCyclePeriod\":31,\"deviceStates\":[\"ACTIVATED\",\"INVENTORY\",\"REPLACED\"],\"useAPIKey\":true,\"password\":\"password\"}";
+		mockMvc.perform(post(BASE_URL + "/users").content(userDeatils)
+				.header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON)
+				.header("Authorization", "Bearer " + accessToken)).andExpect(status().isCreated());
+	}
+
+	@Test
+	public void a_getAdminNames() throws Exception {
 		utils.setup();
+		String accessToken = getAccessToken("cc_sysadmin", "password");
+		mockMvc.perform(get(BASE_URL + "/admins/name").header("Authorization", "Bearer " + accessToken)
+				.param("accountId", "100007512")).andExpect(status().isOk());
+
+	}
+
+	@Test
+	public void getAdminNames() throws Exception {
+
 		String accessToken = getAccessToken("cc_sysadmin", "password");
 		mockMvc.perform(get(BASE_URL + "/admins/name").header("Authorization", "Bearer " + accessToken)
 				.param("accountId", "100007512")).andExpect(status().isOk())
@@ -57,10 +75,8 @@ public class RootControllerTest {
 		String accessToken = getAccessToken("cc_sysadmin", "password");
 		mockMvc.perform(get(BASE_URL + "/admins/stats").header("Authorization", "Bearer " + accessToken)
 				.param("accountId", "100007512")).andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].label", is("Service Provider")))
-				.andExpect(jsonPath("$[0].count", is(1)))
-				.andExpect(jsonPath("$[1].label", is("Accounts")))
-				.andExpect(jsonPath("$[1].count", is(0)));
+				.andExpect(jsonPath("$[0].label", is("Service Provider"))).andExpect(jsonPath("$[0].count", is(1)))
+				.andExpect(jsonPath("$[1].label", is("Accounts"))).andExpect(jsonPath("$[1].count", is(0)));
 		utils.tearDown();
 	}
 

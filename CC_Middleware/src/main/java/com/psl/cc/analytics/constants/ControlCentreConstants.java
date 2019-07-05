@@ -8,7 +8,6 @@ public class ControlCentreConstants {
 	public static final String STATUS_SUCCESS = "Success";
 	public static final int PAGE_SIZE = 10000;
 	public static final String STATUS_FAIL = "Error";
-	public static final int FETCH_DETAILS_FROM_YEAR = 2017;
 
 	public static final String DATEFORMAT_DEVICESURL = "yyyy-MM-dd'T'HH:mm:ssXXX";
 	public static final String DATEFORMAT_DEVICES = "yyyy-MM-dd HH:mm:ss.SSSZ";
@@ -22,6 +21,8 @@ public class ControlCentreConstants {
 	public static final String ADMIN_AUTHORITY = "ROLE_ADMIN";
 	public static final String USER_AUTHORITY = "ROLE_USER";
 	public static final String SYSADMIN_AUTHORITY = "ROLE_SYSADMIN";
+
+	public static boolean first_time_initailized = false;
 
 	private ControlCentreConstants() {
 

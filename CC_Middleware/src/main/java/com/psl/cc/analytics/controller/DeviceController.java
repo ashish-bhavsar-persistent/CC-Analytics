@@ -103,10 +103,9 @@ public class DeviceController {
 	}
 
 	@GetMapping("/devices/status")
-	@ApiOperation(value = "Get yearly/monthly device status count for perticular account by passing granularity = MONTHLY/YEARLY", response = List.class)
+	@ApiOperation(value = "Get yearly/monthly device status count for perticular account", response = List.class)
 	public List<Device> getStatusCount(@RequestParam(required = false, defaultValue = "") String adminId,
-			@RequestParam(required = false, defaultValue = "") String accountId,
-			@RequestParam(defaultValue = "monthly") String granularity) {
+			@RequestParam(required = false, defaultValue = "") String accountId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
 
@@ -130,6 +129,17 @@ public class DeviceController {
 			adminId = null;
 			accountId = ccUser.getUsername();
 		}
-		return accountService.getDeviceStatusCountByAccountId(adminId, accountId, granularity);
+		List<Device> statusYearly = accountService.getDeviceStatusCountByAccountId(adminId, accountId, "yearly");
+		List<Device> statusMonthly = accountService.getDeviceStatusCountByAccountId(adminId, accountId, "monthly");
+		statusYearly.forEach(device -> {
+			Device monthly = statusMonthly.stream()
+					.filter(monthlyData -> device.getStatus().equals(monthlyData.getStatus())).findAny().orElse(null);
+			if(monthly!=null) {
+				device.setMonthlyCount(monthly.getTotal());
+			}
+			device.setYearlyCount(device.getTotal());
+			device.setTotal(null);
+		});
+		return statusYearly;
 	}
 }

@@ -3,7 +3,6 @@ package com.psl.cc.analytics.util;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,7 @@ import com.psl.cc.analytics.repository.RoleRepository;
 import com.psl.cc.analytics.service.UserService;
 
 @Service
-public class UserControllerUtil {
+public class SchedulerUtils {
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
@@ -32,12 +31,6 @@ public class UserControllerUtil {
 
 	@Autowired
 	org.springframework.data.mongodb.core.MongoTemplate mongoTemplate;
-
-	private JSONObject data = new JSONObject();
-
-	public JSONObject getData() {
-		return data;
-	}
 
 	public void setup() {
 		tearDown();
@@ -60,24 +53,15 @@ public class UserControllerUtil {
 				true);
 		userService.save(cc_sysadmin);
 
-		CCUser deleteUser = new CCUser("cc_sysadmin1", "cc_sysadmin1", passwordEncoder.encode("password"), sysRoles,
+		CCUser vivoSpAdmin = new CCUser("VivoSpAdmin", "VivoSpAdmin", passwordEncoder.encode("password"), sysRoles,
 				true);
-		userService.save(deleteUser);
-
-		CCUser deleteUser2 = new CCUser("cc_sysadmin2", "cc_sysadmin2", passwordEncoder.encode("password"), sysRoles,
-				true);
-		userService.save(deleteUser2);
+		userService.save(vivoSpAdmin);
 
 		List<String> status = new ArrayList<>();
 		status.add("Activated");
-
-		Configuration config1 = new Configuration(deleteUser2, "https://rws-jpotest.jasperwireless.com/rws", 1, 31,
+		Configuration config1 = new Configuration(vivoSpAdmin, "https://rws-jpotest.jasperwireless.com/rws", 1, 31,
 				status, false, true, "1edddb0c-06f6-41d4-9bad-2e2d38f26ae1");
 		configurationRepository.save(config1);
-
-		data.put("deleteUser", deleteUser.getId());
-		data.put("deleteUser2", deleteUser2.getId());
-
 	}
 
 	public void tearDown() {

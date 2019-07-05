@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @XmlRootElement
 @JsonInclude(Include.NON_EMPTY)
 @Document(collection = "device")
+//@JsonInclude(JsonInclude.Include.NON_DEFAULT)
 public class Device extends Audit {
 
 	@Id
@@ -55,13 +56,32 @@ public class Device extends Audit {
 	private String customer;
 	private String accountCustom8;
 	private String simNotes;
-	private long total;
+	private Long total;
 
-	public long getTotal() {
+	private long monthlyCount;
+	private long yearlyCount;
+
+	public long getMonthlyCount() {
+		return monthlyCount;
+	}
+
+	public void setMonthlyCount(long monthlyCount) {
+		this.monthlyCount = monthlyCount;
+	}
+
+	public long getYearlyCount() {
+		return yearlyCount;
+	}
+
+	public void setYearlyCount(long yearlyCount) {
+		this.yearlyCount = yearlyCount;
+	}
+
+	public Long getTotal() {
 		return total;
 	}
 
-	public void setTotal(long total) {
+	public void setTotal(Long total) {
 		this.total = total;
 	}
 

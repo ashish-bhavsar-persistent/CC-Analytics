@@ -1,10 +1,6 @@
 package com.psl.cc.analytics.service;
 
-import java.util.Collection;
 import java.util.List;
-
-import org.springframework.data.mongodb.repository.Query;
-import org.springframework.security.core.GrantedAuthority;
 
 import com.psl.cc.analytics.model.AccountDTO;
 import com.psl.cc.analytics.model.Device;

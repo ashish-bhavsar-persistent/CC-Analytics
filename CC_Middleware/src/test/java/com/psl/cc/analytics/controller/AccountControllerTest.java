@@ -23,7 +23,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.context.WebApplicationContext;
 
 import com.psl.cc.analytics.util.AccountControllerUtil;
 
@@ -46,8 +45,17 @@ public class AccountControllerTest {
 	public void getAccountNames() throws Exception {
 		utils.setup();
 		String accessToken = getAccessToken("VivoSpAdmin", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/name").header("Authorization", "Bearer " + accessToken))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].accountId", is("100007512")))
+				.andExpect(jsonPath("$[0].accountName", is("SIM Replacement Test")));
+	}
+
+	@Test
+	public void getAccountNames_SysAdminRole() throws Exception {
+
+		String accessToken = getAccessToken("Test1", "password");
 		mockMvc.perform(get(BASE_URL + "/accounts/name").header("Authorization", "Bearer " + accessToken)
-				.param("accountId", "100007512")).andExpect(status().isOk())
+				.param("adminId", utils.getData().getString("adminId"))).andExpect(status().isOk())
 				.andExpect(jsonPath("$[0].accountId", is("100007512")))
 				.andExpect(jsonPath("$[0].accountName", is("SIM Replacement Test")));
 	}
@@ -63,6 +71,17 @@ public class AccountControllerTest {
 	}
 
 	@Test
+	public void getRatePlanCount_SysAdminRole() throws Exception {
+
+		String accessToken = getAccessToken("Test1", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/ratePlan").header("Authorization", "Bearer " + accessToken)
+				.param("adminId", utils.getData().getString("adminId"))).andExpect(status().isOk())
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].total", is(1)))
+				.andExpect(jsonPath("$[0].ratePlan", is("Vivo Default RP")));
+		utils.tearDown();
+	}
+
+	@Test
 	public void getCommPlanCount() throws Exception {
 
 		String accessToken = getAccessToken("VivoSpAdmin", "password");
@@ -72,11 +91,33 @@ public class AccountControllerTest {
 	}
 
 	@Test
-	public void getDeviceStatust() throws Exception {
+	public void getCommPlanCount_SysAdminRole() throws Exception {
+
+		String accessToken = getAccessToken("Test1", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/commPlan").header("Authorization", "Bearer " + accessToken)
+				.param("adminId", utils.getData().getString("adminId"))).andExpect(status().isOk())
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].total", is(1)))
+				.andExpect(jsonPath("$[0].communicationPlan", is("Vivo Default CP")));
+	}
+
+	@Test
+	public void getDeviceStatus() throws Exception {
 
 		String accessToken = getAccessToken("VivoSpAdmin", "password");
 		mockMvc.perform(get(BASE_URL + "/accounts/deviceStatus").header("Authorization", "Bearer " + accessToken))
-				.andExpect(status().isOk());
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].status", is("INVENTORY")))
+				.andExpect(jsonPath("$[0].total", is(1))).andExpect(jsonPath("$[1].status", is("REPLACED")))
+				.andExpect(jsonPath("$[1].total", is(1)));
+	}
+
+	@Test
+	public void getDeviceStatus_SysAdminRole() throws Exception {
+
+		String accessToken = getAccessToken("Test1", "password");
+		mockMvc.perform(get(BASE_URL + "/accounts/deviceStatus").header("Authorization", "Bearer " + accessToken)
+				.param("adminId", utils.getData().getString("adminId"))).andExpect(status().isOk())
+				.andExpect(jsonPath("$[0].status", is("INVENTORY"))).andExpect(jsonPath("$[0].total", is(1)))
+				.andExpect(jsonPath("$[1].status", is("REPLACED"))).andExpect(jsonPath("$[1].total", is(1)));
 	}
 
 	@Test
@@ -95,8 +136,7 @@ public class AccountControllerTest {
 		mockMvc.perform(get(BASE_URL + "/accounts/ratePlan").header("Authorization", "Bearer " + accessToken))
 				.andExpect(status().isBadRequest())
 				.andExpect(jsonPath("$.message", is("Admin Id is Mandetory for SYSADMIN Role")));
-		;
-		utils.tearDown();
+
 	}
 
 	@Test

@@ -13,15 +13,14 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
@@ -37,12 +36,16 @@ import com.psl.cc.analytics.service.RequestsAuditService;
 import com.psl.cc.analytics.service.UserService;
 import com.psl.cc.analytics.utils.APIAudits;
 
-@Component
+@org.springframework.context.annotation.Configuration
+@EnableScheduling
 public class GetAllAccounts {
 	private static final Logger logger = LogManager.getLogger(GetAllAccounts.class);
 
 	@Value("${defaultPassword}")
 	private String defaultPassword;
+
+	@Value("${modifiedSinceYear}")
+	private int modifiedSinceYear;
 
 	@Autowired
 	private ConfigurationRepository configRepository;
@@ -60,6 +63,9 @@ public class GetAllAccounts {
 	private RoleRepository roleRepository;
 
 	@Autowired
+	APIAudits audit;
+
+	@Autowired
 	private AccountService accountsService;
 
 	@Autowired
@@ -69,48 +75,45 @@ public class GetAllAccounts {
 	final DateFormat dateFormat = new SimpleDateFormat(ControlCentreConstants.DATEFORMAT_DEVICESURL);
 
 	// It shoud be run at 12:00:00 am everyday
-	@Scheduled(cron = "0 0 0 * * *", zone = "Indian/Maldives")
+	@Scheduled(cron = "0 0 0 * * *")
 	public void cronJob() {
 		logger.debug("Cron Job Started {}", new Date());
 		String modifiedSince = null;
 		Calendar c = Calendar.getInstance();
 		c.setTime(new Date());
-		if (requestService.getLatestRecord() == null) {
-			c.set(ControlCentreConstants.FETCH_DETAILS_FROM_YEAR, 0, 1, 0, 0, 0);
-			modifiedSince = dateFormat.format(c.getTime());
-		} else {
-			c.add(Calendar.DATE, -1);
-			c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DATE), 0, 0, 0);
-			modifiedSince = dateFormat.format(c.getTime());
-		}
+		c.add(Calendar.DATE, -1);
+		c.set(c.get(Calendar.YEAR), c.get(Calendar.MONTH), c.get(Calendar.DATE), 0, 0, 0);
+		modifiedSince = dateFormat.format(c.getTime());
 		logger.info("value of modifiedSince is {}", modifiedSince);
 		getAllAccounts(modifiedSince, false);
 	}
 
+	@Scheduled(initialDelay = 1000 * 300, fixedDelay = Long.MAX_VALUE)
 	public void initializeFirstTime() {
+
 		Calendar twoDaysBeforeDate = Calendar.getInstance();
 		twoDaysBeforeDate.add(Calendar.DATE, -2);
 		Calendar c = Calendar.getInstance();
-		c.set(ControlCentreConstants.FETCH_DETAILS_FROM_YEAR, 0, 1, 0, 0, 0);
+		c.set(modifiedSinceYear, 0, 1, 0, 0, 0);
 		String modifiedSince = dateFormat.format(c.getTime());
-		if (requestService.getLatestRecord() == null
-				|| requestService.getLatestRecord().getLastUpdatedOn().before(twoDaysBeforeDate.getTime())) {
-			logger.debug("initializeFirstTime method invoked at {}", new Date());
-			logger.info("value of modifiedSince is {}", modifiedSince);
-			getAllAccounts(modifiedSince, true);
+
+		logger.debug("initializeFirstTime method invoked at {}", new Date());
+		logger.info("value of modifiedSince is {}", modifiedSince);
+		boolean firstTime = false;
+		if (!ControlCentreConstants.first_time_initailized) {
+			firstTime = true;
 		}
+		getAllAccounts(modifiedSince, firstTime);
+
 	}
 
 	private void getAllAccounts(String modifiedSince, boolean firstTime) {
-		Role userRole = roleRepository.findOneByName("USER");
-		List<Role> roles = new ArrayList<>();
-		roles.add(userRole);
+
 		List<CCUser> ccUsers = userService.findAll();
 		ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors
 				.newFixedThreadPool(ControlCentreConstants.NUMBER_OF_THREADS);
 		List<Future<Map<String, AccountDTO>>> futureList = new ArrayList<>();
-		APIAudits audit = new APIAudits();
-		final Map<String, AccountDTO> accountsMap = new HashMap<>();
+
 		final Map<String, Configuration> configMap = new HashMap<>();
 		logger.info("number of Users are {}", ccUsers.size());
 		for (CCUser ccUser : ccUsers) {
@@ -120,8 +123,19 @@ public class GetAllAccounts {
 				Future<Map<String, AccountDTO>> futureObj = executor
 						.submit(new FetchAccountDetails(ccUser, configuration, requestService, accountsService, audit));
 				futureList.add(futureObj);
+				fetchAccointInfoFromFutureList(futureList, ccUsers, configMap, executor, modifiedSince, firstTime);
 			}
 		}
+	}
+
+	private void fetchAccointInfoFromFutureList(List<Future<Map<String, AccountDTO>>> futureList, List<CCUser> ccUsers,
+			Map<String, Configuration> configMap, ThreadPoolExecutor executor, String modifiedSince,
+			boolean firstTime) {
+		Role userRole = roleRepository.findOneByName("USER");
+		List<Role> roles = new ArrayList<>();
+		roles.add(userRole);
+		final Map<String, AccountDTO> accountsMap = new HashMap<>();
+
 		futureList.forEach(futureObj -> {
 			try {
 				Map<String, AccountDTO> tempAccountsMap = futureObj.get();
@@ -143,7 +157,11 @@ public class GetAllAccounts {
 			}
 			user = null;
 		});
+		fetchDevicesOfAccount(accountsMap, configMap, executor, modifiedSince, firstTime);
+	}
 
+	private void fetchDevicesOfAccount(Map<String, AccountDTO> accountsMap, Map<String, Configuration> configMap,
+			ThreadPoolExecutor executor, String modifiedSince, boolean firstTime) {
 		final List<Future<Optional<String>>> futureListOfDevices = new ArrayList<>();
 		accountsMap.forEach((accountId, accountDTO) -> {
 			Configuration configuration = configMap.get(accountDTO.getUser().getId());
@@ -161,52 +179,61 @@ public class GetAllAccounts {
 			}
 		});
 		logger.debug("Execution of searchDevices API is Done.");
-
-		// get Device Details
 		futureListOfDevices.clear();
+		getDeviceDetails(accountsMap, configMap, executor, futureListOfDevices, firstTime);
+	}
+
+	private void getDeviceDetails(Map<String, AccountDTO> accountsMap, Map<String, Configuration> configMap,
+			ThreadPoolExecutor executor, List<Future<Optional<String>>> futureListOfDevices, boolean firstTime) {
 		accountsMap.forEach((accountId, accountDTO) -> {
 			Configuration configuration = configMap.get(accountDTO.getUser().getId());
-
 			if (accountDTO != null && accountDTO.getDeviceList() != null) {
-
-				accountDTO.getDeviceList().forEach(device -> {
-					Future<Optional<String>> future = executor.submit(new GetDeviceDetails(accountDTO.getUser(),
-							configuration, accountId, device.getIccid(), accountDTO, audit, requestService));
-					futureListOfDevices.add(future);
-				});
-				futureListOfDevices.forEach(futureObj -> {
-					try {
-						futureObj.get();
-					} catch (Exception e) {
-						logger.error(e);
-					}
-				});
-				logger.debug("Execution of getDeviceDetails API is Done for {}", accountId);
-				if (firstTime)
-					deviceService.saveAll(accountDTO.getDeviceList());
-				else {
-					accountDTO.getDeviceList().forEach(device -> {
-						Optional<Device> optional = deviceService.findOneByIccid(device.getIccid());
-						if (optional.isPresent()) {
-							Device tempDevice = optional.get();
-							device.setId(tempDevice.getId());
-							device.setLastUpdatedOn(new Date());
-							device.setCreatedOn(tempDevice.getCreatedOn());
-							tempDevice = null;
-						}
-						deviceService.save(device);
-					});
-				}
-				accountDTO.setDeviceList(null);
-				accountsService.save(accountDTO);
-				logger.info("{} Records are stored into database for {}", futureListOfDevices.size(), accountId);
-				futureListOfDevices.clear();
+				saveData(accountDTO, configuration, executor, futureListOfDevices, firstTime);
 			}
 
 		});
 		accountsMap.clear();
 		logger.debug("Terminating thread pool");
 		executor.shutdownNow();
+
+	}
+
+	private void saveData(AccountDTO accountDTO, Configuration configuration, ThreadPoolExecutor executor,
+			List<Future<Optional<String>>> futureListOfDevices, boolean firstTime) {
+		accountDTO.getDeviceList().forEach(device -> {
+			Future<Optional<String>> future = executor.submit(new GetDeviceDetails(accountDTO.getUser(), configuration,
+					accountDTO.getAccountId(), device.getIccid(), accountDTO, audit, requestService));
+			futureListOfDevices.add(future);
+		});
+		futureListOfDevices.forEach(futureObj -> {
+			try {
+				futureObj.get();
+			} catch (Exception e) {
+				logger.error(e);
+			}
+		});
+		logger.debug("Execution of getDeviceDetails API is Done for {}", accountDTO.getAccountId());
+
+		if (firstTime)
+			deviceService.saveAll(accountDTO.getDeviceList());
+		else {
+			accountDTO.getDeviceList().forEach(device -> {
+				Optional<Device> optional = deviceService.findOneByIccid(device.getIccid());
+				if (optional.isPresent()) {
+					Device tempDevice = optional.get();
+					device.setId(tempDevice.getId());
+					device.setLastUpdatedOn(new Date());
+					device.setCreatedOn(tempDevice.getCreatedOn());
+					tempDevice = null;
+				}
+				deviceService.save(device);
+			});
+		}
+		accountDTO.setDeviceList(null);
+		accountsService.save(accountDTO);
+		logger.info("{} Records are stored into database for {}", futureListOfDevices.size(),
+				accountDTO.getAccountId());
+		futureListOfDevices.clear();
 	}
 
 }

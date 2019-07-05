@@ -2,10 +2,13 @@ package com.psl.cc.analytics.utils;
 
 import java.util.Date;
 
+import org.springframework.stereotype.Service;
+
 import com.psl.cc.analytics.model.CCUser;
 import com.psl.cc.analytics.model.RequestsAudit;
 import com.psl.cc.analytics.service.RequestsAuditService;
 
+@Service
 public class APIAudits {
 
 	public void doAudit(String apiName, String endpointUrl, String errorDetails, String params, String status,

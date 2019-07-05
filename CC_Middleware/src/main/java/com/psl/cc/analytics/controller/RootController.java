@@ -45,7 +45,7 @@ public class RootController {
 	public List<User> getAdminNames() {
 		List<CCUser> ccUsers = userService.getAllByRoleName(ControlCentreConstants.SP_ADMIN_ROLE);
 		List<User> users = new ArrayList<>();
-		if (ccUsers != null && !ccUsers.isEmpty()) {
+		if (!ccUsers.isEmpty()) {
 			ccUsers.forEach(ccUser -> {
 				User user = new User();
 				user.setName(ccUser.getName());

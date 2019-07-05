@@ -41,10 +41,10 @@ public class RootControllerUtil {
 		CCUser test = new CCUser("Root User", "cc_sysadmin", passwordEncoder.encode("password"), rolesSysadmin, true);
 		userService.save(test);
 
-		List<Role> roles = new ArrayList<>();
-		roles.add(adminRole);
-		CCUser user = new CCUser("Vivo Sp Admin", "VivoSpAdmin", passwordEncoder.encode("password"), roles, true);
-		userService.save(user);
+//		List<Role> roles = new ArrayList<>();
+//		roles.add(adminRole);
+//		CCUser user = new CCUser("Vivo Sp Admin", "VivoSpAdmin", passwordEncoder.encode("password"), roles, true);
+//		userService.save(user);
 
 	}
 
