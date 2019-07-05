@@ -22,8 +22,6 @@ public class ControlCentreConstants {
 	public static final String USER_AUTHORITY = "ROLE_USER";
 	public static final String SYSADMIN_AUTHORITY = "ROLE_SYSADMIN";
 
-	public static boolean first_time_initailized = false;
-
 	private ControlCentreConstants() {
 
 	}

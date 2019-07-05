@@ -100,7 +100,7 @@ public class GetAllAccounts {
 		logger.debug("initializeFirstTime method invoked at {}", new Date());
 		logger.info("value of modifiedSince is {}", modifiedSince);
 		boolean firstTime = false;
-		if (!ControlCentreConstants.first_time_initailized) {
+		if (requestService.getLatestRecord() == null) {
 			firstTime = true;
 		}
 		getAllAccounts(modifiedSince, firstTime);

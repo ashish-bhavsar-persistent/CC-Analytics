@@ -92,6 +92,8 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 					devicesArray.forEach(deviceObj -> {
 						Device devicedto = new Device();
 						devicedto.setIccid(new JSONObject(deviceObj.toString()).getString("iccid"));
+						devicedto.setCreatedOn(new Date());
+						devicedto.setLastUpdatedOn(new Date());
 						deviceDTOList.add(devicedto);
 					});
 
@@ -108,23 +110,10 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 		if (account.getDeviceList() == null) {
 			account.setDeviceList(deviceDTOList);
 		} else {
-			deviceDTOList.forEach(device -> {
-				Optional<Device> deviceDTO = account.getDeviceList().stream() // convert list to
-																				// stream
-						.filter(oldDevice -> oldDevice.getIccid().equals(device.getIccid())).findFirst();
-
-				if (deviceDTO.isPresent()) {
-					deviceDTO.get().setLastUpdatedOn(new Date());
-				} else {
-					device.setCreatedOn(new Date());
-					device.setLastUpdatedOn(new Date());
-					account.getDeviceList().add(device);
-				}
-
-			});
+			deviceDTOList.forEach(device -> account.getDeviceList().add(device));
 		}
 
-		  return Optional.ofNullable(null);
+		return Optional.ofNullable(null);
 	}
 
 }
