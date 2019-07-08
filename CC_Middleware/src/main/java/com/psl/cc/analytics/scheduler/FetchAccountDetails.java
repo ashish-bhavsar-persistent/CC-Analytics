@@ -12,6 +12,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -38,14 +39,19 @@ class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 	private final RequestsAuditService requestService;
 	private final AccountService accountsService;
 	private final APIAudits audit;
+	private final RestTemplate restTemplate;
+
+	
+
 
 	public FetchAccountDetails(CCUser ccUser, Configuration configuration, RequestsAuditService requestService,
-			AccountService accountsService, APIAudits audit) {
+			AccountService accountsService, APIAudits audit,RestTemplate restTemplate) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
 		this.requestService = requestService;
 		this.accountsService = accountsService;
 		this.audit = audit;
+		this.restTemplate = restTemplate;
 	}
 
 	@Override
@@ -74,7 +80,7 @@ class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 			throws CCException {
 		boolean lastPage = false;
 		int pageNumber = 1;
-		RestTemplate restTemplate = new RestTemplate();
+		
 		final String url = configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL;
 		URI uri = null;
 		ResponseEntity<String> response = null;

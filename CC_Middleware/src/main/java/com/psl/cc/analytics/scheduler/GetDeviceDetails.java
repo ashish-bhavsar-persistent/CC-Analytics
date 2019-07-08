@@ -35,9 +35,10 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 	private final AccountDTO account;
 	private final APIAudits audit;
 	private final RequestsAuditService requestService;
+	private final RestTemplate restTemplate;
 
 	public GetDeviceDetails(CCUser ccUser, Configuration configuration, String accountId, String deviceId,
-			AccountDTO account, APIAudits audit, RequestsAuditService requestService) {
+			AccountDTO account, APIAudits audit, RequestsAuditService requestService, RestTemplate restTemplate) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
 		this.accountId = accountId;
@@ -45,6 +46,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 		this.account = account;
 		this.audit = audit;
 		this.requestService = requestService;
+		this.restTemplate = restTemplate;
 
 	}
 
@@ -59,7 +61,7 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(username, password);
 		final HttpEntity<String> request = new HttpEntity<>(headers);
-		RestTemplate restTemplate = new RestTemplate();
+
 		String url = configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/";
 		URI uri = UriComponentsBuilder.fromUriString(url).path(deviceId).build(true).toUri();
 		ObjectMapper mapper = new ObjectMapper();

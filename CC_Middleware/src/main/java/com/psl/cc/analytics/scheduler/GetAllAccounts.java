@@ -21,6 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.RestTemplate;
 
 import com.psl.cc.analytics.constants.ControlCentreConstants;
 import com.psl.cc.analytics.model.AccountDTO;
@@ -69,6 +70,9 @@ public class GetAllAccounts {
 	private AccountService accountsService;
 
 	@Autowired
+	RestTemplate restTemplate;
+
+	@Autowired
 	@Qualifier("passwordEncoder")
 	private PasswordEncoder passwordEncoder;
 
@@ -88,22 +92,19 @@ public class GetAllAccounts {
 		getAllAccounts(modifiedSince, false);
 	}
 
-	@Scheduled(initialDelay = 1000 * 300, fixedDelay = Long.MAX_VALUE)
+	@Scheduled(initialDelay = 1000 * 600, fixedDelay = Long.MAX_VALUE)
 	public void initializeFirstTime() {
 
-		Calendar twoDaysBeforeDate = Calendar.getInstance();
-		twoDaysBeforeDate.add(Calendar.DATE, -2);
 		Calendar c = Calendar.getInstance();
 		c.set(modifiedSinceYear, 0, 1, 0, 0, 0);
 		String modifiedSince = dateFormat.format(c.getTime());
 
 		logger.debug("initializeFirstTime method invoked at {}", new Date());
 		logger.info("value of modifiedSince is {}", modifiedSince);
-		boolean firstTime = false;
+
 		if (requestService.getLatestRecord() == null) {
-			firstTime = true;
+			getAllAccounts(modifiedSince, true);
 		}
-		getAllAccounts(modifiedSince, firstTime);
 
 	}
 
@@ -120,8 +121,8 @@ public class GetAllAccounts {
 			Configuration configuration = configRepository.findOneByUserId(ccUser.getId());
 			if (configuration != null) {
 				configMap.put(ccUser.getId(), configuration);
-				Future<Map<String, AccountDTO>> futureObj = executor
-						.submit(new FetchAccountDetails(ccUser, configuration, requestService, accountsService, audit));
+				Future<Map<String, AccountDTO>> futureObj = executor.submit(new FetchAccountDetails(ccUser,
+						configuration, requestService, accountsService, audit, restTemplate));
 				futureList.add(futureObj);
 				fetchAccointInfoFromFutureList(futureList, ccUsers, configMap, executor, modifiedSince, firstTime);
 			}
@@ -166,7 +167,7 @@ public class GetAllAccounts {
 		accountsMap.forEach((accountId, accountDTO) -> {
 			Configuration configuration = configMap.get(accountDTO.getUser().getId());
 			Future<Optional<String>> future = executor.submit(new FetchDevicesOfAccount(configuration, requestService,
-					accountId, accountDTO, audit, modifiedSince));
+					accountId, accountDTO, audit, modifiedSince, restTemplate));
 			futureListOfDevices.add(future);
 
 		});
@@ -187,7 +188,7 @@ public class GetAllAccounts {
 			ThreadPoolExecutor executor, List<Future<Optional<String>>> futureListOfDevices, boolean firstTime) {
 		accountsMap.forEach((accountId, accountDTO) -> {
 			Configuration configuration = configMap.get(accountDTO.getUser().getId());
-			if (accountDTO != null && accountDTO.getDeviceList() != null) {
+			if (accountDTO.getDeviceList() != null) {
 				saveData(accountDTO, configuration, executor, futureListOfDevices, firstTime);
 			}
 
@@ -202,7 +203,7 @@ public class GetAllAccounts {
 			List<Future<Optional<String>>> futureListOfDevices, boolean firstTime) {
 		accountDTO.getDeviceList().forEach(device -> {
 			Future<Optional<String>> future = executor.submit(new GetDeviceDetails(accountDTO.getUser(), configuration,
-					accountDTO.getAccountId(), device.getIccid(), accountDTO, audit, requestService));
+					accountDTO.getAccountId(), device.getIccid(), accountDTO, audit, requestService, restTemplate));
 			futureListOfDevices.add(future);
 		});
 		futureListOfDevices.forEach(futureObj -> {

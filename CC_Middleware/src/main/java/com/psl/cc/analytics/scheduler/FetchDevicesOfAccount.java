@@ -38,9 +38,10 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 	private final AccountDTO account;
 	private final APIAudits audit;
 	private final String modifiedSince;
+	private final RestTemplate restTemplate;
 
 	public FetchDevicesOfAccount(Configuration configuration, RequestsAuditService requestService, String accountId,
-			AccountDTO account, APIAudits audit, String modifiedSince) {
+			AccountDTO account, APIAudits audit, String modifiedSince, RestTemplate restTemplate) {
 		this.ccUser = account.getUser();
 		this.accountId = accountId;
 		this.requestService = requestService;
@@ -48,6 +49,7 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 		this.audit = audit;
 		this.modifiedSince = modifiedSince;
 		this.configuration = configuration;
+		this.restTemplate = restTemplate;
 	}
 
 	@Override
@@ -60,7 +62,7 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 		final HttpHeaders headers = new HttpHeaders();
 		headers.setBasicAuth(username, password);
 		final HttpEntity<String> request = new HttpEntity<>(headers);
-		RestTemplate restTemplate = new RestTemplate();
+
 		final String url = configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL;
 		boolean lastPage = false;
 		int pageNumber = 1;

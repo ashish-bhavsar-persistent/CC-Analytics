@@ -42,7 +42,7 @@ public class SchedulerUtils {
 
 		Role sysRole = new Role("SYSADMIN");
 		sysRole = roleRepository.save(sysRole);
-
+//
 		List<Role> sysRoles = new ArrayList<>();
 		sysRoles.add(sysRole);
 
@@ -53,9 +53,14 @@ public class SchedulerUtils {
 				true);
 		userService.save(cc_sysadmin);
 
-		CCUser vivoSpAdmin = new CCUser("VivoSpAdmin", "VivoSpAdmin", passwordEncoder.encode("password"), sysRoles,
+		CCUser vivoSpAdmin = new CCUser("VivoSpAdmin", "VivoSpAdmin", passwordEncoder.encode("password"), adminRoles,
 				true);
 		userService.save(vivoSpAdmin);
+		
+//		List<Role> rolesUser = new ArrayList<>();
+//		rolesUser.add(userRole);
+//		CCUser test = new CCUser("Vivo Test", "100007512", passwordEncoder.encode("password"), rolesUser, true);
+//		userService.save(test);
 
 		List<String> status = new ArrayList<>();
 		status.add("Activated");
