@@ -57,10 +57,10 @@ public class SchedulerUtils {
 				true);
 		userService.save(vivoSpAdmin);
 		
-//		List<Role> rolesUser = new ArrayList<>();
-//		rolesUser.add(userRole);
-//		CCUser test = new CCUser("Vivo Test", "100007512", passwordEncoder.encode("password"), rolesUser, true);
-//		userService.save(test);
+		List<Role> rolesUser = new ArrayList<>();
+		rolesUser.add(userRole);
+		CCUser test = new CCUser("Vivo Test", "100002218", passwordEncoder.encode("password"), rolesUser, true);
+		userService.save(test);
 
 		List<String> status = new ArrayList<>();
 		status.add("Activated");
