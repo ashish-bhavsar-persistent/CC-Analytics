@@ -1,11 +1,11 @@
-import { Component, OnInit } from "@angular/core";
-import { map } from "rxjs/operators";
+import { Component, OnInit, ViewChild } from "@angular/core";
+import { map, distinctUntilChanged, debounceTime, merge, filter } from "rxjs/operators";
 import { Breakpoints, BreakpointObserver } from "@angular/cdk/layout";
 import { NavBarComponent } from "../components/nav-bar/nav-bar.component";
 import { AuthService } from "../services/auth.service";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { environment } from "../../environments/environment.prod";
-import { Observable } from "rxjs";
+import { Observable, Subject } from "rxjs";
 import { timer } from "rxjs";
 import { AccountanalysisdataserviceService } from "../services/accountanalysisdataservice.service";
 import { ChartDataSets, ChartOptions, ChartType } from "chart.js";
@@ -31,6 +31,8 @@ export class MainDashboardComponent implements OnInit {
   private placeholderData = "Accounts";
   private deviceStatus: any = [];
   private dataLoading: boolean = true;
+  private deviceDataUnavailable: boolean = true;
+  private deviceDataAvailable: boolean = false;
   private topThreeRatePlanValues: any = [];
   private topThreeCommPlanValues: any = [];
 
@@ -41,13 +43,19 @@ export class MainDashboardComponent implements OnInit {
   private spAdminDataLoading: boolean = true;
   private dataLoaded: boolean = false;
 
+  private accountParameter = {
+    adminId: "",
+    accountId: "",
+    granularity: ""
+  }
+
   stateCtrl = new FormControl();
  
   myForm = new FormGroup({
     state: this.stateCtrl
   });
  
-  accounts = [];
+  private accounts: string[] = [];
 
   //Rate Plan Chart Variables//
 
@@ -136,67 +144,39 @@ export class MainDashboardComponent implements OnInit {
   //Comm Plan Chart Variables//
 
   //Device Status Chart Variables
-  public lineChartData = [
-    { data: [65, 59, 80, 81, 56, 55, 40], label: "Series A" },
-    { data: [28, 48, 40, 19, 86, 27, 90], label: "Series B" },
-    {
-      data: [180, 480, 770, 90, 1000, 270, 400],
-      label: "Series C",
-      yAxisID: "y-axis-1"
-    }
-  ];
-  public lineChartLabels: Label[] = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July"
-  ];
-  public lineChartOptions: ChartOptions = {
+
+  public chartData = [{data: [], label: 'monthly'},{data: [], label: 'yearly'}];
+  public chartLabels = [];
+  public chartOptions: any = {
     responsive: true,
-    aspectRatio: 0.1,
+    aspectRatio:0.1,
+    legend: {
+      display: true
+    },
     scales: {
-      // We use this empty structure as a placeholder for dynamic theming.
-      xAxes: [{}],
       yAxes: [
         {
-          id: "y-axis-0",
-          position: "left"
-        },
-        {
-          id: "y-axis-1",
-          position: "right",
+          display: true,
+          stepSize: 1,
           gridLines: {
-            color: "rgba(255,0,0,0.3)"
+            drawOnChartArea: true
           },
           ticks: {
-            fontColor: "red"
-          }
+            maxTicksLimit: 8,
+            beginAtZero: true
+          },
         }
       ]
-    }
+    },
+    tooltips: {
+      callbacks: {
+         label: function(tooltipItem) {
+                return tooltipItem.yLabel;
+         }
+      }
+  }
   };
-  public lineChartColors: Color[] = [
-    {
-      // grey
-      backgroundColor: "rgba(148,159,177,0.2)",
-      borderColor: "rgba(148,159,177,1)",
-      pointBackgroundColor: "rgba(148,159,177,1)",
-      pointBorderColor: "#fff",
-      pointHoverBackgroundColor: "#fff",
-      pointHoverBorderColor: "rgba(148,159,177,0.8)"
-    },
-    {
-      // dark grey
-      backgroundColor: "rgba(77,83,96,0.2)",
-      borderColor: "rgba(77,83,96,1)",
-      pointBackgroundColor: "rgba(77,83,96,1)",
-      pointBorderColor: "#fff",
-      pointHoverBackgroundColor: "#fff",
-      pointHoverBorderColor: "rgba(77,83,96,1)"
-    },
+  public colorOptions: Color[] = [
     {
       // red
       backgroundColor: "rgba(255,0,0,0.3)",
@@ -207,8 +187,8 @@ export class MainDashboardComponent implements OnInit {
       pointHoverBorderColor: "rgba(148,159,177,0.8)"
     }
   ];
-  public lineChartLegend = true;
-  public lineChartType = "bar";
+  public chartLegend = true;
+  public chartType = "bar";
   //Device Status Chart Variables
 
   constructor(
@@ -226,11 +206,7 @@ export class MainDashboardComponent implements OnInit {
   updateSpAdminDetails(value) {
 
     this.selectedSpAdminId = value;
-
-    //Clearing Existing Data
-    
-    //Clearing Existing Data
-
+    this.accountParameter.adminId = this.selectedSpAdminId;
     //Updating Values//
 
     //Headers//
@@ -238,7 +214,6 @@ export class MainDashboardComponent implements OnInit {
       Authorization: "Bearer " + `${sessionStorage.getItem("token")}`
     });
     //Headers//
-
 
     this.http //Fetching ratePlan for Particular SP Admin with AdminID
       .get(
@@ -307,10 +282,36 @@ export class MainDashboardComponent implements OnInit {
         this.accounts = [];
         let fetchedAccountNames: any = res;
         for(let account of fetchedAccountNames){
-          this.accounts.push(account.accountName);
+          this.accounts.push(account.accountName +' : '+ account.accountId);
         }
       });
     //Updating Values//
+  }
+
+  updateAccountDetails(){
+
+    this.deviceDataUnavailable=false;
+    this.deviceDataAvailable=true;
+    
+    let headers = new HttpHeaders({
+      Authorization: "Bearer " + `${sessionStorage.getItem("token")}`
+    });
+
+    let splittedArray = this.accountParameter.accountId.split(":");
+    let accountId = (splittedArray[1].trim());
+
+    this.http.get(environment.ENV.baseURL+'/api/v1/devices/status?adminId='+this.accountParameter.adminId+'&accountId='+accountId, {headers:headers})
+    .subscribe(res => {
+      let accountChartData:any = res;
+      this.chartData[0].data=[];
+      this.chartData[1].data=[];
+      this.chartLabels = [];
+      for(let account of accountChartData){
+        this.chartData[0].data.push(account.monthlyCount);
+        this.chartData[1].data.push(account.yearlyCount);
+        this.chartLabels.push(account.status);
+      }
+    })
   }
 
   ngOnInit() {
@@ -342,6 +343,7 @@ export class MainDashboardComponent implements OnInit {
       .subscribe(res => {
         let fetchedData: any = res;
         this.selectedSpAdminId = fetchedData[0].id;
+        this.accountParameter.adminId = this.selectedSpAdminId;
         for (let i of fetchedData) {
           this.spAdminList.push(i);
         }
@@ -391,7 +393,6 @@ export class MainDashboardComponent implements OnInit {
           this.commPlanChartData.push(commPlanData.total);
           this.commPlanChartLabels.push(commPlanData.communicationPlan);
         }
-        console.log(fetchedCommPlanData)
       });
 
       this.http //Fetching accounts based on admin ID
@@ -406,7 +407,7 @@ export class MainDashboardComponent implements OnInit {
       .subscribe(res => {
         let fetchedAccountNames: any = res;
         for(let account of fetchedAccountNames){
-          this.accounts.push(account.accountName);
+          this.accounts.push(account.accountName +' : '+ account.accountId);
         }
       });
       });

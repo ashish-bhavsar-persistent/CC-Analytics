@@ -26,6 +26,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
 import { AlertModule } from 'ngx-bootstrap';
 import { TypeaheadModule } from 'ngx-bootstrap';
+import { ButtonsModule } from 'ngx-bootstrap';
 
 
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
@@ -88,7 +89,8 @@ import { MainDashboardSysadminComponent } from './components/main-dashboard-sysa
     MatSelectModule,
     MatMenuModule,
     AlertModule.forRoot(),
-    TypeaheadModule.forRoot()
+    TypeaheadModule.forRoot(),
+    ButtonsModule.forRoot()
   ],
   providers: [ApiService, AuthService, AuthGuard, AccountanalysisdataserviceService,
      { 
