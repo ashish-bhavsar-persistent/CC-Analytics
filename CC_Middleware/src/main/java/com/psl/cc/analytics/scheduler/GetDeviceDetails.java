@@ -69,29 +69,28 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 		try {
 			params.put("accountId", accountId);
 			ResponseEntity<String> response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
-			if (response.getStatusCode() == HttpStatus.OK) {
-				audit.doAudit("get Device Details",
-						configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/", null, params.toString(),
-						ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
-				JSONObject deviceObject = new JSONObject(response.getBody());
-				Device deviceJson = mapper.readValue(deviceObject.toString(), Device.class);
-				for (Device deviceFromAccount : account.getDeviceList()) {
-					if (deviceJson.getIccid().equals(deviceFromAccount.getIccid())) {
-						deviceJson.setCreatedOn(deviceFromAccount.getCreatedOn());
-						BeanUtils.copyProperties(deviceFromAccount, deviceJson);
-						deviceFromAccount.setLastUpdatedOn(new Date());
-					}
+
+			audit.doAudit("get Device Details", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/",
+					null, params.toString(), ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
+			JSONObject deviceObject = new JSONObject(response.getBody());
+			Device deviceJson = mapper.readValue(deviceObject.toString(), Device.class);
+			for (Device deviceFromAccount : account.getDeviceList()) {
+				if (deviceJson.getIccid().equals(deviceFromAccount.getIccid())) {
+					deviceJson.setCreatedOn(deviceFromAccount.getCreatedOn());
+					BeanUtils.copyProperties(deviceFromAccount, deviceJson);
+					deviceFromAccount.setLastUpdatedOn(new Date());
 				}
+
 				logger.info("Fetched device details of {} for an account {} successfully", deviceId, accountId);
-				return Optional.empty();
+
 			}
+			return Optional.empty();
 		} catch (Exception e) {
-			logger.error(e);
 			audit.doAudit("get Device Details", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/",
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
 			throw e;
 		}
-		return Optional.empty();
+
 	}
 
 }

@@ -58,22 +58,22 @@ public class Device extends Audit {
 	private String simNotes;
 	private Long total;
 
-	private long monthlyCount;
-	private long yearlyCount;
+	private Long monthlyCount;
+	private Long yearlyCount;
 
-	public long getMonthlyCount() {
+	public Long getMonthlyCount() {
 		return monthlyCount;
 	}
 
-	public void setMonthlyCount(long monthlyCount) {
+	public void setMonthlyCount(Long monthlyCount) {
 		this.monthlyCount = monthlyCount;
 	}
 
-	public long getYearlyCount() {
+	public Long getYearlyCount() {
 		return yearlyCount;
 	}
 
-	public void setYearlyCount(long yearlyCount) {
+	public void setYearlyCount(Long yearlyCount) {
 		this.yearlyCount = yearlyCount;
 	}
 

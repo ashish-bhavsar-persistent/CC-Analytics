@@ -124,12 +124,12 @@ public class GetAllAccounts {
 				Future<Map<String, AccountDTO>> futureObj = executor.submit(new FetchAccountDetails(ccUser,
 						configuration, requestService, accountsService, audit, restTemplate));
 				futureList.add(futureObj);
-				fetchAccointInfoFromFutureList(futureList, ccUsers, configMap, executor, modifiedSince, firstTime);
+				fetchAccountInfoFromFutureList(futureList, ccUsers, configMap, executor, modifiedSince, firstTime);
 			}
 		}
 	}
 
-	private void fetchAccointInfoFromFutureList(List<Future<Map<String, AccountDTO>>> futureList, List<CCUser> ccUsers,
+	private void fetchAccountInfoFromFutureList(List<Future<Map<String, AccountDTO>>> futureList, List<CCUser> ccUsers,
 			Map<String, Configuration> configMap, ThreadPoolExecutor executor, String modifiedSince,
 			boolean firstTime) {
 		Role userRole = roleRepository.findOneByName("USER");
@@ -188,7 +188,7 @@ public class GetAllAccounts {
 			ThreadPoolExecutor executor, List<Future<Optional<String>>> futureListOfDevices, boolean firstTime) {
 		accountsMap.forEach((accountId, accountDTO) -> {
 			Configuration configuration = configMap.get(accountDTO.getUser().getId());
-			if (accountDTO.getDeviceList() != null) {
+			if (!accountDTO.getDeviceList().isEmpty()) {
 				saveData(accountDTO, configuration, executor, futureListOfDevices, firstTime);
 			}
 
@@ -219,15 +219,17 @@ public class GetAllAccounts {
 			deviceService.saveAll(accountDTO.getDeviceList());
 		else {
 			accountDTO.getDeviceList().forEach(device -> {
-				Optional<Device> optional = deviceService.findOneByIccid(device.getIccid());
-				if (optional.isPresent()) {
-					Device tempDevice = optional.get();
-					device.setId(tempDevice.getId());
-					device.setLastUpdatedOn(new Date());
-					device.setCreatedOn(tempDevice.getCreatedOn());
-					tempDevice = null;
+				if (device.getStatus() != null) {
+					Optional<Device> optional = deviceService.findOneByIccid(device.getIccid());
+					if (optional.isPresent()) {
+						Device tempDevice = optional.get();
+						device.setId(tempDevice.getId());
+						device.setLastUpdatedOn(new Date());
+						device.setCreatedOn(tempDevice.getCreatedOn());
+						tempDevice = null;
+					}
+					deviceService.save(device);
 				}
-				deviceService.save(device);
 			});
 		}
 		accountDTO.setDeviceList(null);

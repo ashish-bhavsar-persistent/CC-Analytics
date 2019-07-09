@@ -16,7 +16,6 @@ import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -84,26 +83,26 @@ public class FetchDevicesOfAccount implements Callable<Optional<String>> {
 				params.put("pageSize", ControlCentreConstants.PAGE_SIZE);
 
 				response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
-				if (response.getStatusCode() == HttpStatus.OK) {
-					audit.doAudit("search Devices", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL,
-							null, params.toString(), ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
-					JSONObject deviceObject = new JSONObject(response.getBody());
-					lastPage = deviceObject.getBoolean("lastPage");
-					JSONArray devicesArray = deviceObject.getJSONArray("devices");
 
-					devicesArray.forEach(deviceObj -> {
-						Device devicedto = new Device();
-						devicedto.setIccid(new JSONObject(deviceObj.toString()).getString("iccid"));
-						devicedto.setCreatedOn(new Date());
-						devicedto.setLastUpdatedOn(new Date());
-						deviceDTOList.add(devicedto);
-					});
+				audit.doAudit("search Devices", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL, null,
+						params.toString(), ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
+				JSONObject deviceObject = new JSONObject(response.getBody());
+				lastPage = deviceObject.getBoolean("lastPage");
+				JSONArray devicesArray = deviceObject.getJSONArray("devices");
 
-					pageNumber++;
-				}
+				devicesArray.forEach(deviceObj -> {
+					Device devicedto = new Device();
+					devicedto.setIccid(new JSONObject(deviceObj.toString()).getString("iccid"));
+					devicedto.setCreatedOn(new Date());
+					devicedto.setLastUpdatedOn(new Date());
+					deviceDTOList.add(devicedto);
+				});
+
+				pageNumber++;
+
 			} while (!lastPage);
 		} catch (Exception e) {
-			logger.error(e);
+			account.setDeviceList(new ArrayList<>());
 			audit.doAudit("search Devices", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL,
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
 			throw e;

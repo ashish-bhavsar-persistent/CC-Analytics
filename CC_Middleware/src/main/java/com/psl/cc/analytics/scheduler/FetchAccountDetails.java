@@ -41,11 +41,8 @@ class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 	private final APIAudits audit;
 	private final RestTemplate restTemplate;
 
-	
-
-
 	public FetchAccountDetails(CCUser ccUser, Configuration configuration, RequestsAuditService requestService,
-			AccountService accountsService, APIAudits audit,RestTemplate restTemplate) {
+			AccountService accountsService, APIAudits audit, RestTemplate restTemplate) {
 		this.ccUser = ccUser;
 		this.configuration = configuration;
 		this.requestService = requestService;
@@ -80,7 +77,7 @@ class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 			throws CCException {
 		boolean lastPage = false;
 		int pageNumber = 1;
-		
+
 		final String url = configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL;
 		URI uri = null;
 		ResponseEntity<String> response = null;
@@ -92,35 +89,34 @@ class FetchAccountDetails implements Callable<Map<String, AccountDTO>> {
 						.build().toUri();
 				params.put("pageNumber", pageNumber);
 				response = restTemplate.exchange(uri, HttpMethod.GET, request, String.class);
-				if (response.getStatusCode() == HttpStatus.OK) {
-					audit.doAudit("getAllAccounts", configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL,
-							null, params.toString(), ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
-					JSONObject accountsObject = new JSONObject(response.getBody());
-					lastPage = accountsObject.getBoolean("lastPage");
-					JSONArray accounts = accountsObject.getJSONArray("accounts");
-					for (Object Obj : accounts) {
-						JSONObject account = new JSONObject(Obj.toString());
-						AccountDTO accountDTO = mapper.readValue(account.toString(), AccountDTO.class);
-						if (accountsMap.containsKey(account.getString("accountId"))) {
-							AccountDTO tempAccountDTO = accountsMap.get(account.getString("accountId"));
-							accountDTO.setCreatedOn(tempAccountDTO.getCreatedOn());
-							accountDTO.setDeviceList(tempAccountDTO.getDeviceList());
-						}
 
-						String accountId = account.getString("accountId");
-						accountDTO.setUser(ccUser);
-						accountDTO.setLastUpdatedOn(new Date());
-						if (accountDTO.getCreatedOn() == null) {
-							accountDTO.setCreatedOn(new Date());
-							accountDTO.setDeviceList(new ArrayList<>());
-						}
-						accountsMap.put(accountId, accountDTO);
+				audit.doAudit("getAllAccounts", configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL, null,
+						params.toString(), ControlCentreConstants.STATUS_SUCCESS, ccUser, requestService);
+				JSONObject accountsObject = new JSONObject(response.getBody());
+				lastPage = accountsObject.getBoolean("lastPage");
+				JSONArray accounts = accountsObject.getJSONArray("accounts");
+				for (Object Obj : accounts) {
+					JSONObject account = new JSONObject(Obj.toString());
+					AccountDTO accountDTO = mapper.readValue(account.toString(), AccountDTO.class);
+					if (accountsMap.containsKey(account.getString("accountId"))) {
+						AccountDTO tempAccountDTO = accountsMap.get(account.getString("accountId"));
+						accountDTO.setCreatedOn(tempAccountDTO.getCreatedOn());
+						accountDTO.setDeviceList(tempAccountDTO.getDeviceList());
 					}
-					pageNumber++;
+
+					String accountId = account.getString("accountId");
+					accountDTO.setUser(ccUser);
+					accountDTO.setLastUpdatedOn(new Date());
+					if (accountDTO.getCreatedOn() == null) {
+						accountDTO.setCreatedOn(new Date());
+						accountDTO.setDeviceList(new ArrayList<>());
+					}
+					accountsMap.put(accountId, accountDTO);
 				}
+				pageNumber++;
+
 			} while (!lastPage);
 		} catch (Exception e) {
-			logger.error(e);
 			audit.doAudit("getAllAccounts", configuration.getBaseUrl() + ControlCentreConstants.ACCOUNTS_URL,
 					e.getMessage(), params.toString(), ControlCentreConstants.STATUS_FAIL, ccUser, requestService);
 			throw new CCException(e.getMessage());
