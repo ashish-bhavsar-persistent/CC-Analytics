@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, Inject } from "@angular/core";
 import { map, distinctUntilChanged, debounceTime, merge, filter } from "rxjs/operators";
 import { Breakpoints, BreakpointObserver } from "@angular/cdk/layout";
 import { NavBarComponent } from "../components/nav-bar/nav-bar.component";
@@ -15,8 +15,10 @@ import {
   MatBottomSheetRef
 } from "@angular/material/bottom-sheet";
 import { BottomSheetComponent } from "../components/bottom-sheet/bottom-sheet.component";
+import { ModalComponent } from "../components/modal/modal.component";
 import { FormControl, FormGroup } from '@angular/forms';
 import * as jwt_decode from "jwt-decode";
+import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
 
 @Component({
   selector: "app-main-dashboard",
@@ -48,6 +50,7 @@ export class MainDashboardComponent implements OnInit {
   private dataLoaded: boolean = false;
   private loadSysadmin: boolean = false;
   private loadSpadmin: boolean = false;
+  private loadUser: boolean = false;
 
   private accountParameter = {
     adminId: "",
@@ -202,7 +205,8 @@ export class MainDashboardComponent implements OnInit {
     private _authService: AuthService,
     private http: HttpClient,
     private accAnalysisService: AccountanalysisdataserviceService,
-    private _bottomSheet: MatBottomSheet
+    private _bottomSheet: MatBottomSheet,
+    private dialog: MatDialog
   ) {}
 
   openBottomSheet(): void {
@@ -333,16 +337,29 @@ export class MainDashboardComponent implements OnInit {
     })
   }
 
+  openDialog(): void {
+    const dialogRef = this.dialog.open(ModalComponent, {
+      width: '250px'
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      console.log('The dialog was closed');
+    });
+  }
+
   ngOnInit() {
 
     let temp:any = jwt_decode(sessionStorage.getItem("token"));
     console.log(temp);
 
-    if (temp['authorities'] == "ROLE_SYSADMIN"){
+    if (temp['authorities'].includes("ROLE_SYSADMIN")){
       this.loadSysadmin = true;
     }
-    else if (temp['authorities'] == "ROLE_ADMIN" || "ROLE_USER"){
+    else if (temp['authorities'].includes("ROLE_ADMIN")){
       this.loadSpadmin = true;
+    }
+    else{
+      this.loadUser = true;
     }
 
     

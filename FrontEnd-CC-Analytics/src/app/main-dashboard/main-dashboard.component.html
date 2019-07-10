@@ -11,11 +11,16 @@
           <div class="user-info">
             <h5>System Admin Analysis</h5>
             <div class=user-info-roles>
-              <h4>Welcome, {{username}}</h4>
+              <h4>Welcome, {{username}} 
+                <!-- <button mat-mini-fab color="warn" (click)="openDialog()">
+                <mat-icon>add</mat-icon>
+                </button> -->
+              
+              </h4>
               <!-- <roles-menu [roles]="roles" matTooltip="click to display roles"></roles-menu> -->
             </div>
             <h6>{{today | date:'medium'}}</h6>
-          </div>
+          </div>  
         </mat-grid-tile>
 
         <mat-grid-tile [colspan]="4" [rowspan]="1">
@@ -28,7 +33,7 @@
             <div *ngFor="let status of deviceStatus">
               <div class="information-card col-lg-12 col-md-10 col-sm-2">
                 <p>{{status.label}}</p>
-                <h6>last updated on : {{lastUpdatedTime | date:'mediumTime'}}</h6>
+                <!-- <h6>last updated on : {{lastUpdatedTime | date:'mediumTime'}}</h6> -->
                 <h4>{{status.count}}</h4>
               </div>
             </div>
@@ -196,8 +201,9 @@
 </div>
 
 <spadmin-dashboard *ngIf="loadSpadmin"></spadmin-dashboard>
+<user-dashboard *ngIf="loadUser"></user-dashboard>
 
-        <!-- <footer class="footer">
+<!-- <footer class="footer">
     <div class="container" style="display: flex; justify-content: center; align-items: center;">
 
       <span class="attribution">

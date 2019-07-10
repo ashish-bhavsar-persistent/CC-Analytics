@@ -1,0 +1,93 @@
+<div class="grid-container spadmin">
+    <div>
+      <mat-grid-list cols="5" rowHeight="2:1.2">
+        <div>
+          <mat-grid-tile [colspan]="1" [rowspan]="1">
+            <div class="user-info">
+              <h5>User Analysis</h5>
+              <div class=user-info-roles>
+                <h4>Welcome, {{username}}</h4>
+                <!-- <roles-menu [roles]="roles" matTooltip="click to display roles"></roles-menu> -->
+              </div>
+              <h6>{{today | date:'medium'}}</h6>
+            </div>
+          </mat-grid-tile>
+  
+          <mat-grid-tile [colspan]="4" [rowspan]="1">
+  
+            <!-- <div *ngIf="dataLoading">
+              <span>Data Loading. Please Wait...<loader></loader></span>
+            </div> -->
+  
+            <div class="container">
+                <canvas baseChart [chartType]="chartType" [datasets]="chartData"
+                [labels]="chartLabels" [options]="chartOptions" [colors]="colorOptions" height="65"></canvas>
+            </div>
+  
+  
+          </mat-grid-tile>
+        </div>
+  
+  
+      </mat-grid-list>
+  
+      <hr>
+      <br>
+      <div class="container-fluid">
+  
+        <div class="row">
+          <div class="col-lg-12">
+            <h6 id="chart-tags">Device Analysis</h6>
+            <div class="bar-chart-container">
+              <!-- <div *ngIf="deviceDataUnavailable">
+                <span>
+                  <h5 style="text-align: center;">Data Not Available</h5>
+                  <loader></loader>
+                </span>
+              </div> -->
+              <!-- <canvas *ngIf="deviceDataAvailable" baseChart [chartType]="chartType" [datasets]="chartData"
+                [labels]="chartLabels" [options]="chartOptions" [colors]="colorOptions" height="65"></canvas> -->
+              <br>
+              <div class="device-analysis-table-container">
+                <table class="table">
+                  <thead>
+                    <!-- <h6>Rate Plans</h6> -->
+                    <tr>
+                      <th scope="col">Rate Plan</th>
+                      <th scope="col">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let value of deviceRatePlan, let i = index">
+                      <td>{{value.ratePlan || 0}}</td>
+                      <td>{{value.total || 0}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+  
+                <table class="table">
+                  <thead>
+                    <!-- <h6>Comm Plans</h6> -->
+                    <tr>
+                      <th scope="col">Comm Plan</th>
+                      <th scope="col">Total</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let value of deviceCommPlan, let i = index">
+                      <td>{{value.communicationPlan || 0}}</td>
+                      <td>{{value.total || 0}}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+  
+      </div>
+    </div>
+  
+  
+</div>

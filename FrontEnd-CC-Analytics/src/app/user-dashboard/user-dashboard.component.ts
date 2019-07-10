@@ -16,14 +16,13 @@ import {
 } from "@angular/material/bottom-sheet";
 import { BottomSheetComponent } from "../components/bottom-sheet/bottom-sheet.component";
 import { FormControl, FormGroup } from '@angular/forms';
-import * as jwt_decode from "jwt-decode";
 
 @Component({
-  selector: 'spadmin-dashboard',
-  templateUrl: './spadmin-dashboard.component.html',
-  styleUrls: ['./spadmin-dashboard.component.scss']
+  selector: 'user-dashboard',
+  templateUrl: './user-dashboard.component.html',
+  styleUrls: ['./user-dashboard.component.scss']
 })
-export class SpadminDashboardComponent implements OnInit {
+export class UserDashboardComponent implements OnInit {
 
   private username: string = "";
   private roles: any;
@@ -158,22 +157,33 @@ export class SpadminDashboardComponent implements OnInit {
     responsive: true,
     aspectRatio:0.1,
     legend: {
-      display: true
+      display: false
     },
     scales: {
       yAxes: [
         {
-          display: true,
+          display: false,
           stepSize: 1,
           gridLines: {
-            drawOnChartArea: true
+            drawOnChartArea: false
           },
           ticks: {
             maxTicksLimit: 8,
-            beginAtZero: true
+            beginAtZero: true,
+            display: false
           },
-        }
-      ]
+        },
+      ],
+        xAxes: [
+          {
+            gridLines: {
+              drawOnChartArea: false
+            },
+            ticks: {
+              display: true
+            }
+          }
+        ]
     },
     tooltips: {
       callbacks: {
@@ -320,14 +330,13 @@ export class SpadminDashboardComponent implements OnInit {
       }
     })
 
-
-    this.http.get(environment.ENV.baseURL+'/api/v1/devices/ratePlan?adminId='+this.accountParameter.adminId+'&accountId='+accountId, {headers:headers})
+    this.http.get(environment.ENV.baseURL+'/api/v1/devices/ratePlan', {headers:headers})
     .subscribe(res => {
       let deviceRateData:any = res;
       this.deviceRatePlan = deviceRateData;
     })
 
-    this.http.get(environment.ENV.baseURL+'/api/v1/devices/commPlan?adminId='+this.accountParameter.adminId+'&accountId='+accountId, {headers:headers})
+    this.http.get(environment.ENV.baseURL+'/api/v1/devices/commPlan', {headers:headers})
     .subscribe(res => {
       let deviceCommData:any = res;
       this.deviceCommPlan = deviceCommData;
@@ -335,7 +344,7 @@ export class SpadminDashboardComponent implements OnInit {
   }
 
   ngOnInit() {
-    
+
     Observable;
     timer(1, 1000).subscribe(() => {
       this.today = Date.now();
@@ -343,10 +352,23 @@ export class SpadminDashboardComponent implements OnInit {
 
     this.lastUpdatedTime = Date.now();
 
+    
     let headers = new HttpHeaders({
       Authorization: "Bearer " + `${sessionStorage.getItem("token")}`
     });
 
+    this.http.get(environment.ENV.baseURL+'/api/v1/devices/ratePlan', {headers:headers})
+    .subscribe(res => {
+      let deviceRateData:any = res;
+      this.deviceRatePlan = deviceRateData;
+    })
+
+    this.http.get(environment.ENV.baseURL+'/api/v1/devices/commPlan', {headers:headers})
+    .subscribe(res => {
+      let deviceCommData:any = res;
+      this.deviceCommPlan = deviceCommData;
+    })
+    
     this.http //Fetching User Roles and Details
       .get(environment.ENV.baseURL + "/api/v1/users/me", { headers: headers })
       .subscribe(res => {
@@ -457,10 +479,22 @@ export class SpadminDashboardComponent implements OnInit {
         }
       });
 
+      this.http.get(environment.ENV.baseURL+'/api/v1/devices/status', {headers:headers})
+    .subscribe(res => {
+      let accountChartData:any = res;
+      this.chartData[0].data=[];
+      this.chartData[1].data=[];
+      this.chartLabels = [];
+      for(let account of accountChartData){
+        this.chartData[0].data.push(account.monthlyCount);
+        this.chartData[1].data.push(account.yearlyCount);
+        this.chartLabels.push(account.status);
+      }
+    })
+
   }
 
   ngOnDestroy(): void {
     this._authService.logout();
   }
 }
-

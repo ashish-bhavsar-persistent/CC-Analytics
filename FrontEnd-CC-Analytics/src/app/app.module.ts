@@ -24,6 +24,7 @@ import { ScrollDispatchModule } from '@angular/cdk/scrolling';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatSelectModule } from '@angular/material/select';
+import {MatDialogModule} from '@angular/material/dialog';
 import { AlertModule } from 'ngx-bootstrap';
 import { TypeaheadModule } from 'ngx-bootstrap';
 import { ButtonsModule } from 'ngx-bootstrap';
@@ -42,6 +43,9 @@ import { AccountBarChartComponent } from './components/charts/account-bar-chart/
 import { BottomSheetComponent } from './components/bottom-sheet/bottom-sheet.component';
 import { MainDashboardSysadminComponent } from './components/main-dashboard-sysadmin/main-dashboard-sysadmin.component';
 import { SpadminDashboardComponent } from './spadmin-dashboard/spadmin-dashboard.component';
+import { UserDashboardComponent } from './user-dashboard/user-dashboard.component';
+import { ModalComponent } from './components/modal/modal.component';
+
 
 @NgModule({
   declarations: [
@@ -59,7 +63,9 @@ import { SpadminDashboardComponent } from './spadmin-dashboard/spadmin-dashboard
     AccountBarChartComponent,
     BottomSheetComponent,
     MainDashboardSysadminComponent,
-    SpadminDashboardComponent
+    SpadminDashboardComponent,
+    UserDashboardComponent,
+    ModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -89,6 +95,7 @@ import { SpadminDashboardComponent } from './spadmin-dashboard/spadmin-dashboard
     MatTabsModule,
     MatBottomSheetModule,
     MatDividerModule,
+    MatDialogModule,
     MatSelectModule,
     MatMenuModule,
     AlertModule.forRoot(),
@@ -103,8 +110,9 @@ import { SpadminDashboardComponent } from './spadmin-dashboard/spadmin-dashboard
        multi: true
       }
     ],
-    entryComponents: [BottomSheetComponent],
+    entryComponents: [BottomSheetComponent, ModalComponent],
   schemas:[CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent]
 })
+
 export class AppModule { }
