@@ -134,8 +134,10 @@ public class DeviceController {
 		statusYearly.forEach(device -> {
 			Device monthly = statusMonthly.stream()
 					.filter(monthlyData -> device.getStatus().equals(monthlyData.getStatus())).findAny().orElse(null);
-			if(monthly!=null) {
+			if (monthly != null) {
 				device.setMonthlyCount(monthly.getTotal());
+			} else {
+				device.setMonthlyCount(0l);
 			}
 			device.setYearlyCount(device.getTotal());
 			device.setTotal(null);
