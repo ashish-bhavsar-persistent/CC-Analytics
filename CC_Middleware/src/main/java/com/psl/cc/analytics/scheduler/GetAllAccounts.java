@@ -92,7 +92,7 @@ public class GetAllAccounts {
 		getAllAccounts(modifiedSince, false);
 	}
 
-	@Scheduled(initialDelay = 1000 * 600, fixedDelay = Long.MAX_VALUE)
+	@Scheduled(initialDelay = 1000 * 6, fixedDelay = Long.MAX_VALUE)
 	public void initializeFirstTime() {
 
 		Calendar c = Calendar.getInstance();
@@ -127,6 +127,9 @@ public class GetAllAccounts {
 				fetchAccountInfoFromFutureList(futureList, ccUsers, configMap, executor, modifiedSince, firstTime);
 			}
 		}
+
+		logger.debug("Terminating thread pool");
+		executor.shutdownNow();
 	}
 
 	private void fetchAccountInfoFromFutureList(List<Future<Map<String, AccountDTO>>> futureList, List<CCUser> ccUsers,
@@ -145,6 +148,7 @@ public class GetAllAccounts {
 				logger.error(e);
 			}
 		});
+		futureList.clear();
 		logger.info("{} accounts are retrieved from {} users", accountsMap.size(), ccUsers.size());
 		logger.debug("Execution of getAllAccounts API is Done.");
 
@@ -159,6 +163,7 @@ public class GetAllAccounts {
 			user = null;
 		});
 		fetchDevicesOfAccount(accountsMap, configMap, executor, modifiedSince, firstTime);
+		accountsMap.clear();
 	}
 
 	private void fetchDevicesOfAccount(Map<String, AccountDTO> accountsMap, Map<String, Configuration> configMap,
@@ -181,26 +186,24 @@ public class GetAllAccounts {
 		});
 		logger.debug("Execution of searchDevices API is Done.");
 		futureListOfDevices.clear();
-		getDeviceDetails(accountsMap, configMap, executor, futureListOfDevices, firstTime);
+		getDeviceDetails(accountsMap, configMap, executor, firstTime);
 	}
 
 	private void getDeviceDetails(Map<String, AccountDTO> accountsMap, Map<String, Configuration> configMap,
-			ThreadPoolExecutor executor, List<Future<Optional<String>>> futureListOfDevices, boolean firstTime) {
+			ThreadPoolExecutor executor, boolean firstTime) {
 		accountsMap.forEach((accountId, accountDTO) -> {
 			Configuration configuration = configMap.get(accountDTO.getUser().getId());
 			if (!accountDTO.getDeviceList().isEmpty()) {
-				saveData(accountDTO, configuration, executor, futureListOfDevices, firstTime);
+				saveData(accountDTO, configuration, executor, firstTime);
 			}
-
 		});
-		accountsMap.clear();
-		logger.debug("Terminating thread pool");
-		executor.shutdownNow();
 
 	}
 
 	private void saveData(AccountDTO accountDTO, Configuration configuration, ThreadPoolExecutor executor,
-			List<Future<Optional<String>>> futureListOfDevices, boolean firstTime) {
+			boolean firstTime) {
+
+		List<Future<Optional<String>>> futureListOfDevices = new ArrayList<>();
 		accountDTO.getDeviceList().forEach(device -> {
 			Future<Optional<String>> future = executor.submit(new GetDeviceDetails(accountDTO.getUser(), configuration,
 					accountDTO.getAccountId(), device.getIccid(), accountDTO, audit, requestService, restTemplate));

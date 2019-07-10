@@ -79,11 +79,10 @@ public class GetDeviceDetails implements Callable<Optional<String>> {
 					deviceJson.setCreatedOn(deviceFromAccount.getCreatedOn());
 					BeanUtils.copyProperties(deviceFromAccount, deviceJson);
 					deviceFromAccount.setLastUpdatedOn(new Date());
+					break;
 				}
-
-				logger.info("Fetched device details of {} for an account {} successfully", deviceId, accountId);
-
 			}
+			logger.info("Fetched device details of {} for an account {} successfully", deviceId, accountId);
 			return Optional.empty();
 		} catch (Exception e) {
 			audit.doAudit("get Device Details", configuration.getBaseUrl() + ControlCentreConstants.DEVICES_URL + "/",
