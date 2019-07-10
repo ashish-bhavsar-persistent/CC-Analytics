@@ -135,6 +135,14 @@ public class AccountServiceImpl implements AccountService {
 		return repository.count();
 	}
 
+	@Override
+	public long getDeviceCountByUserId(String userId) {
+		List<AccountDTO> accountDTOs = repository.getAllAccountNames(userId);
+		List<String> accountIds = new ArrayList<>();
+		accountDTOs.forEach(accountDTO -> accountIds.add(accountDTO.getAccountId()));
+		return deviceService.getDeviceCountByUserId(accountIds);
+	}
+
 	/*
 	 * @Override public long getAllDevicesCount() { List<AggregationOperation> list
 	 * = new ArrayList<>(); list.add(Aggregation.unwind("deviceList"));

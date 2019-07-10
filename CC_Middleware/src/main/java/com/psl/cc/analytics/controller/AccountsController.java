@@ -47,12 +47,13 @@ public class AccountsController {
 	public List<AccountDTO> getAccountNames(@RequestParam(required = false, defaultValue = "") String adminId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = (String) authentication.getPrincipal();
+		logger.debug("");
 		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
 		CCUser ccUser = userService.findOneByUsername(username);
 		boolean isSysadmin = roles.stream()
 				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
 		if (isSysadmin && (adminId.isEmpty())) {
-			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
+			throw new ValidationException(ControlCentreConstants.ACCOUNT_CONTROLLER_NOT_EMPTY_ERROR);
 		} else if (!isSysadmin) {
 			adminId = ccUser.getId();
 		}
@@ -71,7 +72,7 @@ public class AccountsController {
 		boolean isSysadmin = roles.stream()
 				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
 		if (isSysadmin && (adminId.isEmpty())) {
-			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
+			throw new ValidationException(ControlCentreConstants.ACCOUNT_CONTROLLER_NOT_EMPTY_ERROR);
 		} else if (!isSysadmin) {
 			adminId = ccUser.getId();
 		}
@@ -91,7 +92,7 @@ public class AccountsController {
 		boolean isSysadmin = roles.stream()
 				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
 		if (isSysadmin && (adminId.isEmpty())) {
-			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
+			throw new ValidationException(ControlCentreConstants.ACCOUNT_CONTROLLER_NOT_EMPTY_ERROR);
 		} else if (!isSysadmin) {
 			adminId = ccUser.getId();
 		}
@@ -110,10 +111,28 @@ public class AccountsController {
 		boolean isSysadmin = roles.stream()
 				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
 		if (isSysadmin && (adminId.isEmpty())) {
-			throw new ValidationException("Admin Id is Mandetory for SYSADMIN Role");
+			throw new ValidationException(ControlCentreConstants.ACCOUNT_CONTROLLER_NOT_EMPTY_ERROR);
 		} else if (!isSysadmin) {
 			adminId = ccUser.getId();
 		}
 		return accountService.getDeviceStatusCountByUserId(adminId);
+	}
+	
+	@PreAuthorize("hasAuthority('ROLE_SYSADMIN') || hasAuthority('ROLE_ADMIN')")
+	@GetMapping("/accounts/deviceCount")
+	@ApiOperation(value = "Get Device Status Count for Service Provider", response = List.class)
+	public Long getDeviceCount(@RequestParam(required = false, defaultValue = "") String adminId) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String username = (String) authentication.getPrincipal();
+		CCUser ccUser = userService.findOneByUsername(username);
+		Collection<? extends GrantedAuthority> roles = authentication.getAuthorities();
+		boolean isSysadmin = roles.stream()
+				.anyMatch(auth -> auth.getAuthority().equals(ControlCentreConstants.SYSADMIN_AUTHORITY));
+		if (isSysadmin && (adminId.isEmpty())) {
+			throw new ValidationException(ControlCentreConstants.ACCOUNT_CONTROLLER_NOT_EMPTY_ERROR);
+		} else if (!isSysadmin) {
+			adminId = ccUser.getId();
+		}
+		return accountService.getDeviceCountByUserId(adminId);
 	}
 }

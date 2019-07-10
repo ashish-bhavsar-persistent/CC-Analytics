@@ -23,4 +23,6 @@ public interface DeviceService {
 	public List<Device> getDeviceStatusCountByUserId(Configuration conf, List<String> accountIds);
 
 	public List<Device> getDeviceStatusCountByAccountId(Configuration conf, String accountId, String granularity);
+
+	public long getDeviceCountByUserId(List<String> accountIds);
 }

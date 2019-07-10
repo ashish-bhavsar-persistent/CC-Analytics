@@ -15,12 +15,17 @@ public class ControlCentreConstants {
 	public static final String DEVICE_COMM_PLAN = "communicationPlan";
 	public static final String ACCOUNT_RATE_PLAN = "defaultRatePlan.defaultRatePlanName";
 	public static final String ACCOUNT_COMM_PLAN = "commPlanDetails.defaultCommPlan";
-	public static final String NOT_FOUND_MESSAGE = ": Not Found";
+	
 	public static final String SP_ADMIN_ROLE = "ADMIN";
+	public static final String USER_ROLE = "USER";
 
 	public static final String ADMIN_AUTHORITY = "ROLE_ADMIN";
 	public static final String USER_AUTHORITY = "ROLE_USER";
 	public static final String SYSADMIN_AUTHORITY = "ROLE_SYSADMIN";
+	
+	//Error
+	public static final String NOT_FOUND_MESSAGE = ": Not Found";
+	public static final String ACCOUNT_CONTROLLER_NOT_EMPTY_ERROR = "Admin Id is Mandetory for SYSADMIN Role";
 
 	private ControlCentreConstants() {
 

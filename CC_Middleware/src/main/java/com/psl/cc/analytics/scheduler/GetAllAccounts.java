@@ -135,7 +135,7 @@ public class GetAllAccounts {
 	private void fetchAccountInfoFromFutureList(List<Future<Map<String, AccountDTO>>> futureList, List<CCUser> ccUsers,
 			Map<String, Configuration> configMap, ThreadPoolExecutor executor, String modifiedSince,
 			boolean firstTime) {
-		Role userRole = roleRepository.findOneByName("USER");
+		Role userRole = roleRepository.findOneByName(ControlCentreConstants.USER_ROLE);
 		List<Role> roles = new ArrayList<>();
 		roles.add(userRole);
 		final Map<String, AccountDTO> accountsMap = new HashMap<>();

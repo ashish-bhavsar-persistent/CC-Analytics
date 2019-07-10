@@ -23,6 +23,8 @@ public interface AccountService {
 
 	public List<Device> getDeviceStatusCountByUserId(String userId);
 
+	public long getDeviceCountByUserId(String userId);
+
 	public long getCount();
 
 }

@@ -149,4 +149,14 @@ public class DeviceServiceImpl implements DeviceService {
 	public Device save(Device device) {
 		return repository.save(device);
 	}
+
+	@Override
+	public long getDeviceCountByUserId(List<String> accountIds) {
+		List<AggregationOperation> list = new ArrayList<>();
+		list.add(Aggregation.match(Criteria.where("accountId").in(accountIds)));
+		list.add(Aggregation.count().as("total"));
+		TypedAggregation<Device> agg = Aggregation.newAggregation(Device.class, list);
+		AggregationResults<Device> account = mongoTemplate.aggregate(agg, Device.class);
+		return account.getUniqueMappedResult().getTotal();
+	}
 }
