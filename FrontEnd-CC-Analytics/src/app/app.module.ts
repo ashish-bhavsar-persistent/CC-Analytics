@@ -27,6 +27,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { AlertModule } from 'ngx-bootstrap';
 import { TypeaheadModule } from 'ngx-bootstrap';
 import { ButtonsModule } from 'ngx-bootstrap';
+import { ModalModule } from 'ngx-bootstrap';
 
 
 import { NavBarComponent } from './components/nav-bar/nav-bar.component';
@@ -40,6 +41,7 @@ import { LoaderComponent } from './components/loader/loader.component';
 import { AccountBarChartComponent } from './components/charts/account-bar-chart/account-bar-chart.component';
 import { BottomSheetComponent } from './components/bottom-sheet/bottom-sheet.component';
 import { MainDashboardSysadminComponent } from './components/main-dashboard-sysadmin/main-dashboard-sysadmin.component';
+import { SpadminDashboardComponent } from './spadmin-dashboard/spadmin-dashboard.component';
 
 @NgModule({
   declarations: [
@@ -56,7 +58,8 @@ import { MainDashboardSysadminComponent } from './components/main-dashboard-sysa
     LoaderComponent,
     AccountBarChartComponent,
     BottomSheetComponent,
-    MainDashboardSysadminComponent
+    MainDashboardSysadminComponent,
+    SpadminDashboardComponent
   ],
   imports: [
     BrowserModule,
@@ -90,7 +93,8 @@ import { MainDashboardSysadminComponent } from './components/main-dashboard-sysa
     MatMenuModule,
     AlertModule.forRoot(),
     TypeaheadModule.forRoot(),
-    ButtonsModule.forRoot()
+    ButtonsModule.forRoot(),
+    ModalModule.forRoot()
   ],
   providers: [ApiService, AuthService, AuthGuard, AccountanalysisdataserviceService,
      { 

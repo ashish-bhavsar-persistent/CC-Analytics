@@ -27,6 +27,7 @@
     "core-js": "^3.1.3",
     "hammerjs": "^2.0.8",
     "jquery": "^3.4.1",
+    "jwt-decode": "^2.2.0",
     "ng2-charts": "^2.3.0",
     "ngx-bootstrap": "^5.0.0",
     "pkg": "^4.4.0",

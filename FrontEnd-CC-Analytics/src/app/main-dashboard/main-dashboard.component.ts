@@ -16,6 +16,7 @@ import {
 } from "@angular/material/bottom-sheet";
 import { BottomSheetComponent } from "../components/bottom-sheet/bottom-sheet.component";
 import { FormControl, FormGroup } from '@angular/forms';
+import * as jwt_decode from "jwt-decode";
 
 @Component({
   selector: "app-main-dashboard",
@@ -36,12 +37,17 @@ export class MainDashboardComponent implements OnInit {
   private topThreeRatePlanValues: any = [];
   private topThreeCommPlanValues: any = [];
 
+  private deviceRatePlan: any = [];
+  private deviceCommPlan: any = [];
+
   private spAdminList: any = [];
 
   private selectedSpAdminId: string = "";
 
   private spAdminDataLoading: boolean = true;
   private dataLoaded: boolean = false;
+  private loadSysadmin: boolean = false;
+  private loadSpadmin: boolean = false;
 
   private accountParameter = {
     adminId: "",
@@ -312,9 +318,33 @@ export class MainDashboardComponent implements OnInit {
         this.chartLabels.push(account.status);
       }
     })
+
+
+    this.http.get(environment.ENV.baseURL+'/api/v1/devices/ratePlan?adminId='+this.accountParameter.adminId+'&accountId='+accountId, {headers:headers})
+    .subscribe(res => {
+      let deviceRateData:any = res;
+      this.deviceRatePlan = deviceRateData;
+    })
+
+    this.http.get(environment.ENV.baseURL+'/api/v1/devices/commPlan?adminId='+this.accountParameter.adminId+'&accountId='+accountId, {headers:headers})
+    .subscribe(res => {
+      let deviceCommData:any = res;
+      this.deviceCommPlan = deviceCommData;
+    })
   }
 
   ngOnInit() {
+
+    let temp:any = jwt_decode(sessionStorage.getItem("token"));
+    console.log(temp);
+
+    if (temp['authorities'] == "ROLE_SYSADMIN"){
+      this.loadSysadmin = true;
+    }
+    else if (temp['authorities'] == "ROLE_ADMIN" || "ROLE_USER"){
+      this.loadSpadmin = true;
+    }
+
     
     Observable;
     timer(1, 1000).subscribe(() => {

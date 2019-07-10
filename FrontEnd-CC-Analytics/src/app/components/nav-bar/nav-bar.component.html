@@ -2,6 +2,9 @@
   <mat-toolbar-row>
     <span><img src="../../../assets/logo.png" alt="" width="90px"> CC Analytics</span>
     <span class="spacer"></span>
+    <button mat-mini-fab color="warn" (click)="openDialog()">
+        <mat-icon>add</mat-icon>
+      </button>
     <button mat-raised-button color="warn" (click)="logoutUser()" style="margin-left: 20px;">logout</button>
   </mat-toolbar-row>
 </mat-toolbar>
