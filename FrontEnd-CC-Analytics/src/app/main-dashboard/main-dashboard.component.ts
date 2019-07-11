@@ -1,5 +1,11 @@
 import { Component, OnInit, ViewChild, Inject } from "@angular/core";
-import { map, distinctUntilChanged, debounceTime, merge, filter } from "rxjs/operators";
+import {
+  map,
+  distinctUntilChanged,
+  debounceTime,
+  merge,
+  filter
+} from "rxjs/operators";
 import { Breakpoints, BreakpointObserver } from "@angular/cdk/layout";
 import { NavBarComponent } from "../components/nav-bar/nav-bar.component";
 import { AuthService } from "../services/auth.service";
@@ -16,9 +22,9 @@ import {
 } from "@angular/material/bottom-sheet";
 import { BottomSheetComponent } from "../components/bottom-sheet/bottom-sheet.component";
 import { ModalComponent } from "../components/modal/modal.component";
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup } from "@angular/forms";
 import * as jwt_decode from "jwt-decode";
-import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from '@angular/material';
+import { MatDialog, MAT_DIALOG_DATA, MatDialogRef } from "@angular/material";
 
 @Component({
   selector: "app-main-dashboard",
@@ -45,6 +51,7 @@ export class MainDashboardComponent implements OnInit {
   private spAdminList: any = [];
 
   private selectedSpAdminId: string = "";
+  private deviceCount: number;
 
   private spAdminDataLoading: boolean = true;
   private dataLoaded: boolean = false;
@@ -56,14 +63,14 @@ export class MainDashboardComponent implements OnInit {
     adminId: "",
     accountId: "",
     granularity: ""
-  }
+  };
 
   stateCtrl = new FormControl();
- 
+
   myForm = new FormGroup({
     state: this.stateCtrl
   });
- 
+
   private accounts: string[] = [];
 
   //Rate Plan Chart Variables//
@@ -76,9 +83,9 @@ export class MainDashboardComponent implements OnInit {
     },
     elements: {
       arc: {
-          borderWidth: 0
+        borderWidth: 0
       }
-  }
+    }
   };
   public ratePlanChartLabels = [];
   public ratePlanChartData = [];
@@ -86,20 +93,21 @@ export class MainDashboardComponent implements OnInit {
   public ratePlanChartLegend = true;
   public ratePlanChartColors = [
     {
-    backgroundColor:[  
-      "#4a498f",
-      "#6b569d",
-      "#8b64aa",
-      "#a973b7",
-      "#c683c2",
-      "#e394ce",
-      "#ffa6d9",
-      "#ff8dc0",
-      "#ff74a3",
-      "#ff5982",
-      "#fc3e5d",
-      "#f02136",
-      "#de0000"]
+      backgroundColor: [
+        "#4a498f",
+        "#6b569d",
+        "#8b64aa",
+        "#a973b7",
+        "#c683c2",
+        "#e394ce",
+        "#ffa6d9",
+        "#ff8dc0",
+        "#ff74a3",
+        "#ff5982",
+        "#fc3e5d",
+        "#f02136",
+        "#de0000"
+      ]
     }
   ];
   //Rate Plan Chart Variables//
@@ -110,9 +118,9 @@ export class MainDashboardComponent implements OnInit {
     responsive: true,
     elements: {
       arc: {
-          borderWidth: 0
+        borderWidth: 0
       }
-  },
+    },
     legend: {
       display: false,
       position: "top"
@@ -154,11 +162,14 @@ export class MainDashboardComponent implements OnInit {
 
   //Device Status Chart Variables
 
-  public chartData = [{data: [], label: 'monthly'},{data: [], label: 'yearly'}];
+  public chartData = [
+    { data: [], label: "monthly" },
+    { data: [], label: "yearly" }
+  ];
   public chartLabels = [];
   public chartOptions: any = {
     responsive: true,
-    aspectRatio:0.1,
+    aspectRatio: 0.1,
     legend: {
       display: true
     },
@@ -173,17 +184,17 @@ export class MainDashboardComponent implements OnInit {
           ticks: {
             maxTicksLimit: 8,
             beginAtZero: true
-          },
+          }
         }
       ]
     },
     tooltips: {
       callbacks: {
-         label: function(tooltipItem) {
-                return tooltipItem.yLabel;
-         }
+        label: function(tooltipItem) {
+          return tooltipItem.yLabel;
+        }
       }
-  }
+    }
   };
   public colorOptions: Color[] = [
     {
@@ -214,7 +225,6 @@ export class MainDashboardComponent implements OnInit {
   }
 
   updateSpAdminDetails(value) {
-
     this.selectedSpAdminId = value;
     this.accountParameter.adminId = this.selectedSpAdminId;
     //Updating Values//
@@ -228,28 +238,29 @@ export class MainDashboardComponent implements OnInit {
     this.http //Fetching ratePlan for Particular SP Admin with AdminID
       .get(
         environment.ENV.baseURL +
-          "/api/v1/accounts/ratePlan/?adminId="+this.selectedSpAdminId,
+          "/api/v1/accounts/ratePlan/?adminId=" +
+          this.selectedSpAdminId,
         { headers: headers }
       )
       .subscribe(res => {
-        this.ratePlanChartData = []; 
+        this.ratePlanChartData = [];
         this.ratePlanChartLabels = [];
         this.topThreeRatePlanValues = [];
         let fetchedRatePlanData: any = res;
-        for(let i of fetchedRatePlanData){
+        for (let i of fetchedRatePlanData) {
           this.topThreeRatePlanValues.push(i);
         }
-        this.topThreeRatePlanValues.sort((a,b) => {
+        this.topThreeRatePlanValues.sort((a, b) => {
           return b.total - a.total;
-        })
-        this.topThreeRatePlanValues.splice(3,)
-        for(let ratePlanData of fetchedRatePlanData){
+        });
+        this.topThreeRatePlanValues.splice(3);
+        for (let ratePlanData of fetchedRatePlanData) {
           this.ratePlanChartData.push(ratePlanData.total);
           this.ratePlanChartLabels.push(ratePlanData.ratePlan);
         }
       });
 
-      this.http //Fetching commPlan for Particular SP Admin with AdminID
+    this.http //Fetching commPlan for Particular SP Admin with AdminID
       .get(
         environment.ENV.baseURL +
           "/api/v1/accounts/commPlan/?adminId=" +
@@ -259,27 +270,27 @@ export class MainDashboardComponent implements OnInit {
         }
       )
       .subscribe(res => {
-        this.commPlanChartData = [] 
-        this.commPlanChartLabels = []
+        this.commPlanChartData = [];
+        this.commPlanChartLabels = [];
         this.topThreeCommPlanValues = [];
         let fetchedCommPlanData: any = res;
-        for(let i of fetchedCommPlanData){
+        for (let i of fetchedCommPlanData) {
           this.topThreeCommPlanValues.push(i);
         }
-        this.topThreeCommPlanValues.sort((a,b) => {
+        this.topThreeCommPlanValues.sort((a, b) => {
           return b.total - a.total;
-        })
+        });
 
-        this.topThreeCommPlanValues.splice(3,)
+        this.topThreeCommPlanValues.splice(3);
 
-        for(let commPlanData of fetchedCommPlanData){
+        for (let commPlanData of fetchedCommPlanData) {
           this.commPlanChartData.push(commPlanData.total);
           this.commPlanChartLabels.push(commPlanData.communicationPlan);
         }
-        console.log(fetchedCommPlanData)
+        console.log(fetchedCommPlanData);
       });
 
-      this.http //Fetching accounts based on admin ID
+    this.http //Fetching accounts based on admin ID
       .get(
         environment.ENV.baseURL +
           "/api/v1/accounts/name?adminId=" +
@@ -291,78 +302,110 @@ export class MainDashboardComponent implements OnInit {
       .subscribe(res => {
         this.accounts = [];
         let fetchedAccountNames: any = res;
-        for(let account of fetchedAccountNames){
-          this.accounts.push(account.accountName +' : '+ account.accountId);
+        for (let account of fetchedAccountNames) {
+          this.accounts.push(account.accountName + " : " + account.accountId);
         }
       });
+
+    this.http //Fetching accounts based on admin ID
+      .get(
+        environment.ENV.baseURL +
+          "/api/v1/accounts/deviceCount?adminId=" +
+          this.selectedSpAdminId,
+        {
+          headers: headers
+        }
+      )
+      .subscribe(res => {
+        this.deviceCount = res;
+      });
+
     //Updating Values//
   }
 
-  updateAccountDetails(){
+  updateAccountDetails() {
+    this.deviceDataUnavailable = false;
+    this.deviceDataAvailable = true;
 
-    this.deviceDataUnavailable=false;
-    this.deviceDataAvailable=true;
-    
     let headers = new HttpHeaders({
       Authorization: "Bearer " + `${sessionStorage.getItem("token")}`
     });
 
     let splittedArray = this.accountParameter.accountId.split(":");
-    let accountId = (splittedArray[1].trim());
+    let accountId = splittedArray[1].trim();
 
-    this.http.get(environment.ENV.baseURL+'/api/v1/devices/status?adminId='+this.accountParameter.adminId+'&accountId='+accountId, {headers:headers})
-    .subscribe(res => {
-      let accountChartData:any = res;
-      this.chartData[0].data=[];
-      this.chartData[1].data=[];
-      this.chartLabels = [];
-      for(let account of accountChartData){
-        this.chartData[0].data.push(account.monthlyCount);
-        this.chartData[1].data.push(account.yearlyCount);
-        this.chartLabels.push(account.status);
-      }
-    })
+    this.http
+      .get(
+        environment.ENV.baseURL +
+          "/api/v1/devices/status?adminId=" +
+          this.accountParameter.adminId +
+          "&accountId=" +
+          accountId,
+        { headers: headers }
+      )
+      .subscribe(res => {
+        let accountChartData: any = res;
+        this.chartData[0].data = [];
+        this.chartData[1].data = [];
+        this.chartLabels = [];
+        for (let account of accountChartData) {
+          this.chartData[0].data.push(account.monthlyCount);
+          this.chartData[1].data.push(account.yearlyCount);
+          this.chartLabels.push(account.status);
+        }
+      });
 
+    this.http
+      .get(
+        environment.ENV.baseURL +
+          "/api/v1/devices/ratePlan?adminId=" +
+          this.accountParameter.adminId +
+          "&accountId=" +
+          accountId,
+        { headers: headers }
+      )
+      .subscribe(res => {
+        let deviceRateData: any = res;
+        this.deviceRatePlan = deviceRateData;
+      });
 
-    this.http.get(environment.ENV.baseURL+'/api/v1/devices/ratePlan?adminId='+this.accountParameter.adminId+'&accountId='+accountId, {headers:headers})
-    .subscribe(res => {
-      let deviceRateData:any = res;
-      this.deviceRatePlan = deviceRateData;
-    })
-
-    this.http.get(environment.ENV.baseURL+'/api/v1/devices/commPlan?adminId='+this.accountParameter.adminId+'&accountId='+accountId, {headers:headers})
-    .subscribe(res => {
-      let deviceCommData:any = res;
-      this.deviceCommPlan = deviceCommData;
-    })
+    this.http
+      .get(
+        environment.ENV.baseURL +
+          "/api/v1/devices/commPlan?adminId=" +
+          this.accountParameter.adminId +
+          "&accountId=" +
+          accountId,
+        { headers: headers }
+      )
+      .subscribe(res => {
+        let deviceCommData: any = res;
+        this.deviceCommPlan = deviceCommData;
+      });
   }
 
   openDialog(): void {
     const dialogRef = this.dialog.open(ModalComponent, {
-      width: '250px'
+      width: "250px"
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
+      console.log("The dialog was closed");
     });
   }
 
   ngOnInit() {
-
-    let temp:any = jwt_decode(sessionStorage.getItem("token"));
+    let temp: any = jwt_decode(sessionStorage.getItem("token"));
     console.log(temp);
 
-    if (temp['authorities'].includes("ROLE_SYSADMIN")){
+    if (temp["authorities"].includes("ROLE_SYSADMIN")) {
       this.loadSysadmin = true;
-    }
-    else if (temp['authorities'].includes("ROLE_ADMIN")){
+    } else if (temp["authorities"].includes("ROLE_ADMIN")) {
       this.loadSpadmin = true;
-    }
-    else{
+    } else {
       this.loadUser = true;
     }
 
-    
     Observable;
     timer(1, 1000).subscribe(() => {
       this.today = Date.now();
@@ -395,68 +438,84 @@ export class MainDashboardComponent implements OnInit {
           this.spAdminList.push(i);
         }
 
-      this.http //Fetching ratePlan for Particular SP Admin with AdminID
-      .get(
-        environment.ENV.baseURL +
-          "/api/v1/accounts/ratePlan/?adminId="+this.selectedSpAdminId,
-        { headers: headers }
-      )
-      .subscribe(res => {
-        let fetchedRatePlanData: any = res;
-        for(let i of fetchedRatePlanData){
-          this.topThreeRatePlanValues.push(i);
-        }
-        this.topThreeRatePlanValues.sort((a,b) => {
-          return b.total - a.total;
-        })
-        this.topThreeRatePlanValues.splice(3,)
-        for(let ratePlanData of fetchedRatePlanData){
-          this.ratePlanChartData.push(ratePlanData.total);
-          this.ratePlanChartLabels.push(ratePlanData.ratePlan);
-        }
-      });
+        this.http //Fetching accounts based on admin ID
+          .get(
+            environment.ENV.baseURL +
+              "/api/v1/accounts/deviceCount?adminId=" +
+              this.selectedSpAdminId,
+            {
+              headers: headers
+            }
+          )
+          .subscribe(res => {
+            this.deviceCount = res;
+          });
 
-      this.http //Fetching commPlan for Particular SP Admin with AdminID
-      .get(
-        environment.ENV.baseURL +
-          "/api/v1/accounts/commPlan/?adminId=" +
-          this.selectedSpAdminId,
-        {
-          headers: headers
-        }
-      )
-      .subscribe(res => {
-        let fetchedCommPlanData: any = res;
-        for(let i of fetchedCommPlanData){
-          this.topThreeCommPlanValues.push(i);
-        }
-        this.topThreeCommPlanValues.sort((a,b) => {
-          return b.total - a.total;
-        })
+        this.http //Fetching ratePlan for Particular SP Admin with AdminID
+          .get(
+            environment.ENV.baseURL +
+              "/api/v1/accounts/ratePlan/?adminId=" +
+              this.selectedSpAdminId,
+            { headers: headers }
+          )
+          .subscribe(res => {
+            let fetchedRatePlanData: any = res;
+            for (let i of fetchedRatePlanData) {
+              this.topThreeRatePlanValues.push(i);
+            }
+            this.topThreeRatePlanValues.sort((a, b) => {
+              return b.total - a.total;
+            });
+            this.topThreeRatePlanValues.splice(3);
+            for (let ratePlanData of fetchedRatePlanData) {
+              this.ratePlanChartData.push(ratePlanData.total);
+              this.ratePlanChartLabels.push(ratePlanData.ratePlan);
+            }
+          });
 
-        this.topThreeCommPlanValues.splice(3,)
+        this.http //Fetching commPlan for Particular SP Admin with AdminID
+          .get(
+            environment.ENV.baseURL +
+              "/api/v1/accounts/commPlan/?adminId=" +
+              this.selectedSpAdminId,
+            {
+              headers: headers
+            }
+          )
+          .subscribe(res => {
+            let fetchedCommPlanData: any = res;
+            for (let i of fetchedCommPlanData) {
+              this.topThreeCommPlanValues.push(i);
+            }
+            this.topThreeCommPlanValues.sort((a, b) => {
+              return b.total - a.total;
+            });
 
-        for(let commPlanData of fetchedCommPlanData){
-          this.commPlanChartData.push(commPlanData.total);
-          this.commPlanChartLabels.push(commPlanData.communicationPlan);
-        }
-      });
+            this.topThreeCommPlanValues.splice(3);
 
-      this.http //Fetching accounts based on admin ID
-      .get(
-        environment.ENV.baseURL +
-          "/api/v1/accounts/name?adminId=" +
-          this.selectedSpAdminId,
-        {
-          headers: headers
-        }
-      )
-      .subscribe(res => {
-        let fetchedAccountNames: any = res;
-        for(let account of fetchedAccountNames){
-          this.accounts.push(account.accountName +' : '+ account.accountId);
-        }
-      });
+            for (let commPlanData of fetchedCommPlanData) {
+              this.commPlanChartData.push(commPlanData.total);
+              this.commPlanChartLabels.push(commPlanData.communicationPlan);
+            }
+          });
+
+        this.http //Fetching accounts based on admin ID
+          .get(
+            environment.ENV.baseURL +
+              "/api/v1/accounts/name?adminId=" +
+              this.selectedSpAdminId,
+            {
+              headers: headers
+            }
+          )
+          .subscribe(res => {
+            let fetchedAccountNames: any = res;
+            for (let account of fetchedAccountNames) {
+              this.accounts.push(
+                account.accountName + " : " + account.accountId
+              );
+            }
+          });
       });
 
     this.http //Fetching System Admin Stats
