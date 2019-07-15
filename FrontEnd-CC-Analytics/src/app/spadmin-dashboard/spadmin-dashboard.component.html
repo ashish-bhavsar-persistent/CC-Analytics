@@ -23,7 +23,7 @@
               <div *ngFor="let status of deviceStatus">
                 <div class="information-card col-lg-12 col-md-10 col-sm-2">
                   <p>{{status.status}}</p>
-                  <h6>last updated on : {{lastUpdatedTime | date:'mediumTime'}}</h6>
+                  <!-- <h6>last updated on : {{lastUpdatedTime | date:'mediumTime'}}</h6> -->
                   <h4>{{status.total}}</h4>
                 </div>
               </div>
@@ -51,10 +51,11 @@
             <h4>SP Admin Data</h4>
             <span>Please choose a SP Admin to load data<loader></loader></span>
         </div> -->
-  
+        <h6 id="chart-tags">Account Analysis</h6>
         <div class="row">
+            
           <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
-            <h6 id="chart-tags">Rate Plan Analysis</h6>
+            <h6 id="chart-tags">Rate Plan</h6>
             <div class="pie-chart-container">
               <div style="width: 13vw;">
                 <canvas baseChart [data]="ratePlanChartData" [labels]="ratePlanChartLabels"
@@ -66,7 +67,7 @@
                 <thead>
                   <h6>Top 3 Rate Plans</h6>
                   <tr>
-                    <th scope="col">Rate Plan</th>
+                    <th scope="col">Plan Name</th>
                     <th scope="col">Total</th>
                     <th scope="col">Actions</th>
                   </tr>
@@ -83,7 +84,7 @@
           </div>
   
           <div class="col-xl-6 col-lg-6 col-md-12 col-sm-12 col-12">
-            <h6 id="chart-tags">Communication Plan Analysis</h6>
+            <h6 id="chart-tags">Communication Plan</h6>
             <div class="pie-chart-container">
               <div style="width: 13vw;">
                 <canvas baseChart [data]="commPlanChartData" [labels]="commPlanChartLabels"
@@ -93,9 +94,9 @@
               </div>
               <table class="table">
                 <thead>
-                  <h6>Top 3 Comm Plans</h6>
+                  <h6>Top 3 Communication Plans</h6>
                   <tr>
-                    <th scope="col">Comm Plan</th>
+                    <th scope="col">Plan Name</th>
                     <th scope="col">Total</th>
                     <th scope="col">Actions</th>
                   </tr>

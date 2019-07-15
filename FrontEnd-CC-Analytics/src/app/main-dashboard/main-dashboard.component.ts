@@ -225,6 +225,8 @@ export class MainDashboardComponent implements OnInit {
   }
 
   updateSpAdminDetails(value) {
+    this.deviceDataUnavailable = true;
+    this.deviceDataAvailable = false;
     this.selectedSpAdminId = value;
     this.accountParameter.adminId = this.selectedSpAdminId;
     //Updating Values//
