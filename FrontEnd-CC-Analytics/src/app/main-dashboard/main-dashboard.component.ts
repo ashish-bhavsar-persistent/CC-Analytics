@@ -51,7 +51,7 @@ export class MainDashboardComponent implements OnInit {
   private spAdminList: any = [];
 
   private selectedSpAdminId: string = "";
-  private deviceCount: number;
+  private deviceCount: any;
 
   private spAdminDataLoading: boolean = true;
   private dataLoaded: boolean = false;

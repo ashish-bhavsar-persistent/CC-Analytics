@@ -92,7 +92,7 @@ public class GetAllAccounts {
 		getAllAccounts(modifiedSince, false);
 	}
 
-	@Scheduled(initialDelay = 1000 * 6, fixedDelay = Long.MAX_VALUE)
+	@Scheduled(initialDelay = 1000 * 600, fixedDelay = Long.MAX_VALUE)
 	public void initializeFirstTime() {
 
 		Calendar c = Calendar.getInstance();
