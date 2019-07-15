@@ -19,11 +19,12 @@
               <span>Data Loading. Please Wait...<loader></loader></span>
             </div> -->
   
-            <div class="container">
+            <div class="container-fluid chart-container">
+              <h6>Statistics</h6>
                 <canvas baseChart [chartType]="chartType" [datasets]="chartData"
-                [labels]="chartLabels" [options]="chartOptions" [colors]="colorOptions" height="65"></canvas>
+                [labels]="chartLabels" [options]="chartOptions" [colors]="colorOptions" height="30"></canvas>
             </div>
-  
+  <br>
   
           </mat-grid-tile>
         </div>
