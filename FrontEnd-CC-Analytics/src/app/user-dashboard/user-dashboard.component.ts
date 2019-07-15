@@ -151,13 +151,13 @@ export class UserDashboardComponent implements OnInit {
 
   //Device Status Chart Variables
 
-  public chartData = [{data: [20, 156, 283], label: 'monthly', fill: false},{data: [323,743,112], label: 'yearly',fill: false}];
-  public chartLabels = ['Replaced','Inventory','ABCD'];
+  public chartData = [{data: [], label: 'monthly', fill: false},{data: [], label: 'yearly',fill: false}];
+  public chartLabels = [];
   public chartOptions: any = {
     responsive: true,
     aspectRatio:0.01,
     legend: {
-      display: true,
+      display: false,
       position: 'bottom'
     },
     scales: {
@@ -177,6 +177,8 @@ export class UserDashboardComponent implements OnInit {
       ],
         xAxes: [
           {
+            categoryPercentage: 1.0,
+            barPercentage: 1.0,
             gridLines: {
               drawOnChartArea: false
             },
@@ -197,7 +199,7 @@ export class UserDashboardComponent implements OnInit {
   public colorOptions: Color[] = [
     {
       // red
-      backgroundColor: "transparent",
+      backgroundColor: "rgba(255,0,0,0.3)",
       borderColor: "red",
       pointBackgroundColor: "rgba(148,159,177,1)",
       pointBorderColor: "#fff",
@@ -206,7 +208,7 @@ export class UserDashboardComponent implements OnInit {
     }
   ];
   public chartLegend = true;
-  public chartType = "line";
+  public chartType = "bar";
   //Device Status Chart Variables
 
   constructor(
@@ -480,18 +482,18 @@ export class UserDashboardComponent implements OnInit {
         }
       });
 
-    //   this.http.get(environment.ENV.baseURL+'/api/v1/devices/status', {headers:headers})
-    // .subscribe(res => {
-    //   let accountChartData:any = res;
-    //   this.chartData[0].data=[];
-    //   this.chartData[1].data=[];
-    //   this.chartLabels = [];
-    //   for(let account of accountChartData){
-    //     this.chartData[0].data.push(account.monthlyCount);
-    //     this.chartData[1].data.push(account.yearlyCount);
-    //     this.chartLabels.push(account.status);
-    //   }
-    // })
+      this.http.get(environment.ENV.baseURL+'/api/v1/devices/status', {headers:headers})
+    .subscribe(res => {
+      let accountChartData:any = res;
+      this.chartData[0].data=[];
+      this.chartData[1].data=[];
+      this.chartLabels = [];
+      for(let account of accountChartData){
+        this.chartData[0].data.push(account.monthlyCount);
+        this.chartData[1].data.push(account.yearlyCount);
+        this.chartLabels.push(account.status);
+      }
+    })
 
   }
 
