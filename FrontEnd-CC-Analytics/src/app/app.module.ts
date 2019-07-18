@@ -65,7 +65,7 @@ import { ModalComponent } from './components/modal/modal.component';
     MainDashboardSysadminComponent,
     SpadminDashboardComponent,
     UserDashboardComponent,
-    ModalComponent,
+    ModalComponent
   ],
   imports: [
     BrowserModule,

@@ -19,15 +19,12 @@
               <span>Data Loading. Please Wait...<loader></loader></span>
             </div> -->
 
-          <div class="container-fluid chart-container">
-            <h6>Statistics</h6>
-            <h6 style="display: flex;">
-              Monthly 
-              <div style="background: rgba(8, 91, 185, 0.432); width: 18px; height: 18px; border-radius: 50%; margin-left: 5px; margin-right: 5px;"></div> 
-              Yearly
-              <div style="background: rgba(255, 0, 0, 0.301); width: 18px; height: 18px; border-radius: 50%; margin-left: 5px; margin-right: 5px;"></div></h6>
-            <canvas baseChart [chartType]="chartType" [datasets]="chartData" [labels]="chartLabels"
-              [options]="chartOptions" [colors]="colorOptions" height="25"></canvas>
+          <div class="container-fluid card-container">
+           <div class="account-data-card" *ngFor="let account of accountData">
+             <h6>{{account.status}}</h6>
+             <p>monthly | yearly</p>
+             <h5>{{account.monthlyCount || 0}} | {{account.yearlyCount || 0}}</h5>
+           </div>
           </div>
           <br>
 
