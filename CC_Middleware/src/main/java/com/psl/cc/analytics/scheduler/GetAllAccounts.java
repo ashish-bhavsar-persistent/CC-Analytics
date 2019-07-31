@@ -92,7 +92,7 @@ public class GetAllAccounts {
 		getAllAccounts(modifiedSince, false);
 	}
 
-	@Scheduled(initialDelay = 1000 * 600, fixedDelay = Long.MAX_VALUE)
+	@Scheduled(initialDelay = 1000 * 6, fixedDelay = Long.MAX_VALUE)
 	public void initializeFirstTime() {
 
 		Calendar c = Calendar.getInstance();
@@ -117,6 +117,7 @@ public class GetAllAccounts {
 
 		final Map<String, Configuration> configMap = new HashMap<>();
 		logger.info("number of Users are {}", ccUsers.size());
+		final Map<String, AccountDTO> accountsMap = new HashMap<>();
 		for (CCUser ccUser : ccUsers) {
 			Configuration configuration = configRepository.findOneByUserId(ccUser.getId());
 			if (configuration != null) {
@@ -124,31 +125,30 @@ public class GetAllAccounts {
 				Future<Map<String, AccountDTO>> futureObj = executor.submit(new FetchAccountDetails(ccUser,
 						configuration, requestService, accountsService, audit, restTemplate));
 				futureList.add(futureObj);
-				fetchAccountInfoFromFutureList(futureList, ccUsers, configMap, executor, modifiedSince, firstTime);
+				futureList.forEach(futureObj1 -> {
+					try {
+						Map<String, AccountDTO> tempAccountsMap = futureObj1.get();
+						accountsMap.putAll(tempAccountsMap);
+					} catch (Exception e) {
+						logger.error(e);
+					}
+				});
 			}
 		}
+		futureList.clear();
+		System.out.println("accountsMap " + accountsMap.size());
+		fetchAccountInfoFromFutureList(ccUsers, configMap, executor, modifiedSince, accountsMap, firstTime);
 
 		logger.debug("Terminating thread pool");
 		executor.shutdownNow();
 	}
 
-	private void fetchAccountInfoFromFutureList(List<Future<Map<String, AccountDTO>>> futureList, List<CCUser> ccUsers,
-			Map<String, Configuration> configMap, ThreadPoolExecutor executor, String modifiedSince,
-			boolean firstTime) {
+	private void fetchAccountInfoFromFutureList(List<CCUser> ccUsers, Map<String, Configuration> configMap,
+			ThreadPoolExecutor executor, String modifiedSince, Map<String, AccountDTO> accountsMap, boolean firstTime) {
 		Role userRole = roleRepository.findOneByName(ControlCentreConstants.USER_ROLE);
 		List<Role> roles = new ArrayList<>();
 		roles.add(userRole);
-		final Map<String, AccountDTO> accountsMap = new HashMap<>();
 
-		futureList.forEach(futureObj -> {
-			try {
-				Map<String, AccountDTO> tempAccountsMap = futureObj.get();
-				accountsMap.putAll(tempAccountsMap);
-			} catch (Exception e) {
-				logger.error(e);
-			}
-		});
-		futureList.clear();
 		logger.info("{} accounts are retrieved from {} users", accountsMap.size(), ccUsers.size());
 		logger.debug("Execution of getAllAccounts API is Done.");
 
@@ -156,9 +156,9 @@ public class GetAllAccounts {
 			CCUser user = userService.findOneByUsername(key);
 			if (user == null) {
 				AccountDTO dto = accountsMap.get(key);
-
 				user = new CCUser(dto.getAccountName(), key, passwordEncoder.encode(defaultPassword), roles, true);
 				userService.save(user);
+				accountsService.save(dto);
 			}
 			user = null;
 		});
